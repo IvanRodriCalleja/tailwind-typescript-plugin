@@ -9,8 +9,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "types": ["node"],
-    "outDir": ".",
-    "rootDir": "."
+    "outDir": "./lib",
+    "rootDir": "./src"
   },
   "include": [
     "src/**/*.ts"  

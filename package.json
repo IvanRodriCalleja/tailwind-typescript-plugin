@@ -1,9 +1,15 @@
 {
-  "name": "tailwind-typescript-plugin",
+  "name": "tailwind-typescript-plugin-monorepo",
   "version": "0.0.0",
-  "main": "lib/index.js",
-  "author": "Ivan Rodriguez Calleja",
-  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "yarn workspace tailwind-typescript-plugin build",
+    "build:all": "yarn workspaces foreach -pt run build",
+    "setup-e2e": "./setup-e2e.sh"
+  },
   "devDependencies": {
     "@eslint/compat": "^1.2.9",
     "@eslint/eslintrc": "^3",
@@ -17,7 +23,6 @@
     "eslint-plugin-react-compiler": "^19.1.0-rc.2",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-storybook": "^9.0.16",
-    "prettier": "^3.5.3",
-    "typescript": "^5.9.3"
+    "prettier": "^3.5.3"
   }
 }

@@ -1,0 +1,13 @@
+{
+  "name": "tailwind-typescript-plugin",
+  "version": "0.0.0",
+  "main": "lib/index.js",
+  "author": "Ivan Rodriguez Calleja",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "peerDependencies": {
+    "typescript": ">=4.0.0"
+  }
+}

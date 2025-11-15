@@ -41,7 +41,9 @@ export default defineConfig([
 				RequestInit: true,
 				browser: true,
 				chrome: true,
-				BigInt: true
+				BigInt: true,
+				require: true,
+				node: true
 			},
 			parser: tsParser,
 			ecmaVersion: 2025,
@@ -88,6 +90,7 @@ export default defineConfig([
 			'@typescript-eslint/no-non-null-assertion': 0,
 			'@typescript-eslint/ban-ts-ignore': 0,
 			'@typescript-eslint/no-empty-function': 0,
+			'@typescript-eslint/no-require-imports': 0,
 
 			'no-alert': 'error',
 			'no-empty-function': 'off',

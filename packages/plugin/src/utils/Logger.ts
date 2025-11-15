@@ -1,6 +1,6 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
-export class LanguageServiceLogger {
+export class Logger {
 	constructor(private readonly info: ts.server.PluginCreateInfo) {}
 
 	public log(msg: string) {
