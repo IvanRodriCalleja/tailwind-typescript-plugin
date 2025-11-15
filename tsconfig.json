@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "Node16",
+    "moduleResolution": "node16",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "types": ["node"],
+    "outDir": ".",
+    "rootDir": "."
+  },
+  "include": [
+    "src/**/*.ts"  
+  ],
+  "exclude": [
+    "src/**/*.spec.ts"
+  ]
+}

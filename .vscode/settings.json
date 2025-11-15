@@ -1,0 +1,53 @@
+{
+	"editor.formatOnSave": false,
+	"editor.autoIndent": "full",
+	"editor.formatOnPaste": false,
+	"prettier.singleQuote": true,
+	"files.eol": "\n",
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"typescript.enablePromptUseWorkspaceTsdk": true,
+	"[javascript]":  {
+		"editor.formatOnSave":  false,
+	},
+	"[javascriptreact]":  {
+		"editor.formatOnSave":  false,
+	},
+	"[typescript]":  {
+		"editor.formatOnSave":  false,
+	},
+	"[typescriptreact]":  {
+		"editor.formatOnSave":  false,
+    },
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+        
+    "explorer.fileNesting.enabled": true,
+	"explorer.fileNesting.patterns": {
+		"*.jsx": "$(capture).js, $(capture).spec.jsx",
+		"*.tsx": "$(capture).ts, $(capture).spec.tsx, $(capture).stories.tsx",
+    "*.ts": "$(capture).ts, $(capture).spec.ts, $(capture).spec.tsx",
+		"package.json": "yarn.lock, .editorconfig, .prettierrc, .prettierignore, .eslintrc, .eslintignore"
+	},
+    "typescript.referencesCodeLens.enabled": true,
+    "typescript.suggest.autoImports": true,
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+    "typescript.suggest.completeFunctionCalls": true,
+    "typescript.inlayHints.parameterNames.enabled": "none",
+    "typescript.preferences.quoteStyle": "single",
+    "typescript.suggest.enabled": true,
+    "javascript.suggest.enabled": true,
+    "javascript.suggest.autoImports": true,
+    "editor.suggest.insertMode": "replace",
+    "editor.acceptSuggestionOnCommitCharacter": true,
+    "editor.suggestSelection": "first",
+    "editor.parameterHints.enabled": true,
+    "tailwindCSS.experimental.classRegex": [
+        ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+        ["tv\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+    ],
+    "tailwindCSS.includeLanguages": {
+        "typescript": "javascript",
+        "typescriptreact": "javascript"
+    }
+}
