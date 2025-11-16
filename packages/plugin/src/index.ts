@@ -49,7 +49,35 @@ const extractClassNames = (typescript: typeof ts, sourceFile: ts.SourceFile) => 
 								offset += className.length + 1;
 							});
 						}
-						// Handle JSX expression: className={clsx(...)} or className={cn(...)}
+
+						// Handle JSX expression: className={'foo bar'}
+						else if (typescript.isJsxExpression(initializer)) {
+							const expression = initializer.expression;
+
+							// Check if the expression is a string literal
+							if (expression && typescript.isStringLiteral(expression)) {
+								const fullText = expression.text;
+								// Get the start position of the string content (after opening quote)
+								const stringContentStart = expression.getStart() + 1;
+								let offset = 0;
+
+								// Split by spaces and track absolute position of each class
+								fullText.split(' ').forEach(className => {
+									if (className) {
+										// Skip empty strings from multiple spaces
+										classNames.push({
+											className: className,
+											absoluteStart: stringContentStart + offset,
+											length: className.length,
+											line: lineNumber,
+											file: sourceFile.fileName
+										});
+									}
+									// Update offset for next class (class length + space)
+									offset += className.length + 1;
+								});
+							}
+						}
 					}
 				}
 			}
