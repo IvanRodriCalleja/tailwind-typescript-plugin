@@ -295,6 +295,56 @@ export function getDiagnosticsForFunction(
 }
 
 /**
+ * Extract all class names from className attributes in a function
+ */
+export function getClassNamesInFunction(sourceCode: string, functionName: string): string[] {
+	// Find the function's start and end positions
+	const functionStartMatch = sourceCode.match(new RegExp(`export function ${functionName}\\s*\\(`));
+	if (!functionStartMatch) {
+		return [];
+	}
+
+	const functionStart = functionStartMatch.index!;
+
+	// Find the closing brace of the function
+	let braceCount = 0;
+	let functionEnd = functionStart;
+	let foundFirstBrace = false;
+
+	for (let i = functionStart; i < sourceCode.length; i++) {
+		if (sourceCode[i] === '{') {
+			braceCount++;
+			foundFirstBrace = true;
+		} else if (sourceCode[i] === '}') {
+			braceCount--;
+			if (foundFirstBrace && braceCount === 0) {
+				functionEnd = i;
+				break;
+			}
+		}
+	}
+
+	const functionCode = sourceCode.substring(functionStart, functionEnd + 1);
+
+	// Extract all className values (both string literals and JSX expressions)
+	const classNamePattern = /className\s*=\s*(?:"([^"]*)"|'([^']*)'|\{'([^']*)'\}|\{"([^"]*)"\})/g;
+	const allClasses: string[] = [];
+	let match;
+
+	while ((match = classNamePattern.exec(functionCode)) !== null) {
+		// Get whichever group matched (1-4)
+		const classNameString = match[1] || match[2] || match[3] || match[4];
+		if (classNameString) {
+			// Split by whitespace and filter out empty strings
+			const classes = classNameString.split(/\s+/).filter(c => c.length > 0);
+			allClasses.push(...classes);
+		}
+	}
+
+	return allClasses;
+}
+
+/**
  * Extract the text at a diagnostic's position
  */
 export function getTextAtDiagnostic(diagnostic: ts.Diagnostic, sourceCode: string): string {
@@ -353,25 +403,45 @@ export function createTestAssertion(
 			});
 		} else {
 			// Use global expectations for simple cases
-			// If expected invalid classes are specified, verify them
+			// For invalid cases, @invalidClasses or @validClasses should be specified
+			if (testCase.expectedInvalidClasses.length === 0 && testCase.expectedValidClasses.length === 0) {
+				throw new Error(
+					`Test case "${testCase.functionName}" is marked as invalid (❌) but has no @invalidClasses or @validClasses annotations. ` +
+					`Please specify which classes should be invalid using @invalidClasses [class1, class2]`
+				);
+			}
+
+			// Extract all classes from the function's className attributes
+			const allClasses = getClassNamesInFunction(sourceCode, testCase.functionName);
+			const validClassesFound = allClasses.filter(c => !errorTexts.includes(c));
+
+			// Verify invalid classes
 			if (testCase.expectedInvalidClasses.length > 0) {
 				// Each expected invalid class should have an error
 				testCase.expectedInvalidClasses.forEach(expectedClass => {
 					expect(errorTexts).toContain(expectedClass);
 				});
-
-				// Each error should correspond to an expected invalid class
-				errorTexts.forEach(errorText => {
-					expect(testCase.expectedInvalidClasses).toContain(errorText);
-				});
 			}
 
-			// If expected valid classes are specified, verify they DON'T have errors
+			// IMPORTANT: Verify that all errors match expected invalid classes
+			// This ensures that if @invalidClasses is empty but errors exist, the test fails
+			errorTexts.forEach(errorText => {
+				expect(testCase.expectedInvalidClasses).toContain(errorText);
+			});
+
+			// IMPORTANT: Verify that all valid classes (non-errors) match expected valid classes
+			// This ensures that if @validClasses is empty but valid classes exist, the test fails
 			if (testCase.expectedValidClasses.length > 0) {
+				// Each expected valid class should NOT have an error
 				testCase.expectedValidClasses.forEach(validClass => {
 					expect(errorTexts).not.toContain(validClass);
 				});
 			}
+
+			// Verify that all valid classes found match the expected list
+			validClassesFound.forEach(validClass => {
+				expect(testCase.expectedValidClasses).toContain(validClass);
+			});
 		}
 
 		// Verify each diagnostic
