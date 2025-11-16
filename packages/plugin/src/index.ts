@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 import { TailwindValidator } from './TailwindValidator';
-import { Logger } from './utils/Logger';
+import { Logger, LoggerImpl } from './utils/Logger';
 
 const extractClassNames = (typescript: typeof ts, sourceFile: ts.SourceFile) => {
 	const classNames: Array<{
@@ -65,11 +65,12 @@ const extractClassNames = (typescript: typeof ts, sourceFile: ts.SourceFile) => 
 class TailwindTypescriptPlugin {
 	private logger: Logger;
 	private validator: TailwindValidator;
+	private initializationPromise: Promise<void> | null = null;
 
 	constructor(private readonly typescript: typeof ts) {}
 
 	create(info: ts.server.PluginCreateInfo) {
-		this.logger = new Logger(info);
+		this.logger = new LoggerImpl(info);
 
 		this.logger.log('============= Plugin Starting =============');
 
@@ -83,7 +84,7 @@ class TailwindTypescriptPlugin {
 				this.logger.log(`CSS file found, initializing Tailwind validator...`);
 
 				this.validator = new TailwindValidator(absoluteCssPath, this.logger);
-				this.validator
+				this.initializationPromise = this.validator
 					.initialize()
 					.then(() => {
 						this.logger.log('Tailwind validator initialized');
@@ -106,6 +107,10 @@ class TailwindTypescriptPlugin {
 
 		proxy.getSemanticDiagnostics = this.getSemanticDiagnostics(info);
 		return proxy;
+	}
+
+	getInitializationPromise(): Promise<void> | null {
+		return this.initializationPromise;
 	}
 
 	private getSemanticDiagnostics =

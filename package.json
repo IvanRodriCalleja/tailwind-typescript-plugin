@@ -8,7 +8,10 @@
   "scripts": {
     "build": "yarn workspace tailwind-typescript-plugin build",
     "build:all": "yarn workspaces foreach -pt run build",
-    "setup-e2e": "./setup-e2e.sh"
+    "setup-e2e": "./setup-e2e.sh",
+    "test": "yarn workspace tailwind-typescript-plugin test",
+    "test:watch": "yarn workspace tailwind-typescript-plugin test:watch",
+    "test:coverage": "yarn workspace tailwind-typescript-plugin test:coverage"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.9",

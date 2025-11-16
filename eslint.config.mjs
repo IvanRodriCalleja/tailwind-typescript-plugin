@@ -43,7 +43,17 @@ export default defineConfig([
 				chrome: true,
 				BigInt: true,
 				require: true,
-				node: true
+				node: true,
+				jest: true,
+				// Jest globals
+				describe: 'readonly',
+				it: 'readonly',
+				test: 'readonly',
+				expect: 'readonly',
+				beforeAll: 'readonly',
+				afterAll: 'readonly',
+				beforeEach: 'readonly',
+				afterEach: 'readonly'
 			},
 			parser: tsParser,
 			ecmaVersion: 2025,

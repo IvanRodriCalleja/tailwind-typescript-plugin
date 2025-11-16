@@ -1,6 +1,10 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
-export class Logger {
+export interface Logger {
+	log(msg: string): void;
+}
+
+export class LoggerImpl implements Logger {
 	constructor(private readonly info: ts.server.PluginCreateInfo) {}
 
 	public log(msg: string) {

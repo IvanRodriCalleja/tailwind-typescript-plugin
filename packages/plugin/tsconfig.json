@@ -8,7 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["node"],
+    "types": ["jest", "node"],
     "outDir": "./lib",
     "rootDir": "./src"
   },
