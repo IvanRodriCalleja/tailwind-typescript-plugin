@@ -8,9 +8,9 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["node"],
-    "outDir": ".",
-    "rootDir": "."
+    "types": ["jest", "node"],
+    "outDir": "./lib",
+    "rootDir": "./src"
   },
   "include": [
     "src/**/*.ts"  
