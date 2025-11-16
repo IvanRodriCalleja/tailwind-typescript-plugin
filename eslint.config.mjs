@@ -5,6 +5,7 @@ import tsParser from '@typescript-eslint/parser';
 import json from 'eslint-plugin-json';
 import reactCompiler from 'eslint-plugin-react-compiler';
 import { defineConfig, globalIgnores } from 'eslint/config';
+import globals from 'globals';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,7 +18,16 @@ const compat = new FlatCompat({
 });
 
 export default defineConfig([
-	globalIgnores(['node_modules']),
+	globalIgnores([
+		'node_modules',
+		'**/tsconfig.json',
+		'**/lib',
+		'**/dist',
+		'**/build',
+		'**/.next',
+		'**/.turbo',
+		'**/coverage'
+	]),
 	{
 		extends: fixupConfigRules(
 			compat.extends(
@@ -35,25 +45,15 @@ export default defineConfig([
 
 		languageOptions: {
 			globals: {
+				...globals.node,
+				...globals.jest,
 				globalThis: 'readonly',
 				React: true,
 				JSX: true,
 				RequestInit: true,
 				browser: true,
 				chrome: true,
-				BigInt: true,
-				require: true,
-				node: true,
-				jest: true,
-				// Jest globals
-				describe: 'readonly',
-				it: 'readonly',
-				test: 'readonly',
-				expect: 'readonly',
-				beforeAll: 'readonly',
-				afterAll: 'readonly',
-				beforeEach: 'readonly',
-				afterEach: 'readonly'
+				BigInt: true
 			},
 			parser: tsParser,
 			ecmaVersion: 2025,

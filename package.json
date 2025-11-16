@@ -7,9 +7,11 @@
   ],
   "scripts": {
     "build": "yarn workspace tailwind-typescript-plugin build",
-    "build:all": "yarn workspaces foreach -pt run build",
+    "build:all": "yarn workspace tailwind-typescript-plugin build && yarn workspace tailwind-typescript-plugin-e2e build",
     "setup-e2e": "./setup-e2e.sh",
-    "test": "yarn workspace tailwind-typescript-plugin test",
+    "test": "yarn test:plugin && yarn test:e2e",
+    "test:plugin": "yarn workspace tailwind-typescript-plugin test",
+    "test:e2e": "yarn workspace tailwind-typescript-plugin-e2e test",
     "test:watch": "yarn workspace tailwind-typescript-plugin test:watch",
     "test:coverage": "yarn workspace tailwind-typescript-plugin test:coverage"
   },
