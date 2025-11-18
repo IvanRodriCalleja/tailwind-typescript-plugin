@@ -29,7 +29,8 @@ type DesignSystem = {
  */
 export class TailwindValidator {
 	private classSet: Set<string> | null = null;
-	private designSystem: DesignSystem = null;
+	// @ts-expect-error
+	private designSystem: DesignSystem;
 	private cssFilePath: string;
 	private logger: Logger;
 	constructor(cssFilePath: string, logger: Logger) {

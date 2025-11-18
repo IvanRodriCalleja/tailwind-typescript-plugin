@@ -1,11 +1,9 @@
 {
-	"editor.formatOnSave": false,
+  "editor.formatOnSave": false,
 	"editor.autoIndent": "full",
 	"editor.formatOnPaste": false,
 	"prettier.singleQuote": true,
 	"files.eol": "\n",
-	"typescript.tsdk": "node_modules/typescript/lib",
-	"typescript.enablePromptUseWorkspaceTsdk": true,
 	"[javascript]":  {
 		"editor.formatOnSave":  false,
 	},
@@ -29,25 +27,6 @@
     "*.ts": "$(capture).ts, $(capture).spec.ts, $(capture).spec.tsx",
 		"package.json": "yarn.lock, .editorconfig, .prettierrc, .prettierignore, .eslintrc, .eslintignore"
 	},
-    "typescript.referencesCodeLens.enabled": true,
-    "typescript.suggest.autoImports": true,
-    "typescript.preferences.includePackageJsonAutoImports": "on",
-    "typescript.suggest.completeFunctionCalls": true,
-    "typescript.inlayHints.parameterNames.enabled": "none",
-    "typescript.preferences.quoteStyle": "single",
-    "typescript.suggest.enabled": true,
-    "javascript.suggest.enabled": true,
-    "javascript.suggest.autoImports": true,
-    "editor.suggest.insertMode": "replace",
-    "editor.acceptSuggestionOnCommitCharacter": true,
-    "editor.suggestSelection": "first",
-    "editor.parameterHints.enabled": true,
-    "tailwindCSS.experimental.classRegex": [
-        ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
-        ["tv\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
-    ],
-    "tailwindCSS.includeLanguages": {
-        "typescript": "javascript",
-        "typescriptreact": "javascript"
-    }
+  "typescript.tsdk": "example/node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }

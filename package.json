@@ -1,24 +1,27 @@
 {
-  "name": "tailwind-typescript-plugin-monorepo",
-  "version": "0.0.0",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "name": "typescript-custom-plugin",
+  "version": "0.1.0",
+  "description": "A custom TypeScript language service plugin",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
-    "build": "yarn workspace tailwind-typescript-plugin build",
-    "build:all": "yarn workspace tailwind-typescript-plugin build && yarn workspace tailwind-typescript-plugin-e2e build",
-    "setup-e2e": "./setup-e2e.sh",
-    "test": "yarn test:plugin && yarn test:e2e",
-    "test:plugin": "yarn workspace tailwind-typescript-plugin test",
-    "test:e2e": "yarn workspace tailwind-typescript-plugin-e2e test",
-    "test:watch": "yarn workspace tailwind-typescript-plugin test:watch",
-    "test:coverage": "yarn workspace tailwind-typescript-plugin test:coverage"
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "test": "jest",
+    "lint": "eslint src --ext .ts,.tsx,.json --quiet --cache",
+    "tsc": "tsc --noEmit",
+    "prepare": "npm run build"
   },
+  "keywords": [
+    "typescript",
+    "plugin",
+    "language-service"
+  ],
   "devDependencies": {
     "@eslint/compat": "^1.2.9",
     "@eslint/eslintrc": "^3",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/jest": "^29.5.0",
     "@types/node": "^24.10.1",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
@@ -28,6 +31,14 @@
     "eslint-plugin-react-compiler": "^19.1.0-rc.2",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-storybook": "^9.0.16",
-    "prettier": "^3.5.3"
+    "jest": "^29.7.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.7.2"
+  },
+  "peerDependencies": {
+    "typescript": ">=4.0.0"
+  },
+  "dependencies": {
+    "tailwindcss": "^4.1.17"
   }
 }
