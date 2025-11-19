@@ -14,6 +14,39 @@ const extractClassNames = (typescript: typeof ts, sourceFile: ts.SourceFile) => 
 		file: string;
 	}> = [];
 
+	// Helper function to extract class names from string literals within expressions
+	function extractFromExpression(expression: ts.Expression, lineNumber: number): void {
+		// Handle string literals directly
+		if (typescript.isStringLiteral(expression)) {
+			const fullText = expression.text;
+			const stringContentStart = expression.getStart() + 1;
+			let offset = 0;
+
+			fullText.split(' ').forEach(className => {
+				if (className) {
+					classNames.push({
+						className: className,
+						absoluteStart: stringContentStart + offset,
+						length: className.length,
+						line: lineNumber,
+						file: sourceFile.fileName
+					});
+				}
+				offset += className.length + 1;
+			});
+		}
+		// Handle conditional expressions: condition ? 'class1' : 'class2'
+		else if (typescript.isConditionalExpression(expression)) {
+			// Recursively extract from both branches
+			extractFromExpression(expression.whenTrue, lineNumber);
+			extractFromExpression(expression.whenFalse, lineNumber);
+		}
+		// Handle parenthesized expressions: ('class-name')
+		else if (typescript.isParenthesizedExpression(expression)) {
+			extractFromExpression(expression.expression, lineNumber);
+		}
+	}
+
 	function visit(node: ts.Node): void {
 		// Check for JSX opening elements (<div className="...">)
 		if (typescript.isJsxOpeningElement(node) || typescript.isJsxSelfClosingElement(node)) {
@@ -81,7 +114,7 @@ const extractClassNames = (typescript: typeof ts, sourceFile: ts.SourceFile) => 
 							// Handle template literals: className={`flex ${someClass} invalid-class`}
 							else if (expression && typescript.isTemplateExpression(expression)) {
 								// Template expression has a head and template spans
-								// Extract static parts only (skip interpolated ${} expressions)
+								// Extract static parts and also check interpolated expressions for conditionals
 								const parts: Array<{ text: string; start: number }> = [];
 
 								// Add the head (the part before the first ${})
@@ -93,6 +126,9 @@ const extractClassNames = (typescript: typeof ts, sourceFile: ts.SourceFile) => 
 
 								// Add each template span's literal part (the parts after each ${})
 								expression.templateSpans.forEach(span => {
+									// Check the interpolated expression for conditional expressions
+									extractFromExpression(span.expression, lineNumber);
+
 									// span.literal is either TemplateMiddle or TemplateTail
 									// getStart() + 1 to skip the closing brace of ${}
 									parts.push({
