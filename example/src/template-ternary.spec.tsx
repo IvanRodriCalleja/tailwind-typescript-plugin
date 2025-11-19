@@ -9,7 +9,7 @@ import {
 } from '../test/test-helpers';
 
 describe('E2E Tests - Template Literal with Conditional Expressions', () => {
-	const testFile = path.join(__dirname, 'template-literal-conditional.tsx');
+	const testFile = path.join(__dirname, 'template-ternary.tsx');
 	const testCases = parseTestFile(testFile);
 	let diagnostics: ts.Diagnostic[];
 	let sourceCode: string;

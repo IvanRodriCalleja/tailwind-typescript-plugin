@@ -9,7 +9,7 @@ import {
 } from '../test/test-helpers';
 
 describe('E2E Tests - Template Literal with Interpolation', () => {
-	const testFile = path.join(__dirname, 'template-literal-interpolation.tsx');
+	const testFile = path.join(__dirname, 'template-variable.tsx');
 	const testCases = parseTestFile(testFile);
 	let diagnostics: ts.Diagnostic[];
 	let sourceCode: string;

@@ -9,7 +9,7 @@ import {
 } from '../test/test-helpers';
 
 describe('E2E Tests - JSX Expression String Literal', () => {
-	const testFile = path.join(__dirname, 'jsx-expression-string-literal.tsx');
+	const testFile = path.join(__dirname, 'expression-static.tsx');
 	const testCases = parseTestFile(testFile);
 	let diagnostics: ts.Diagnostic[];
 	let sourceCode: string;

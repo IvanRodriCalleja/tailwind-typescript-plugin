@@ -70,7 +70,7 @@ Ever written `className="flex itms-center"` instead of `"flex items-center"`? Th
   Validates template literals with conditional expressions
   Example: `className={`flex ${isActive ? 'invalid-class' : ''}`}`
 
-- [ ] **Template Binary**
+- [X] **Template Binary** → [`template-binary.tsx`](./example/src/template-binary.tsx)
   Validates template literals with binary expressions
   Example: `className={`flex ${isError && 'invalid-class'}`}`
 
