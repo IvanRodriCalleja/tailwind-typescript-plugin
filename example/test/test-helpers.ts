@@ -20,6 +20,7 @@ export interface TestCase {
 	expectedInvalidClasses: string[]; // For simple cases, which classes should be flagged
 	expectedValidClasses: string[]; // For simple cases, which should NOT be flagged
 	elementExpectations: ElementExpectation[]; // For complex multi-element cases
+	utilityFunctions?: string[]; // Optional custom utility functions to test
 }
 
 /**
@@ -53,6 +54,7 @@ export function parseTestFile(filePath: string): TestCase[] {
 			let comment = '';
 			let expectedInvalidClasses: string[] = [];
 			let expectedValidClasses: string[] = [];
+			let utilityFunctions: string[] | undefined = undefined;
 			const elementExpectations: ElementExpectation[] = [];
 			const elementMap: Map<number, Partial<ElementExpectation>> = new Map();
 
@@ -126,6 +128,12 @@ export function parseTestFile(filePath: string): TestCase[] {
 						expectedValidClasses = validMatch[2].split(',').map(c => c.trim());
 					}
 				}
+
+				// Extract @utilityFunctions [name1, name2]
+				const utilityFunctionsMatch = jsdocLine.match(/^\s*\*\s*@utilityFunctions\s*\[([^\]]+)\]/);
+				if (utilityFunctionsMatch) {
+					utilityFunctions = utilityFunctionsMatch[1].split(',').map(fn => fn.trim());
+				}
 			}
 
 			// Convert element map to array
@@ -153,7 +161,8 @@ export function parseTestFile(filePath: string): TestCase[] {
 							comment: comment,
 							expectedInvalidClasses: expectedInvalidClasses,
 							expectedValidClasses: expectedValidClasses,
-							elementExpectations: elementExpectations
+							elementExpectations: elementExpectations,
+							utilityFunctions: utilityFunctions
 						});
 						break;
 					}
@@ -169,7 +178,8 @@ export function parseTestFile(filePath: string): TestCase[] {
  * Create a test environment and run plugin diagnostics
  */
 export async function runPluginOnFile(
-	testFilePath: string
+	testFilePath: string,
+	utilityFunctions?: string[]
 ): Promise<{ diagnostics: ts.Diagnostic[]; sourceCode: string }> {
 	const tempDir = path.dirname(testFilePath);
 	const cssFile = path.join(tempDir, 'global.css');
@@ -231,7 +241,8 @@ export async function runPluginOnFile(
 			}
 		} as unknown as ts.server.Project,
 		config: {
-			globalCss: cssFile
+			globalCss: cssFile,
+			...(utilityFunctions && { utilityFunctions })
 		},
 		serverHost: {} as unknown as ts.server.ServerHost
 	};
