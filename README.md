@@ -50,19 +50,73 @@ Ever written `className="flex itms-center"` instead of `"flex items-center"`? Th
 
 ### Implemented features
 
-- [X] Validates string literal `className` attributes (e.g., `className="flex invalid-class"`)
-- [X] Validates JSX expressions with string literals (e.g., `className={'flex invalid-class'}`)
-- [X] Validates JSX expressions with string literals and interpolation (e.g., `className={`flex ${someClass} invalid-class`}`)
-- [X] Validates JSX expressions with string literals and interpolation with conditional expressions (e.g., `className={`flex ${someClass} ${isActive ? 'invalid-class' : ''} invalid class`}`)
-- [ ] Validates JSX expression with function calls (e.g., `className={clsx('flex', 'invalid-class')}`)
-- [ ] Validates binary expressions (e.g., `className={isError && 'invalid-class' }`)
-- [ ] Validates conditional expressions (e.g., `className={isActive ? 'invalid-class' : 'bg-gray-500'}`)
-- [ ] Validates array literals (e.g., `className={cn(['flex', 'invalid-class'])}`)
-- [ ] Validates array literals with binary expressions (e.g., `className={cn(['flex', isError && 'invalid-class'])}`)
-- [ ] Validates array literals with conditional expressions (e.g., `className={cn(['flex', isActive ? 'invalid-class' : 'bg-gray-500'])}`)
-- [ ] Validates object literals keys (e.g., `className={clsx({ 'invalid-class': true })}` or `className={clsx({ 'invalid-class': isActive })}`)
-- [ ] Validates `tailwind-variants` (e.g., const styles = tv({ base: 'invalid-class', variants: { size: { sm: 'invalid-class', md: 'text-md', lg: 'text-lg' } } }))
-- [ ] Validates dynamic classes (e.g., `const dynamicClass = isActive ? 'bg-blue-500' : 'bg-gray-500'; <div className={dynamicClass}>Dynamic</div>`)
+> **Note on examples:** Each feature has a corresponding test file in `example/src/` following the naming pattern `[context]-[pattern].tsx` where:
+> - **Context** = the container (literal, expression, template, function, array, object, tv)
+> - **Pattern** = what's inside (static, variable, binary, ternary, mixed)
+
+- [X] **Literal Static** → [`literal-static.tsx`](./example/src/literal-static.tsx)
+  Validates string literal `className` attributes
+  Example: `className="flex invalid-class"`
+
+- [X] **Expression Static** → [`expression-static.tsx`](./example/src/expression-static.tsx)
+  Validates JSX expressions with string literals
+  Example: `className={'flex invalid-class'}`
+
+- [X] **Template Variable** → [`template-variable.tsx`](./example/src/template-variable.tsx)
+  Validates template literals with variable interpolation
+  Example: `className={`flex ${someClass} invalid-class`}`
+
+- [X] **Template Ternary** → [`template-ternary.tsx`](./example/src/template-ternary.tsx)
+  Validates template literals with conditional expressions
+  Example: `className={`flex ${isActive ? 'invalid-class' : ''}`}`
+
+- [ ] **Template Binary**
+  Validates template literals with binary expressions
+  Example: `className={`flex ${isError && 'invalid-class'}`}`
+
+- [ ] **Function Static** → `function-static.tsx`
+  Validates function calls with static arguments
+  Example: `className={clsx('flex', 'invalid-class')}`
+
+- [ ] **Function Binary** → `function-binary.tsx`
+  Validates function calls with binary expressions
+  Example: `className={clsx('flex', isError && 'invalid-class')}`
+
+- [ ] **Function Ternary** → `function-ternary.tsx`
+  Validates function calls with conditional expressions
+  Example: `className={clsx('flex', isActive ? 'invalid-class' : 'bg-gray-500')}`
+
+- [ ] **Expression Binary**
+  Validates direct binary expressions
+  Example: `className={isError && 'invalid-class'}`
+
+- [ ] **Expression Ternary**
+  Validates direct conditional expressions
+  Example: `className={isActive ? 'invalid-class' : 'bg-gray-500'}`
+
+- [ ] **Array Static** → `array-static.tsx`
+  Validates array literals
+  Example: `className={cn(['flex', 'invalid-class'])}`
+
+- [ ] **Array Binary** → `array-binary.tsx`
+  Validates array literals with binary expressions
+  Example: `className={cn(['flex', isError && 'invalid-class'])}`
+
+- [ ] **Array Ternary** → `array-ternary.tsx`
+  Validates array literals with conditional expressions
+  Example: `className={cn(['flex', isActive ? 'invalid-class' : 'bg-gray-500'])}`
+
+- [ ] **Object Static** → `object-static.tsx`
+  Validates object literal keys
+  Example: `className={clsx({ 'invalid-class': true })}` or `className={clsx({ 'invalid-class': isActive })}`
+
+- [ ] **TV Static** → `tv-static.tsx`
+  Validates `tailwind-variants`
+  Example: `const styles = tv({ base: 'invalid-class', variants: { size: { sm: 'invalid-class' } } })`
+
+- [ ] **Expression Variable**
+  Validates variable references
+  Example: `const dynamicClass = isActive ? 'bg-blue-500' : 'bg-gray-500'; <div className={dynamicClass}>Dynamic</div>`
 
 
 ## Installation

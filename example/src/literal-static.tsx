@@ -1,5 +1,7 @@
 /**
- * E2E Test: String Literal className Attributes
+ * E2E Test: Literal Static
+ * Context: literal (plain string)
+ * Pattern: static (no dynamic parts)
  *
  * Tests validation of: className="..."
  */

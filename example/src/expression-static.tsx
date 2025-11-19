@@ -1,5 +1,7 @@
 /**
- * E2E Test: JSX Expression with String Literal
+ * E2E Test: Expression Static
+ * Context: expression (JSX expression)
+ * Pattern: static (string literal in braces)
  *
  * Tests validation of: className={'...'}
  */

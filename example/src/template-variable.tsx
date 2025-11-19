@@ -1,5 +1,7 @@
 /**
- * E2E Test: JSX Template Literal with Interpolation
+ * E2E Test: Template Variable
+ * Context: template (template literal)
+ * Pattern: variable (with interpolation/variables)
  *
  * Tests validation of: className={`... ${expr} ...`}
  */
