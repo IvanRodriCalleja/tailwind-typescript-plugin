@@ -59,12 +59,12 @@ By using **context-pattern** naming, we clearly separate:
 | [`template-binary.tsx`](./template-binary.tsx) | Template with binary expressions | `className={`flex ${err && 'text-red'}`}` |
 | [`function-static.tsx`](./function-static.tsx) | Function calls with static args | `className={clsx('flex', 'items-center')}` |
 | [`function-binary.tsx`](./function-binary.tsx) | Function calls with binary expressions | `className={clsx('flex', err && 'text-red')}` |
+| [`function-ternary.tsx`](./function-ternary.tsx) | Function calls with conditionals | `className={clsx('flex', active ? 'a' : 'b')}` |
 
 ### 🚧 Planned
 
 | File | Description | Example |
 |------|-------------|---------|
-| `function-ternary.tsx` | Function calls with conditionals | `className={clsx('flex', active ? 'a' : 'b')}` |
 | `expression-binary.tsx` | Direct binary expression | `className={isError && 'text-red-500'}` |
 | `expression-ternary.tsx` | Direct ternary expression | `className={isActive ? 'bg-blue' : 'bg-gray'}` |
 | `array-static.tsx` | Array of static strings | `className={cn(['flex', 'items-center'])}` |
