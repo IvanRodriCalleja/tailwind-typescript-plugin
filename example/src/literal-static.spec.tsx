@@ -9,7 +9,7 @@ import {
 } from '../test/test-helpers';
 
 describe('E2E Tests - String Literal className', () => {
-	const testFile = path.join(__dirname, 'string-literal-classname.tsx');
+	const testFile = path.join(__dirname, 'literal-static.tsx');
 	const testCases = parseTestFile(testFile);
 	let diagnostics: ts.Diagnostic[];
 	let sourceCode: string;

@@ -41,6 +41,16 @@ const extractClassNames = (typescript: typeof ts, sourceFile: ts.SourceFile) => 
 			extractFromExpression(expression.whenTrue, lineNumber);
 			extractFromExpression(expression.whenFalse, lineNumber);
 		}
+		// Handle binary expressions: condition && 'class-name'
+		else if (typescript.isBinaryExpression(expression)) {
+			// For logical AND (&&) and OR (||), extract classes from the right side
+			if (
+				expression.operatorToken.kind === typescript.SyntaxKind.AmpersandAmpersandToken ||
+				expression.operatorToken.kind === typescript.SyntaxKind.BarBarToken
+			) {
+				extractFromExpression(expression.right, lineNumber);
+			}
+		}
 		// Handle parenthesized expressions: ('class-name')
 		else if (typescript.isParenthesizedExpression(expression)) {
 			extractFromExpression(expression.expression, lineNumber);

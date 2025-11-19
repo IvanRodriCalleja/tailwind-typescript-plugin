@@ -8,8 +8,8 @@ import {
 	runPluginOnFile
 } from '../test/test-helpers';
 
-describe('E2E Tests - Template Literal with Conditional Expressions', () => {
-	const testFile = path.join(__dirname, 'template-literal-conditional.tsx');
+describe('E2E Tests - Template Literal with Binary Expressions', () => {
+	const testFile = path.join(__dirname, 'template-binary.tsx');
 	const testCases = parseTestFile(testFile);
 	let diagnostics: ts.Diagnostic[];
 	let sourceCode: string;

@@ -1,5 +1,7 @@
 /**
- * E2E Test: JSX Template Literal with Conditional Expressions
+ * E2E Test: Template Ternary
+ * Context: template (template literal)
+ * Pattern: ternary (with conditional/ternary expressions)
  *
  * Tests validation of: className={`... ${condition ? 'class1' : 'class2'} ...`}
  */
