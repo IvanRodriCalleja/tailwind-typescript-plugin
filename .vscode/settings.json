@@ -1,5 +1,5 @@
 {
-  "editor.formatOnSave": false,
+	"editor.formatOnSave": false,
 	"editor.autoIndent": "full",
 	"editor.formatOnPaste": false,
 	"prettier.singleQuote": true,
@@ -15,18 +15,27 @@
 	},
 	"[typescriptreact]":  {
 		"editor.formatOnSave":  false,
-    },
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit"
-    },
-        
-    "explorer.fileNesting.enabled": true,
+	},
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "explicit"
+	},
+		
+	"explorer.fileNesting.enabled": true,
 	"explorer.fileNesting.patterns": {
 		"*.jsx": "$(capture).js, $(capture).spec.jsx",
 		"*.tsx": "$(capture).ts, $(capture).spec.tsx, $(capture).stories.tsx",
-    "*.ts": "$(capture).ts, $(capture).spec.ts, $(capture).spec.tsx",
+		"*.ts": "$(capture).ts, $(capture).spec.ts, $(capture).spec.tsx",
 		"package.json": "yarn.lock, .editorconfig, .prettierrc, .prettierignore, .eslintrc, .eslintignore"
 	},
-  "typescript.tsdk": "example/node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+	"typescript.disableAutomaticTypeAcquisition": true,
+	"files.watcherExclude": {
+		"**/example/src/**": true
+	},
+	"search.exclude": {
+		"**/example/src/**": false
+	},
+	"typescript.tsserver.experimental.enableProjectDiagnostics": false,
+	"typescript.preferences.includePackageJsonAutoImports": "off",
+	"jest.runMode": "on-demand",
+	"testing.automaticallyOpenPeekView": "never"
 }

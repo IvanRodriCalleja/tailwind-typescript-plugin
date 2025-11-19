@@ -77,6 +77,69 @@ const extractClassNames = (typescript: typeof ts, sourceFile: ts.SourceFile) => 
 									offset += className.length + 1;
 								});
 							}
+
+							// Handle template literals: className={`flex ${someClass} invalid-class`}
+							else if (expression && typescript.isTemplateExpression(expression)) {
+								// Template expression has a head and template spans
+								// Extract static parts only (skip interpolated ${} expressions)
+								const parts: Array<{ text: string; start: number }> = [];
+
+								// Add the head (the part before the first ${})
+								// getStart() + 1 to skip the opening backtick
+								parts.push({
+									text: expression.head.text,
+									start: expression.head.getStart() + 1
+								});
+
+								// Add each template span's literal part (the parts after each ${})
+								expression.templateSpans.forEach(span => {
+									// span.literal is either TemplateMiddle or TemplateTail
+									// getStart() + 1 to skip the closing brace of ${}
+									parts.push({
+										text: span.literal.text,
+										start: span.literal.getStart() + 1
+									});
+								});
+
+								// Process each static part for class names
+								parts.forEach(part => {
+									let offset = 0;
+									part.text.split(' ').forEach(className => {
+										if (className) {
+											classNames.push({
+												className: className,
+												absoluteStart: part.start + offset,
+												length: className.length,
+												line: lineNumber,
+												file: sourceFile.fileName
+											});
+										}
+										offset += className.length + 1;
+									});
+								});
+							}
+
+							// Handle no-substitution template literal: className={`flex items-center`}
+							else if (expression && typescript.isNoSubstitutionTemplateLiteral(expression)) {
+								const fullText = expression.text;
+								// Get the start position of the string content (after opening backtick)
+								const stringContentStart = expression.getStart() + 1;
+								let offset = 0;
+
+								// Split by spaces and track absolute position of each class
+								fullText.split(' ').forEach(className => {
+									if (className) {
+										classNames.push({
+											className: className,
+											absoluteStart: stringContentStart + offset,
+											length: className.length,
+											line: lineNumber,
+											file: sourceFile.fileName
+										});
+									}
+									offset += className.length + 1;
+								});
+							}
 						}
 					}
 				}
