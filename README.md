@@ -78,7 +78,7 @@ Ever written `className="flex itms-center"` instead of `"flex items-center"`? Th
   Validates function calls with static arguments
   Example: `className={clsx('flex', 'invalid-class')}`
 
-- [ ] **Function Binary** → `function-binary.tsx`
+- [X] **Function Binary** → [`function-binary.tsx`](./example/src/function-binary.tsx)
   Validates function calls with binary expressions
   Example: `className={clsx('flex', isError && 'invalid-class')}`
 
