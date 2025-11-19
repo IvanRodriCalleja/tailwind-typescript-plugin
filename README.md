@@ -74,7 +74,7 @@ Ever written `className="flex itms-center"` instead of `"flex items-center"`? Th
   Validates template literals with binary expressions
   Example: `className={`flex ${isError && 'invalid-class'}`}`
 
-- [ ] **Function Static** → `function-static.tsx`
+- [X] **Function Static** → [`function-static.tsx`](./example/src/function-static.tsx)
   Validates function calls with static arguments
   Example: `className={clsx('flex', 'invalid-class')}`
 
@@ -143,7 +143,8 @@ Add the plugin to the `compilerOptions.plugins` array in your `tsconfig.json`:
     "plugins": [
       {
         "name": "tailwind-typescript-plugin",
-        "globalCss": "./src/global.css"
+        "globalCss": "./src/global.css",
+        "utilityFunctions": ["clsx", "cn", "classnames"]
       }
     ]
   }
@@ -153,6 +154,35 @@ Add the plugin to the `compilerOptions.plugins` array in your `tsconfig.json`:
 **Configuration options:**
 
 - `globalCss` (required): Path to your global CSS file that imports Tailwind CSS. This can be relative to your project root.
+
+- `utilityFunctions` (optional): Array of additional function names to validate. These will be **merged with the defaults**, so you don't lose the common ones.
+  - **Defaults (always included)**: `['clsx', 'cn', 'classnames', 'classNames', 'cx', 'cva', 'twMerge', 'tv']`
+  - **Add your own**: Provide custom function names that will be added to the defaults
+  - **Example config**:
+    ```json
+    {
+      "utilityFunctions": ["myCustomFn", "buildClasses"]
+    }
+    ```
+    This will validate: `clsx`, `cn`, `classnames`, `classNames`, `cx`, `cva`, `twMerge`, `tv`, **`myCustomFn`**, **`buildClasses`**
+
+  - **Supported patterns**:
+    ```typescript
+    // Simple calls (validated by default):
+    className={clsx('flex', 'items-center')}
+    className={cn('flex', 'items-center')}
+
+    // Member expressions (nested property access):
+    className={utils.cn('flex', 'items-center')}
+    className={lib.clsx('flex', 'items-center')}
+
+    // Custom functions (add via config):
+    className={myCustomFn('flex', 'items-center')}
+    className={buildClasses('flex', 'items-center')}
+
+    // Dynamic calls (ignored, won't throw errors):
+    className={functions['cn']('flex', 'items-center')}
+    ```
 
 ### 2. Ensure your CSS file imports Tailwind
 

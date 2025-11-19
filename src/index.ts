@@ -5,7 +5,52 @@ import path from 'path';
 import { TailwindValidator } from './TailwindValidator';
 import { Logger, LoggerImpl } from './utils/Logger';
 
-const extractClassNames = (typescript: typeof ts, sourceFile: ts.SourceFile) => {
+// Default utility functions to validate
+const DEFAULT_UTILITY_FUNCTIONS = [
+	'clsx',
+	'cn',
+	'classnames',
+	'classNames',
+	'cx',
+	'cva',
+	'twMerge',
+	'tv'
+];
+
+// Helper to check if a function call should be validated
+function shouldValidateFunctionCall(
+	callExpression: ts.CallExpression,
+	utilityFunctions: string[]
+): boolean {
+	const expr = callExpression.expression;
+
+	// Handle simple function calls: clsx('flex')
+	if (ts.isIdentifier(expr)) {
+		const functionName = expr.text;
+		return utilityFunctions.includes(functionName);
+	}
+
+	// Handle member expressions: utils.cn('flex'), lib.clsx('flex')
+	if (ts.isPropertyAccessExpression(expr)) {
+		const propertyName = expr.name.text;
+		return utilityFunctions.includes(propertyName);
+	}
+
+	// Ignore element access expressions: functions['cn']('flex')
+	// These are dynamic and can't be reliably validated
+	if (ts.isElementAccessExpression(expr)) {
+		return false;
+	}
+
+	// For any other expression type, don't validate
+	return false;
+}
+
+const extractClassNames = (
+	typescript: typeof ts,
+	sourceFile: ts.SourceFile,
+	utilityFunctions: string[]
+) => {
 	const classNames: Array<{
 		className: string;
 		absoluteStart: number;
@@ -49,6 +94,16 @@ const extractClassNames = (typescript: typeof ts, sourceFile: ts.SourceFile) => 
 				expression.operatorToken.kind === typescript.SyntaxKind.BarBarToken
 			) {
 				extractFromExpression(expression.right, lineNumber);
+			}
+		}
+		// Handle call expressions: clsx('class1', 'class2') - for nested calls
+		else if (typescript.isCallExpression(expression)) {
+			// Only validate if it's a configured utility function
+			if (shouldValidateFunctionCall(expression, utilityFunctions)) {
+				// Recursively process each argument
+				expression.arguments.forEach(arg => {
+					extractFromExpression(arg, lineNumber);
+				});
 			}
 		}
 		// Handle parenthesized expressions: ('class-name')
@@ -186,6 +241,18 @@ const extractClassNames = (typescript: typeof ts, sourceFile: ts.SourceFile) => 
 									offset += className.length + 1;
 								});
 							}
+
+							// Handle function calls: className={clsx('flex', 'items-center')}
+							else if (expression && typescript.isCallExpression(expression)) {
+								// Only validate if it's a configured utility function
+								if (shouldValidateFunctionCall(expression, utilityFunctions)) {
+									// Process each argument of the function call
+									expression.arguments.forEach(arg => {
+										// Extract classes from each argument (strings, binary, ternary, etc.)
+										extractFromExpression(arg, lineNumber);
+									});
+								}
+							}
 						}
 					}
 				}
@@ -205,6 +272,7 @@ class TailwindTypescriptPlugin {
 	// @ts-expect-error
 	private validator: TailwindValidator;
 	private initializationPromise: Promise<void> | null = null;
+	private utilityFunctions: string[] = DEFAULT_UTILITY_FUNCTIONS;
 
 	constructor(private readonly typescript: typeof ts) {}
 
@@ -212,6 +280,23 @@ class TailwindTypescriptPlugin {
 		this.logger = new LoggerImpl(info);
 
 		this.logger.log('============= Plugin Starting =============');
+
+		// Configure utility functions - merge user config with defaults
+		if (
+			info.config &&
+			info.config.utilityFunctions &&
+			Array.isArray(info.config.utilityFunctions)
+		) {
+			// Merge user-provided functions with defaults (remove duplicates)
+			const userFunctions = info.config.utilityFunctions;
+			this.utilityFunctions = [...new Set([...DEFAULT_UTILITY_FUNCTIONS, ...userFunctions])];
+			this.logger.log(
+				`Using utility functions (defaults + custom): ${this.utilityFunctions.join(', ')}`
+			);
+		} else {
+			// Use defaults only
+			this.logger.log(`Using default utility functions: ${DEFAULT_UTILITY_FUNCTIONS.join(', ')}`);
+		}
 
 		if (info.config && info.config.globalCss) {
 			const projectRoot = info.project.getCurrentDirectory();
@@ -270,7 +355,7 @@ class TailwindTypescriptPlugin {
 				const sourceFile = program.getSourceFile(fileName);
 
 				if (sourceFile) {
-					const classNames = extractClassNames(this.typescript, sourceFile);
+					const classNames = extractClassNames(this.typescript, sourceFile, this.utilityFunctions);
 					this.logger.log(
 						`[getSemanticDiagnostics] Found ${classNames.length} class names to validate`
 					);

@@ -57,12 +57,12 @@ By using **context-pattern** naming, we clearly separate:
 | [`template-variable.tsx`](./template-variable.tsx) | Template with variable interpolation | `className={`flex ${var}`}` |
 | [`template-ternary.tsx`](./template-ternary.tsx) | Template with conditional expressions | `className={`flex ${isActive ? 'a' : 'b'}`}` |
 | [`template-binary.tsx`](./template-binary.tsx) | Template with binary expressions | `className={`flex ${err && 'text-red'}`}` |
+| [`function-static.tsx`](./function-static.tsx) | Function calls with static args | `className={clsx('flex', 'items-center')}` |
 
 ### 🚧 Planned
 
 | File | Description | Example |
 |------|-------------|---------|
-| `function-static.tsx` | Function calls with static args | `className={clsx('flex', 'items-center')}` |
 | `function-binary.tsx` | Function calls with binary expressions | `className={clsx('flex', err && 'text-red')}` |
 | `function-ternary.tsx` | Function calls with conditionals | `className={clsx('flex', active ? 'a' : 'b')}` |
 | `expression-binary.tsx` | Direct binary expression | `className={isError && 'text-red-500'}` |
