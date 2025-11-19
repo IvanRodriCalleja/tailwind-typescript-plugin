@@ -282,7 +282,11 @@ class TailwindTypescriptPlugin {
 		this.logger.log('============= Plugin Starting =============');
 
 		// Configure utility functions - merge user config with defaults
-		if (info.config && info.config.utilityFunctions && Array.isArray(info.config.utilityFunctions)) {
+		if (
+			info.config &&
+			info.config.utilityFunctions &&
+			Array.isArray(info.config.utilityFunctions)
+		) {
 			// Merge user-provided functions with defaults (remove duplicates)
 			const userFunctions = info.config.utilityFunctions;
 			this.utilityFunctions = [...new Set([...DEFAULT_UTILITY_FUNCTIONS, ...userFunctions])];
