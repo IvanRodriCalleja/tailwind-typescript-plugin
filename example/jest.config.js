@@ -6,7 +6,7 @@ module.exports = {
 	collectCoverageFrom: [
 		'src/**/*.{ts,tsx}',
 		'!src/**/*.d.ts',
-		'!src/**/*.test.ts',
+		'!src/**/*.spec.ts',
 		'!src/test-helpers.ts'
 	],
 	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json']

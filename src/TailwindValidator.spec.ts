@@ -2,8 +2,8 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-import { TailwindValidator } from '../TailwindValidator';
-import { Logger } from '../utils/Logger';
+import { TailwindValidator } from './TailwindValidator';
+import { Logger } from './utils/Logger';
 
 // Mock logger for testing
 class MockLogger implements Logger {

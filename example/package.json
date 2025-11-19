@@ -1,0 +1,23 @@
+{
+  "name": "plugin-test-project",
+  "version": "1.0.0",
+  "description": "Test project for the custom TypeScript plugin",
+  "private": true,
+  "scripts": {
+    "setup": "npm install && cd .. && npm install && npm run build",
+    "test": "jest",
+    "lint": "eslint src --ext .ts,.tsx,.json --quiet --cache",
+    "tsc": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/react": "^19.2.5",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.4.5",
+    "typescript": "^5.7.2",
+    "typescript-custom-plugin": "file:.."
+  },
+  "dependencies": {
+    "tailwindcss": "^4.1.17"
+  }
+}

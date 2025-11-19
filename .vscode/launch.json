@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to TSServer",
+      "type": "node",
+      "request": "attach",
+      "port": 9559,
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/lib/**/*.js"],
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}

@@ -91,7 +91,9 @@ const extractClassNames = (typescript: typeof ts, sourceFile: ts.SourceFile) => 
 };
 
 class TailwindTypescriptPlugin {
+	// @ts-expect-error
 	private logger: Logger;
+	// @ts-expect-error
 	private validator: TailwindValidator;
 	private initializationPromise: Promise<void> | null = null;
 
@@ -144,19 +146,25 @@ class TailwindTypescriptPlugin {
 	private getSemanticDiagnostics =
 		(info: ts.server.PluginCreateInfo) =>
 		(fileName: string): ts.Diagnostic[] => {
+			this.logger.log(`[getSemanticDiagnostics] Getting semantic diagnostics for ${fileName}`);
 			const prior = info.languageService.getSemanticDiagnostics(fileName);
 
 			if (!this.validator.isInitialized()) {
+				this.logger.log(`[getSemanticDiagnostics] Validator not initialized yet for ${fileName}`);
 				return prior;
 			}
 
 			// Only process .tsx and .jsx files for "className" prop
 			if (fileName.endsWith('.tsx') || fileName.endsWith('.jsx')) {
-				const program = info.languageService.getProgram();
+				this.logger.log(`[getSemanticDiagnostics] Processing file: ${fileName}`);
+				const program = info.languageService.getProgram()!;
 				const sourceFile = program.getSourceFile(fileName);
 
 				if (sourceFile) {
 					const classNames = extractClassNames(this.typescript, sourceFile);
+					this.logger.log(
+						`[getSemanticDiagnostics] Found ${classNames.length} class names to validate`
+					);
 
 					// Validate each class and create diagnostics
 					const newDiagnostics: ts.Diagnostic[] = [];
@@ -165,7 +173,12 @@ class TailwindTypescriptPlugin {
 						const { className, absoluteStart, length } = classInfo;
 
 						// Validate the class name using the Tailwind validator
-						if (!this.validator.isValidClass(className)) {
+						const isValid = this.validator.isValidClass(className);
+						this.logger.log(
+							`[getSemanticDiagnostics] Validating "${className}": ${isValid ? 'VALID' : 'INVALID'}`
+						);
+
+						if (!isValid) {
 							newDiagnostics.push({
 								file: sourceFile,
 								start: absoluteStart,
@@ -179,7 +192,12 @@ class TailwindTypescriptPlugin {
 					}
 
 					if (newDiagnostics.length > 0) {
+						this.logger.log(
+							`[getSemanticDiagnostics] Returning ${newDiagnostics.length} diagnostics`
+						);
 						return [...prior, ...newDiagnostics];
+					} else {
+						this.logger.log(`[getSemanticDiagnostics] No invalid classes found`);
 					}
 				}
 			}
