@@ -403,47 +403,30 @@ export function createTestAssertion(
 			});
 		} else {
 			// Use global expectations for simple cases
-			// For invalid cases, @invalidClasses or @validClasses should be specified
-			if (
-				testCase.expectedInvalidClasses.length === 0 &&
-				testCase.expectedValidClasses.length === 0
-			) {
-				throw new Error(
-					`Test case "${testCase.functionName}" is marked as invalid (❌) but has no @invalidClasses or @validClasses annotations. ` +
-						`Please specify which classes should be invalid using @invalidClasses [class1, class2]`
-				);
-			}
-
 			// Extract all classes from the function's className attributes
 			const allClasses = getClassNamesInFunction(sourceCode, testCase.functionName);
 			const validClassesFound = allClasses.filter(c => !errorTexts.includes(c));
 
-			// Verify invalid classes
-			if (testCase.expectedInvalidClasses.length > 0) {
-				// Each expected invalid class should have an error
-				testCase.expectedInvalidClasses.forEach(expectedClass => {
-					expect(errorTexts).toContain(expectedClass);
-				});
-			}
-
 			// IMPORTANT: Verify that all errors match expected invalid classes
-			// This ensures that if @invalidClasses is empty but errors exist, the test fails
+			// The @invalidClasses annotation is the source of truth for what should be invalid
 			errorTexts.forEach(errorText => {
 				expect(testCase.expectedInvalidClasses).toContain(errorText);
 			});
 
-			// IMPORTANT: Verify that all valid classes (non-errors) match expected valid classes
-			// This ensures that if @validClasses is empty but valid classes exist, the test fails
-			if (testCase.expectedValidClasses.length > 0) {
-				// Each expected valid class should NOT have an error
-				testCase.expectedValidClasses.forEach(validClass => {
-					expect(errorTexts).not.toContain(validClass);
-				});
-			}
+			// Verify that all expected invalid classes have errors
+			testCase.expectedInvalidClasses.forEach(expectedClass => {
+				expect(errorTexts).toContain(expectedClass);
+			});
 
-			// Verify that all valid classes found match the expected list
+			// IMPORTANT: Verify that all valid classes (non-errors) match expected valid classes
+			// The @validClasses annotation is the source of truth for what should be valid
 			validClassesFound.forEach(validClass => {
 				expect(testCase.expectedValidClasses).toContain(validClass);
+			});
+
+			// Verify that all expected valid classes are found and don't have errors
+			testCase.expectedValidClasses.forEach(validClass => {
+				expect(errorTexts).not.toContain(validClass);
 			});
 		}
 
