@@ -3,7 +3,6 @@
  *
  * Tests validation of: className={'...'}
  */
-import React from 'react';
 
 // ========================================
 // SINGLE CLASS TESTS
