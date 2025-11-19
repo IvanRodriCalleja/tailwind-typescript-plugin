@@ -52,6 +52,7 @@ Ever written `className="flex itms-center"` instead of `"flex items-center"`? Th
 
 - [X] Validates string literal `className` attributes (e.g., `className="flex invalid-class"`)
 - [X] Validates JSX expressions with string literals (e.g., `className={'flex invalid-class'}`)
+- [X] Validates JSX expressions with string literals and interpolation (e.g., `className={`flex ${someClass} invalid-class`}`)
 - [ ] Validates JSX expression with function calls (e.g., `className={clsx('flex', 'invalid-class')}`)
 - [ ] Validates binary expressions (e.g., `className={isError && 'invalid-class' }`)
 - [ ] Validates conditional expressions (e.g., `className={isActive ? 'invalid-class' : 'bg-gray-500'}`)
