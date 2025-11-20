@@ -62,14 +62,14 @@ By using **context-pattern** naming, we clearly separate:
 | [`function-ternary.tsx`](./function-ternary.tsx) | Function calls with conditionals | `className={clsx('flex', active ? 'a' : 'b')}` |
 | [`expression-binary.tsx`](./expression-binary.tsx) | Direct binary expression | `className={isError && 'text-red-500'}` |
 | [`expression-ternary.tsx`](./expression-ternary.tsx) | Direct ternary expression | `className={isActive ? 'bg-blue' : 'bg-gray'}` |
+| [`array-static.tsx`](./array-static.tsx) | Array of static strings | `className={cn(['flex', 'items-center'])}` |
+| [`array-binary.tsx`](./array-binary.tsx) | Array with binary expressions | `className={cn(['flex', err && 'text-red'])}` |
+| [`array-ternary.tsx`](./array-ternary.tsx) | Array with conditionals | `className={cn(['flex', active ? 'a' : 'b'])}` |
 
 ### 🚧 Planned
 
 | File | Description | Example |
 |------|-------------|---------|
-| `array-static.tsx` | Array of static strings | `className={cn(['flex', 'items-center'])}` |
-| `array-binary.tsx` | Array with binary expressions | `className={cn(['flex', err && 'text-red'])}` |
-| `array-ternary.tsx` | Array with conditionals | `className={cn(['flex', active ? 'a' : 'b'])}` |
 | `object-static.tsx` | Object with class keys | `className={clsx({ 'flex': true })}` |
 | `tv-static.tsx` | Tailwind Variants | `tv({ base: 'flex' })` |
 | `expression-variable.tsx` | Variable reference | `className={dynamicClass}` |

@@ -110,6 +110,13 @@ const extractClassNames = (
 		else if (typescript.isParenthesizedExpression(expression)) {
 			extractFromExpression(expression.expression, lineNumber);
 		}
+		// Handle array literal expressions: ['class1', 'class2']
+		else if (typescript.isArrayLiteralExpression(expression)) {
+			// Recursively process each element in the array
+			expression.elements.forEach(element => {
+				extractFromExpression(element, lineNumber);
+			});
+		}
 	}
 
 	function visit(node: ts.Node): void {
