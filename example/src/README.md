@@ -65,12 +65,12 @@ By using **context-pattern** naming, we clearly separate:
 | [`array-static.tsx`](./array-static.tsx) | Array of static strings | `className={cn(['flex', 'items-center'])}` |
 | [`array-binary.tsx`](./array-binary.tsx) | Array with binary expressions | `className={cn(['flex', err && 'text-red'])}` |
 | [`array-ternary.tsx`](./array-ternary.tsx) | Array with conditionals | `className={cn(['flex', active ? 'a' : 'b'])}` |
+| [`object-static.tsx`](./object-static.tsx) | Object with class keys | `className={clsx({ 'flex': true })}` |
 
 ### 🚧 Planned
 
 | File | Description | Example |
 |------|-------------|---------|
-| `object-static.tsx` | Object with class keys | `className={clsx({ 'flex': true })}` |
 | `tv-static.tsx` | Tailwind Variants | `tv({ base: 'flex' })` |
 | `expression-variable.tsx` | Variable reference | `className={dynamicClass}` |
 

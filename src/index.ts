@@ -117,6 +117,67 @@ const extractClassNames = (
 				extractFromExpression(element, lineNumber);
 			});
 		}
+		// Handle object literal expressions: { 'class-name': true, 'another': condition }
+		else if (typescript.isObjectLiteralExpression(expression)) {
+			// Process each property - we validate the keys (class names), not the values
+			expression.properties.forEach(property => {
+				// Handle regular property assignments: { 'flex': true } or { flex: true }
+				if (typescript.isPropertyAssignment(property)) {
+					const name = property.name;
+
+					// Handle string literal keys: { 'flex': true }
+					if (typescript.isStringLiteral(name)) {
+						const fullText = name.text;
+						const stringContentStart = name.getStart() + 1;
+						let offset = 0;
+
+						// Split by spaces to handle multiple classes in one key
+						fullText.split(' ').forEach(className => {
+							if (className) {
+								classNames.push({
+									className: className,
+									absoluteStart: stringContentStart + offset,
+									length: className.length,
+									line: lineNumber,
+									file: sourceFile.fileName
+								});
+							}
+							offset += className.length + 1;
+						});
+					}
+					// Handle identifier keys: { flex: true }
+					else if (typescript.isIdentifier(name)) {
+						const className = name.text;
+						classNames.push({
+							className: className,
+							absoluteStart: name.getStart(),
+							length: className.length,
+							line: lineNumber,
+							file: sourceFile.fileName
+						});
+					}
+					// Handle computed property keys: { ['flex']: true }
+					else if (typescript.isComputedPropertyName(name)) {
+						// Extract from the expression inside the brackets
+						extractFromExpression(name.expression, lineNumber);
+					}
+				}
+				// Handle shorthand property assignments: { flex } (though uncommon for className)
+				else if (typescript.isShorthandPropertyAssignment(property)) {
+					const name = property.name;
+					if (typescript.isIdentifier(name)) {
+						const className = name.text;
+						classNames.push({
+							className: className,
+							absoluteStart: name.getStart(),
+							length: className.length,
+							line: lineNumber,
+							file: sourceFile.fileName
+						});
+					}
+				}
+			});
+		}
 	}
 
 	function visit(node: ts.Node): void {

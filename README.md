@@ -106,7 +106,7 @@ Ever written `className="flex itms-center"` instead of `"flex items-center"`? Th
   Validates array literals with conditional expressions
   Example: `className={cn(['flex', isActive ? 'invalid-class' : 'bg-gray-500'])}`
 
-- [ ] **Object Static** → `object-static.tsx`
+- [X] **Object Static** → [`object-static.tsx`](./example/src/object-static.tsx)
   Validates object literal keys
   Example: `className={clsx({ 'invalid-class': true })}` or `className={clsx({ 'invalid-class': isActive })}`
 
