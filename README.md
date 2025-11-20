@@ -106,9 +106,21 @@ Ever written `className="flex itms-center"` instead of `"flex items-center"`? Th
   Validates array literals with conditional expressions
   Example: `className={cn(['flex', isActive ? 'invalid-class' : 'bg-gray-500'])}`
 
-- [ ] **Object Static** → `object-static.tsx`
+- [X] **Object Static** → [`object-static.tsx`](./example/src/object-static.tsx)
   Validates object literal keys
   Example: `className={clsx({ 'invalid-class': true })}` or `className={clsx({ 'invalid-class': isActive })}`
+
+- [X] **Array Nested** → [`array-nested.tsx`](./example/src/array-nested.tsx)
+  Validates nested arrays
+  Example: `className={cn([['flex', 'invalid-class']])}` or `className={cn([['flex'], [['items-center'], 'invalid-class']])}`
+
+- [X] **Object Array Values** → [`object-array-values.tsx`](./example/src/object-array-values.tsx)
+  Validates arrays as object property values
+  Example: `className={clsx({ flex: ['items-center', 'invalid-class'] })}`
+
+- [X] **Mixed Complex** → [`mixed-complex.tsx`](./example/src/mixed-complex.tsx)
+  Validates kitchen sink complex nesting with all patterns combined
+  Example: `className={clsx('flex', [1 && 'bar', { baz: ['invalid-class'] }])}`
 
 - [ ] **TV Static** → `tv-static.tsx`
   Validates `tailwind-variants`

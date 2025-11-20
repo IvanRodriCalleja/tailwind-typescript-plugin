@@ -65,12 +65,15 @@ By using **context-pattern** naming, we clearly separate:
 | [`array-static.tsx`](./array-static.tsx) | Array of static strings | `className={cn(['flex', 'items-center'])}` |
 | [`array-binary.tsx`](./array-binary.tsx) | Array with binary expressions | `className={cn(['flex', err && 'text-red'])}` |
 | [`array-ternary.tsx`](./array-ternary.tsx) | Array with conditionals | `className={cn(['flex', active ? 'a' : 'b'])}` |
+| [`array-nested.tsx`](./array-nested.tsx) | Nested arrays | `className={cn([['flex', 'items-center']])}` |
+| [`object-static.tsx`](./object-static.tsx) | Object with class keys | `className={clsx({ 'flex': true })}` |
+| [`object-array-values.tsx`](./object-array-values.tsx) | Object with array values | `className={clsx({ flex: ['items-center'] })}` |
+| [`mixed-complex.tsx`](./mixed-complex.tsx) | Kitchen sink complex nesting | `className={clsx('flex', [{ foo: ['bar'] }])}` |
 
 ### 🚧 Planned
 
 | File | Description | Example |
 |------|-------------|---------|
-| `object-static.tsx` | Object with class keys | `className={clsx({ 'flex': true })}` |
 | `tv-static.tsx` | Tailwind Variants | `tv({ base: 'flex' })` |
 | `expression-variable.tsx` | Variable reference | `className={dynamicClass}` |
 
