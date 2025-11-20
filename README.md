@@ -86,11 +86,11 @@ Ever written `className="flex itms-center"` instead of `"flex items-center"`? Th
   Validates function calls with conditional expressions
   Example: `className={clsx('flex', isActive ? 'invalid-class' : 'bg-gray-500')}`
 
-- [ ] **Expression Binary**
+- [X] **Expression Binary** → [`expression-binary.tsx`](./example/src/expression-binary.tsx)
   Validates direct binary expressions
   Example: `className={isError && 'invalid-class'}`
 
-- [ ] **Expression Ternary**
+- [X] **Expression Ternary** → [`expression-ternary.tsx`](./example/src/expression-ternary.tsx)
   Validates direct conditional expressions
   Example: `className={isActive ? 'invalid-class' : 'bg-gray-500'}`
 

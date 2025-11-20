@@ -253,6 +253,21 @@ const extractClassNames = (
 									});
 								}
 							}
+
+							// Handle direct binary expressions: className={isError && 'text-red-500'}
+							else if (expression && typescript.isBinaryExpression(expression)) {
+								extractFromExpression(expression, lineNumber);
+							}
+
+							// Handle direct conditional expressions: className={isActive ? 'bg-blue' : 'bg-gray'}
+							else if (expression && typescript.isConditionalExpression(expression)) {
+								extractFromExpression(expression, lineNumber);
+							}
+
+							// Handle parenthesized expressions: className={(isError && 'text-red-500')}
+							else if (expression && typescript.isParenthesizedExpression(expression)) {
+								extractFromExpression(expression.expression, lineNumber);
+							}
 						}
 					}
 				}

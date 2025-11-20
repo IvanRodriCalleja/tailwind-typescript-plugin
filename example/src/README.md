@@ -60,13 +60,13 @@ By using **context-pattern** naming, we clearly separate:
 | [`function-static.tsx`](./function-static.tsx) | Function calls with static args | `className={clsx('flex', 'items-center')}` |
 | [`function-binary.tsx`](./function-binary.tsx) | Function calls with binary expressions | `className={clsx('flex', err && 'text-red')}` |
 | [`function-ternary.tsx`](./function-ternary.tsx) | Function calls with conditionals | `className={clsx('flex', active ? 'a' : 'b')}` |
+| [`expression-binary.tsx`](./expression-binary.tsx) | Direct binary expression | `className={isError && 'text-red-500'}` |
+| [`expression-ternary.tsx`](./expression-ternary.tsx) | Direct ternary expression | `className={isActive ? 'bg-blue' : 'bg-gray'}` |
 
 ### 🚧 Planned
 
 | File | Description | Example |
 |------|-------------|---------|
-| `expression-binary.tsx` | Direct binary expression | `className={isError && 'text-red-500'}` |
-| `expression-ternary.tsx` | Direct ternary expression | `className={isActive ? 'bg-blue' : 'bg-gray'}` |
 | `array-static.tsx` | Array of static strings | `className={cn(['flex', 'items-center'])}` |
 | `array-binary.tsx` | Array with binary expressions | `className={cn(['flex', err && 'text-red'])}` |
 | `array-ternary.tsx` | Array with conditionals | `className={cn(['flex', active ? 'a' : 'b'])}` |
