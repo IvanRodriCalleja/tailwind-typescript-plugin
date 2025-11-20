@@ -94,15 +94,15 @@ Ever written `className="flex itms-center"` instead of `"flex items-center"`? Th
   Validates direct conditional expressions
   Example: `className={isActive ? 'invalid-class' : 'bg-gray-500'}`
 
-- [ ] **Array Static** → `array-static.tsx`
+- [X] **Array Static** → [`array-static.tsx`](./example/src/array-static.tsx)
   Validates array literals
   Example: `className={cn(['flex', 'invalid-class'])}`
 
-- [ ] **Array Binary** → `array-binary.tsx`
+- [X] **Array Binary** → [`array-binary.tsx`](./example/src/array-binary.tsx)
   Validates array literals with binary expressions
   Example: `className={cn(['flex', isError && 'invalid-class'])}`
 
-- [ ] **Array Ternary** → `array-ternary.tsx`
+- [X] **Array Ternary** → [`array-ternary.tsx`](./example/src/array-ternary.tsx)
   Validates array literals with conditional expressions
   Example: `className={cn(['flex', isActive ? 'invalid-class' : 'bg-gray-500'])}`
 
