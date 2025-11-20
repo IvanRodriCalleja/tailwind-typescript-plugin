@@ -119,7 +119,7 @@ const extractClassNames = (
 		}
 		// Handle object literal expressions: { 'class-name': true, 'another': condition }
 		else if (typescript.isObjectLiteralExpression(expression)) {
-			// Process each property - we validate the keys (class names), not the values
+			// Process each property - we validate both keys (class names) and values (which can contain arrays, etc.)
 			expression.properties.forEach(property => {
 				// Handle regular property assignments: { 'flex': true } or { flex: true }
 				if (typescript.isPropertyAssignment(property)) {
@@ -161,6 +161,10 @@ const extractClassNames = (
 						// Extract from the expression inside the brackets
 						extractFromExpression(name.expression, lineNumber);
 					}
+
+					// Also process the value - it might contain arrays, nested objects, etc.
+					// Examples: { foo: ['bar', 'baz'] } or { foo: { nested: true } }
+					extractFromExpression(property.initializer, lineNumber);
 				}
 				// Handle shorthand property assignments: { flex } (though uncommon for className)
 				else if (typescript.isShorthandPropertyAssignment(property)) {
