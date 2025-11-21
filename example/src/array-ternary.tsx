@@ -22,9 +22,7 @@ const isLoading = false;
  */
 export function ArrayTernaryAllValid() {
 	return (
-		<div className={cn(['flex', isActive ? 'bg-blue-500' : 'bg-gray-500'])}>
-			Array with ternary
-		</div>
+		<div className={cn(['flex', isActive ? 'bg-blue-500' : 'bg-gray-500'])}>Array with ternary</div>
 	);
 }
 
@@ -74,11 +72,7 @@ export function ArrayTernaryInvalidBoth() {
  */
 export function ArrayTernaryMultipleClasses() {
 	return (
-		<div
-			className={cn([
-				'flex',
-				isActive ? 'bg-blue-500 invalid-class font-bold' : 'bg-gray-500'
-			])}>
+		<div className={cn(['flex', isActive ? 'bg-blue-500 invalid-class font-bold' : 'bg-gray-500'])}>
 			Multiple classes with invalid
 		</div>
 	);
@@ -246,8 +240,7 @@ export function ArrayTernaryWithVariants() {
  */
 export function ArrayTernaryWithInvalidVariant() {
 	return (
-		<div
-			className={cn(['flex', isActive ? 'invalid-variant:bg-blue' : 'hover:bg-gray-500'])}>
+		<div className={cn(['flex', isActive ? 'invalid-variant:bg-blue' : 'hover:bg-gray-500'])}>
 			Ternary with invalid variant
 		</div>
 	);
@@ -291,9 +284,7 @@ export function ArrayTernaryWithArbitraryAndInvalid() {
  * @validClasses [flex, bg-blue-500]
  */
 export function ArrayTernaryWithEmptyFalse() {
-	return (
-		<div className={cn(['flex', isActive ? 'bg-blue-500' : ''])}>Empty false branch</div>
-	);
+	return <div className={cn(['flex', isActive ? 'bg-blue-500' : ''])}>Empty false branch</div>;
 }
 
 /**
@@ -301,9 +292,7 @@ export function ArrayTernaryWithEmptyFalse() {
  * @validClasses [flex, bg-gray-500]
  */
 export function ArrayTernaryWithEmptyTrue() {
-	return (
-		<div className={cn(['flex', isActive ? '' : 'bg-gray-500'])}>Empty true branch</div>
-	);
+	return <div className={cn(['flex', isActive ? '' : 'bg-gray-500'])}>Empty true branch</div>;
 }
 
 /**
@@ -312,9 +301,7 @@ export function ArrayTernaryWithEmptyTrue() {
  * @validClasses [flex]
  */
 export function ArrayTernaryWithEmptyAndInvalid() {
-	return (
-		<div className={cn(['flex', isActive ? 'invalid-class' : ''])}>Invalid with empty</div>
-	);
+	return <div className={cn(['flex', isActive ? 'invalid-class' : ''])}>Invalid with empty</div>;
 }
 
 // ========================================
@@ -426,11 +413,7 @@ export function ArrayTernaryInClassNames() {
  */
 export function ArrayNestedFunctionsWithTernary() {
 	return (
-		<div
-			className={clsx(
-				'flex',
-				cn([isActive ? 'bg-blue-500' : 'bg-gray-500', 'items-center'])
-			)}>
+		<div className={clsx('flex', cn([isActive ? 'bg-blue-500' : 'bg-gray-500', 'items-center']))}>
 			Nested with ternary
 		</div>
 	);
@@ -444,10 +427,7 @@ export function ArrayNestedFunctionsWithTernary() {
 export function ArrayNestedFunctionsWithTernaryInvalid() {
 	return (
 		<div
-			className={clsx(
-				'flex',
-				cn([isActive ? 'invalid-active' : 'bg-gray-500', 'items-center'])
-			)}>
+			className={clsx('flex', cn([isActive ? 'invalid-active' : 'bg-gray-500', 'items-center']))}>
 			Nested with invalid
 		</div>
 	);
@@ -474,9 +454,7 @@ export function ArrayTernaryMultipleElements() {
 			<div className={cn(['flex', isActive ? 'invalid-active' : 'bg-gray-500'])}>
 				Invalid in first
 			</div>
-			<div className={cn(['flex', isActive ? 'bg-blue-500' : 'bg-gray-500'])}>
-				Valid in second
-			</div>
+			<div className={cn(['flex', isActive ? 'bg-blue-500' : 'bg-gray-500'])}>Valid in second</div>
 			<div className={cn(['flex', isActive ? 'invalid-class' : 'bg-gray-500'])}>
 				Invalid in third
 			</div>
@@ -493,13 +471,7 @@ export function ArrayTernaryMultipleElements() {
  * @validClasses [rounded-lg, rounded-sm]
  */
 export function ArrayTernarySelfClosingValid() {
-	return (
-		<img
-			className={cn([isActive ? 'rounded-lg' : 'rounded-sm'])}
-			src="test.jpg"
-			alt="test"
-		/>
-	);
+	return <img className={cn([isActive ? 'rounded-lg' : 'rounded-sm'])} src="test.jpg" alt="test" />;
 }
 
 /**
@@ -509,11 +481,7 @@ export function ArrayTernarySelfClosingValid() {
  */
 export function ArrayTernarySelfClosingInvalid() {
 	return (
-		<img
-			className={cn([isActive ? 'invalid-style' : 'rounded-lg'])}
-			src="test.jpg"
-			alt="test"
-		/>
+		<img className={cn([isActive ? 'invalid-style' : 'rounded-lg'])} src="test.jpg" alt="test" />
 	);
 }
 
@@ -526,11 +494,7 @@ export function ArrayTernarySelfClosingInvalid() {
  * @validClasses [flex, bg-blue-500]
  */
 export function ArrayTernaryWithBooleanResult() {
-	return (
-		<div className={cn(['flex', isActive ? 'bg-blue-500' : false])}>
-			Ternary with boolean
-		</div>
-	);
+	return <div className={cn(['flex', isActive ? 'bg-blue-500' : false])}>Ternary with boolean</div>;
 }
 
 /**
@@ -538,9 +502,7 @@ export function ArrayTernaryWithBooleanResult() {
  * @validClasses [flex, bg-blue-500]
  */
 export function ArrayTernaryWithNullResult() {
-	return (
-		<div className={cn(['flex', isActive ? 'bg-blue-500' : null])}>Ternary with null</div>
-	);
+	return <div className={cn(['flex', isActive ? 'bg-blue-500' : null])}>Ternary with null</div>;
 }
 
 // Mock function declarations

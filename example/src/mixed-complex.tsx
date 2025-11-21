@@ -7,8 +7,8 @@
  * - Multiple levels of nesting
  * - Examples from clsx documentation
  */
-
 import { clsx } from 'clsx';
+
 import { cn } from './utils';
 
 const isActive = true;
@@ -22,7 +22,12 @@ const isLoading = false;
  */
 export function KitchenSinkValid() {
 	return (
-		<div className={clsx('flex', [1 && 'items-center', { 'justify-center': false, 'bg-blue-500': null }, ['text-white']], 'text-white')}>
+		<div
+			className={clsx(
+				'flex',
+				[1 && 'items-center', { 'justify-center': false, 'bg-blue-500': null }, ['text-white']],
+				'text-white'
+			)}>
 			Kitchen sink
 		</div>
 	);
@@ -35,7 +40,12 @@ export function KitchenSinkValid() {
  */
 export function KitchenSinkInvalid() {
 	return (
-		<div className={clsx('flex', [1 && 'items-center', { 'justify-center': false, 'invalid-class': null }, ['text-white']], 'text-white')}>
+		<div
+			className={clsx(
+				'flex',
+				[1 && 'items-center', { 'justify-center': false, 'invalid-class': null }, ['text-white']],
+				'text-white'
+			)}>
 			Invalid kitchen sink
 		</div>
 	);
@@ -47,7 +57,13 @@ export function KitchenSinkInvalid() {
  */
 export function MixedStringsBinaryArrays() {
 	return (
-		<div className={cn('flex', isActive && 'items-center', [['justify-center', 'bg-blue-500']], 'text-white')}>
+		<div
+			className={cn(
+				'flex',
+				isActive && 'items-center',
+				[['justify-center', 'bg-blue-500']],
+				'text-white'
+			)}>
 			Mixed types
 		</div>
 	);
@@ -60,7 +76,13 @@ export function MixedStringsBinaryArrays() {
  */
 export function MixedStringsBinaryArraysInvalidNested() {
 	return (
-		<div className={cn('flex', isActive && 'items-center', [['justify-center', 'invalid-nested']], 'text-white')}>
+		<div
+			className={cn(
+				'flex',
+				isActive && 'items-center',
+				[['justify-center', 'invalid-nested']],
+				'text-white'
+			)}>
 			Invalid nested
 		</div>
 	);
@@ -72,7 +94,12 @@ export function MixedStringsBinaryArraysInvalidNested() {
  */
 export function MixedTernaryObjectsArrays() {
 	return (
-		<div className={clsx(isActive ? 'flex' : 'grid', { 'items-center': true, 'bg-blue-500': isActive, 'bg-gray-500': !isActive }, ['justify-center', 'text-white'])}>
+		<div
+			className={clsx(
+				isActive ? 'flex' : 'grid',
+				{ 'items-center': true, 'bg-blue-500': isActive, 'bg-gray-500': !isActive },
+				['justify-center', 'text-white']
+			)}>
 			Mixed ternary objects arrays
 		</div>
 	);
@@ -85,7 +112,12 @@ export function MixedTernaryObjectsArrays() {
  */
 export function MixedTernaryObjectsArraysInvalidTernary() {
 	return (
-		<div className={clsx(isActive ? 'flex' : 'invalid-grid', { 'items-center': true, 'bg-blue-500': true }, ['justify-center'])}>
+		<div
+			className={clsx(
+				isActive ? 'flex' : 'invalid-grid',
+				{ 'items-center': true, 'bg-blue-500': true },
+				['justify-center']
+			)}>
 			Invalid ternary
 		</div>
 	);
@@ -97,7 +129,12 @@ export function MixedTernaryObjectsArraysInvalidTernary() {
  */
 export function NestedObjectsWithArraysInArrays() {
 	return (
-		<div className={cn(['flex', { 'items-center': ['justify-center', 'bg-blue-500'] }, [{ 'text-white': true, 'font-bold': isActive }]])}>
+		<div
+			className={cn([
+				'flex',
+				{ 'items-center': ['justify-center', 'bg-blue-500'] },
+				[{ 'text-white': true, 'font-bold': isActive }]
+			])}>
 			Nested complex
 		</div>
 	);
@@ -110,7 +147,12 @@ export function NestedObjectsWithArraysInArrays() {
  */
 export function NestedObjectsWithArraysInArraysInvalid() {
 	return (
-		<div className={cn(['flex', { 'items-center': ['justify-center', 'invalid-bg'] }, [{ 'text-white': true }]])}>
+		<div
+			className={cn([
+				'flex',
+				{ 'items-center': ['justify-center', 'invalid-bg'] },
+				[{ 'text-white': true }]
+			])}>
 			Invalid nested
 		</div>
 	);
@@ -122,16 +164,14 @@ export function NestedObjectsWithArraysInArraysInvalid() {
  */
 export function DeepComplexNesting() {
 	return (
-		<div className={clsx(
-			'flex',
-			[
+		<div
+			className={clsx('flex', [
 				isActive && 'items-center',
 				[
 					['justify-center', isActive ? 'bg-blue-500' : 'bg-gray-500'],
 					{ 'text-white': true, 'font-bold': ['hover:bg-red-500'] }
 				]
-			]
-		)}>
+			])}>
 			Deep complex
 		</div>
 	);
@@ -144,16 +184,14 @@ export function DeepComplexNesting() {
  */
 export function DeepComplexNestingInvalid() {
 	return (
-		<div className={clsx(
-			'flex',
-			[
+		<div
+			className={clsx('flex', [
 				isActive && 'items-center',
 				[
 					['justify-center', isActive ? 'bg-blue-500' : 'bg-gray-500'],
 					{ 'text-white': true, 'font-bold': ['invalid-deep'] }
 				]
-			]
-		)}>
+			])}>
 			Invalid deep
 		</div>
 	);
@@ -165,11 +203,12 @@ export function DeepComplexNestingInvalid() {
  */
 export function MixedBinaryTernaryNested() {
 	return (
-		<div className={cn(
-			[hasError && 'flex'],
-			{ 'items-center': [isActive ? 'justify-center' : 'justify-start', 'bg-blue-500'] },
-			hasError && [isLoading ? 'bg-red-500' : 'bg-green-500', 'text-white']
-		)}>
+		<div
+			className={cn(
+				[hasError && 'flex'],
+				{ 'items-center': [isActive ? 'justify-center' : 'justify-start', 'bg-blue-500'] },
+				hasError && [isLoading ? 'bg-red-500' : 'bg-green-500', 'text-white']
+			)}>
 			Mixed binary ternary
 		</div>
 	);
@@ -182,11 +221,12 @@ export function MixedBinaryTernaryNested() {
  */
 export function MixedBinaryTernaryNestedInvalid() {
 	return (
-		<div className={cn(
-			[hasError && 'flex'],
-			{ 'items-center': [isActive ? 'justify-center' : 'invalid-start', 'bg-blue-500'] },
-			hasError && [isLoading ? 'bg-red-500' : 'bg-green-500']
-		)}>
+		<div
+			className={cn(
+				[hasError && 'flex'],
+				{ 'items-center': [isActive ? 'justify-center' : 'invalid-start', 'bg-blue-500'] },
+				hasError && [isLoading ? 'bg-red-500' : 'bg-green-500']
+			)}>
 			Invalid mixed
 		</div>
 	);
@@ -199,12 +239,13 @@ export function MixedBinaryTernaryNestedInvalid() {
  */
 export function VariadicComplexValid() {
 	return (
-		<div className={cn(
-			['flex'],
-			['', 0, false, 'items-center'],
-			[['justify-center', [['bg-blue-500'], 'text-white']]],
-			'font-bold'
-		)}>
+		<div
+			className={cn(
+				['flex'],
+				['', 0, false, 'items-center'],
+				[['justify-center', [['bg-blue-500'], 'text-white']]],
+				'font-bold'
+			)}>
 			Variadic complex
 		</div>
 	);
@@ -217,12 +258,13 @@ export function VariadicComplexValid() {
  */
 export function VariadicComplexInvalid() {
 	return (
-		<div className={cn(
-			['flex'],
-			['items-center'],
-			[['justify-center', [['bg-blue-500'], 'invalid-variadic']]],
-			'font-bold'
-		)}>
+		<div
+			className={cn(
+				['flex'],
+				['items-center'],
+				[['justify-center', [['bg-blue-500'], 'invalid-variadic']]],
+				'font-bold'
+			)}>
 			Invalid variadic
 		</div>
 	);
@@ -234,11 +276,12 @@ export function VariadicComplexInvalid() {
  */
 export function MultipleObjectsMixedNesting() {
 	return (
-		<div className={clsx(
-			{ flex: ['items-center', 'justify-center'] },
-			{ 'bg-blue-500': [{ 'text-white': true, 'font-bold': isActive }] },
-			'p-4'
-		)}>
+		<div
+			className={clsx(
+				{ flex: ['items-center', 'justify-center'] },
+				{ 'bg-blue-500': [{ 'text-white': true, 'font-bold': isActive }] },
+				'p-4'
+			)}>
 			Multiple objects mixed
 		</div>
 	);
@@ -251,11 +294,12 @@ export function MultipleObjectsMixedNesting() {
  */
 export function MultipleObjectsMixedNestingInvalid() {
 	return (
-		<div className={clsx(
-			{ flex: ['items-center', 'justify-center'] },
-			{ 'bg-blue-500': [{ 'text-white': true, 'invalid-font': isActive }] },
-			'p-4'
-		)}>
+		<div
+			className={clsx(
+				{ flex: ['items-center', 'justify-center'] },
+				{ 'bg-blue-500': [{ 'text-white': true, 'invalid-font': isActive }] },
+				'p-4'
+			)}>
 			Invalid multiple objects
 		</div>
 	);
@@ -267,7 +311,7 @@ export function MultipleObjectsMixedNestingInvalid() {
  */
 export function ExtremeNesting() {
 	return (
-		<div className={cn([[[[[['flex', 'items-center'], ['justify-center']], 'bg-blue-500']]]]])}>
+		<div className={cn([[[[[['flex', 'items-center'], ['justify-center']], 'bg-blue-500']]]])}>
 			Extreme nesting
 		</div>
 	);
@@ -280,7 +324,7 @@ export function ExtremeNesting() {
  */
 export function ExtremeNestingInvalid() {
 	return (
-		<div className={cn([[[[[['flex', 'items-center'], ['invalid-extreme']], 'justify-center']]]]])}>
+		<div className={cn([[[[[['flex', 'items-center'], ['invalid-extreme']], 'justify-center']]]])}>
 			Invalid extreme
 		</div>
 	);
@@ -292,13 +336,14 @@ export function ExtremeNestingInvalid() {
  */
 export function AllPatternsCombined() {
 	return (
-		<div className={clsx(
-			'flex',
-			isActive && 'items-center',
-			hasError ? 'justify-center' : 'justify-start',
-			{ 'bg-blue-500': isActive, 'bg-gray-500': !isActive },
-			['text-white', { 'font-bold': ['p-4', isActive && 'hover:bg-red-500'] }]
-		)}>
+		<div
+			className={clsx(
+				'flex',
+				isActive && 'items-center',
+				hasError ? 'justify-center' : 'justify-start',
+				{ 'bg-blue-500': isActive, 'bg-gray-500': !isActive },
+				['text-white', { 'font-bold': ['p-4', isActive && 'hover:bg-red-500'] }]
+			)}>
 			All patterns
 		</div>
 	);
@@ -311,13 +356,14 @@ export function AllPatternsCombined() {
  */
 export function AllPatternsCombinedInvalid() {
 	return (
-		<div className={clsx(
-			'flex',
-			isActive && 'items-center',
-			hasError ? 'justify-center' : 'justify-start',
-			{ 'bg-blue-500': isActive },
-			['text-white', { 'font-bold': ['p-4', isActive && 'invalid-all'] }]
-		)}>
+		<div
+			className={clsx(
+				'flex',
+				isActive && 'items-center',
+				hasError ? 'justify-center' : 'justify-start',
+				{ 'bg-blue-500': isActive },
+				['text-white', { 'font-bold': ['p-4', isActive && 'invalid-all'] }]
+			)}>
 			Invalid all patterns
 		</div>
 	);
@@ -329,10 +375,11 @@ export function AllPatternsCombinedInvalid() {
  */
 export function NestedFunctionsComplex() {
 	return (
-		<div className={cn(
-			clsx('flex', { 'items-center': ['justify-center'] }),
-			[clsx({ 'bg-blue-500': true }), 'text-white']
-		)}>
+		<div
+			className={cn(clsx('flex', { 'items-center': ['justify-center'] }), [
+				clsx({ 'bg-blue-500': true }),
+				'text-white'
+			])}>
 			Nested functions
 		</div>
 	);
@@ -345,10 +392,11 @@ export function NestedFunctionsComplex() {
  */
 export function NestedFunctionsComplexInvalid() {
 	return (
-		<div className={cn(
-			clsx('flex', { 'items-center': ['justify-center'] }),
-			[clsx({ 'bg-blue-500': true }), 'invalid-nested-fn']
-		)}>
+		<div
+			className={cn(clsx('flex', { 'items-center': ['justify-center'] }), [
+				clsx({ 'bg-blue-500': true }),
+				'invalid-nested-fn'
+			])}>
 			Invalid nested fn
 		</div>
 	);
@@ -360,11 +408,12 @@ export function NestedFunctionsComplexInvalid() {
  */
 export function ComplexWithVariants() {
 	return (
-		<div className={clsx(
-			['flex', isActive && 'hover:bg-blue-500'],
-			{ 'md:flex-col': ['lg:items-center', 'dark:text-white'] },
-			[['sm:justify-center']]
-		)}>
+		<div
+			className={clsx(
+				['flex', isActive && 'hover:bg-blue-500'],
+				{ 'md:flex-col': ['lg:items-center', 'dark:text-white'] },
+				[['sm:justify-center']]
+			)}>
 			Complex with variants
 		</div>
 	);
@@ -376,11 +425,7 @@ export function ComplexWithVariants() {
  */
 export function ComplexWithArbitrary() {
 	return (
-		<div className={clsx(
-			'flex',
-			{ 'h-[50vh]': ['w-[100px]', 'bg-[#ff0000]'] },
-			[['p-[20px]']]
-		)}>
+		<div className={clsx('flex', { 'h-[50vh]': ['w-[100px]', 'bg-[#ff0000]'] }, [['p-[20px]']])}>
 			Complex with arbitrary
 		</div>
 	);

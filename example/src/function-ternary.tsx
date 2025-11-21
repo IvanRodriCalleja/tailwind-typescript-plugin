@@ -148,7 +148,12 @@ export function MultipleTernaryArgsMixed() {
 export function MixedStaticAndTernaryValid() {
 	return (
 		<div
-			className={clsx('flex', 'items-center', isActive ? 'bg-blue-500' : 'bg-gray-500', 'font-bold')}>
+			className={clsx(
+				'flex',
+				'items-center',
+				isActive ? 'bg-blue-500' : 'bg-gray-500',
+				'font-bold'
+			)}>
 			Mixed static and ternary
 		</div>
 	);
@@ -237,8 +242,7 @@ export function TernaryWithVariants() {
  */
 export function TernaryWithInvalidVariant() {
 	return (
-		<div
-			className={clsx('flex', isActive ? 'invalid-variant:bg-blue' : 'hover:bg-gray-500')}>
+		<div className={clsx('flex', isActive ? 'invalid-variant:bg-blue' : 'hover:bg-gray-500')}>
 			Ternary with invalid variant
 		</div>
 	);
@@ -409,8 +413,7 @@ export function TernaryInClassNamesFunction() {
  */
 export function NestedFunctionsWithTernary() {
 	return (
-		<div
-			className={clsx('flex', cn(isActive ? 'bg-blue-500' : 'bg-gray-500', 'items-center'))}>
+		<div className={clsx('flex', cn(isActive ? 'bg-blue-500' : 'bg-gray-500', 'items-center'))}>
 			Nested functions with ternary
 		</div>
 	);
@@ -423,8 +426,7 @@ export function NestedFunctionsWithTernary() {
  */
 export function NestedFunctionsWithTernaryInvalid() {
 	return (
-		<div
-			className={clsx('flex', cn(isActive ? 'invalid-active' : 'bg-gray-500', 'items-center'))}>
+		<div className={clsx('flex', cn(isActive ? 'invalid-active' : 'bg-gray-500', 'items-center'))}>
 			Nested with invalid ternary
 		</div>
 	);
@@ -470,9 +472,7 @@ export function MultipleElements() {
  * @validClasses [flex, bg-blue-500]
  */
 export function TernaryWithBooleanResult() {
-	return (
-		<div className={clsx('flex', isActive ? 'bg-blue-500' : false)}>Ternary with boolean</div>
-	);
+	return <div className={clsx('flex', isActive ? 'bg-blue-500' : false)}>Ternary with boolean</div>;
 }
 
 /**
@@ -480,9 +480,7 @@ export function TernaryWithBooleanResult() {
  * @validClasses [flex, bg-blue-500]
  */
 export function TernaryWithNullResult() {
-	return (
-		<div className={clsx('flex', isActive ? 'bg-blue-500' : null)}>Ternary with null</div>
-	);
+	return <div className={clsx('flex', isActive ? 'bg-blue-500' : null)}>Ternary with null</div>;
 }
 
 // Mock function declarations

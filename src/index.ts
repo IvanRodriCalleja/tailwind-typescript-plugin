@@ -1,491 +1,63 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
-import fs from 'fs';
-import path from 'path';
 
-import { TailwindValidator } from './TailwindValidator';
-import { Logger, LoggerImpl } from './utils/Logger';
+import { TailwindTypescriptPlugin } from './plugin/TailwindTypescriptPlugin';
 
-// Default utility functions to validate
-const DEFAULT_UTILITY_FUNCTIONS = [
-	'clsx',
-	'cn',
-	'classnames',
-	'classNames',
-	'cx',
-	'cva',
-	'twMerge',
-	'tv'
-];
-
-// Helper to check if a function call should be validated
-function shouldValidateFunctionCall(
-	callExpression: ts.CallExpression,
-	utilityFunctions: string[]
-): boolean {
-	const expr = callExpression.expression;
-
-	// Handle simple function calls: clsx('flex')
-	if (ts.isIdentifier(expr)) {
-		const functionName = expr.text;
-		return utilityFunctions.includes(functionName);
-	}
-
-	// Handle member expressions: utils.cn('flex'), lib.clsx('flex')
-	if (ts.isPropertyAccessExpression(expr)) {
-		const propertyName = expr.name.text;
-		return utilityFunctions.includes(propertyName);
-	}
-
-	// Ignore element access expressions: functions['cn']('flex')
-	// These are dynamic and can't be reliably validated
-	if (ts.isElementAccessExpression(expr)) {
-		return false;
-	}
-
-	// For any other expression type, don't validate
-	return false;
-}
-
-const extractClassNames = (
-	typescript: typeof ts,
-	sourceFile: ts.SourceFile,
-	utilityFunctions: string[]
-) => {
-	const classNames: Array<{
-		className: string;
-		absoluteStart: number;
-		length: number;
-		line: number;
-		file: string;
-	}> = [];
-
-	// Helper function to extract class names from string literals within expressions
-	function extractFromExpression(expression: ts.Expression, lineNumber: number): void {
-		// Handle string literals directly
-		if (typescript.isStringLiteral(expression)) {
-			const fullText = expression.text;
-			const stringContentStart = expression.getStart() + 1;
-			let offset = 0;
-
-			fullText.split(' ').forEach(className => {
-				if (className) {
-					classNames.push({
-						className: className,
-						absoluteStart: stringContentStart + offset,
-						length: className.length,
-						line: lineNumber,
-						file: sourceFile.fileName
-					});
-				}
-				offset += className.length + 1;
-			});
-		}
-		// Handle conditional expressions: condition ? 'class1' : 'class2'
-		else if (typescript.isConditionalExpression(expression)) {
-			// Recursively extract from both branches
-			extractFromExpression(expression.whenTrue, lineNumber);
-			extractFromExpression(expression.whenFalse, lineNumber);
-		}
-		// Handle binary expressions: condition && 'class-name'
-		else if (typescript.isBinaryExpression(expression)) {
-			// For logical AND (&&) and OR (||), extract classes from the right side
-			if (
-				expression.operatorToken.kind === typescript.SyntaxKind.AmpersandAmpersandToken ||
-				expression.operatorToken.kind === typescript.SyntaxKind.BarBarToken
-			) {
-				extractFromExpression(expression.right, lineNumber);
-			}
-		}
-		// Handle call expressions: clsx('class1', 'class2') - for nested calls
-		else if (typescript.isCallExpression(expression)) {
-			// Only validate if it's a configured utility function
-			if (shouldValidateFunctionCall(expression, utilityFunctions)) {
-				// Recursively process each argument
-				expression.arguments.forEach(arg => {
-					extractFromExpression(arg, lineNumber);
-				});
-			}
-		}
-		// Handle parenthesized expressions: ('class-name')
-		else if (typescript.isParenthesizedExpression(expression)) {
-			extractFromExpression(expression.expression, lineNumber);
-		}
-		// Handle array literal expressions: ['class1', 'class2']
-		else if (typescript.isArrayLiteralExpression(expression)) {
-			// Recursively process each element in the array
-			expression.elements.forEach(element => {
-				extractFromExpression(element, lineNumber);
-			});
-		}
-		// Handle object literal expressions: { 'class-name': true, 'another': condition }
-		else if (typescript.isObjectLiteralExpression(expression)) {
-			// Process each property - we validate both keys (class names) and values (which can contain arrays, etc.)
-			expression.properties.forEach(property => {
-				// Handle regular property assignments: { 'flex': true } or { flex: true }
-				if (typescript.isPropertyAssignment(property)) {
-					const name = property.name;
-
-					// Handle string literal keys: { 'flex': true }
-					if (typescript.isStringLiteral(name)) {
-						const fullText = name.text;
-						const stringContentStart = name.getStart() + 1;
-						let offset = 0;
-
-						// Split by spaces to handle multiple classes in one key
-						fullText.split(' ').forEach(className => {
-							if (className) {
-								classNames.push({
-									className: className,
-									absoluteStart: stringContentStart + offset,
-									length: className.length,
-									line: lineNumber,
-									file: sourceFile.fileName
-								});
-							}
-							offset += className.length + 1;
-						});
-					}
-					// Handle identifier keys: { flex: true }
-					else if (typescript.isIdentifier(name)) {
-						const className = name.text;
-						classNames.push({
-							className: className,
-							absoluteStart: name.getStart(),
-							length: className.length,
-							line: lineNumber,
-							file: sourceFile.fileName
-						});
-					}
-					// Handle computed property keys: { ['flex']: true }
-					else if (typescript.isComputedPropertyName(name)) {
-						// Extract from the expression inside the brackets
-						extractFromExpression(name.expression, lineNumber);
-					}
-
-					// Also process the value - it might contain arrays, nested objects, etc.
-					// Examples: { foo: ['bar', 'baz'] } or { foo: { nested: true } }
-					extractFromExpression(property.initializer, lineNumber);
-				}
-				// Handle shorthand property assignments: { flex } (though uncommon for className)
-				else if (typescript.isShorthandPropertyAssignment(property)) {
-					const name = property.name;
-					if (typescript.isIdentifier(name)) {
-						const className = name.text;
-						classNames.push({
-							className: className,
-							absoluteStart: name.getStart(),
-							length: className.length,
-							line: lineNumber,
-							file: sourceFile.fileName
-						});
-					}
-				}
-			});
-		}
-	}
-
-	function visit(node: ts.Node): void {
-		// Check for JSX opening elements (<div className="...">)
-		if (typescript.isJsxOpeningElement(node) || typescript.isJsxSelfClosingElement(node)) {
-			const attributes = node.attributes.properties;
-
-			for (const attr of attributes) {
-				if (typescript.isJsxAttribute(attr) && attr.name.getText() === 'className') {
-					const initializer = attr.initializer;
-
-					if (initializer) {
-						const lineNumber = sourceFile.getLineAndCharacterOfPosition(attr.getStart()).line + 1;
-
-						// Handle string literal: className="foo bar"
-						if (typescript.isStringLiteral(initializer)) {
-							const fullText = initializer.text;
-							// Get the start position of the string content (after opening quote)
-							const stringContentStart = initializer.getStart() + 1;
-							let offset = 0;
-
-							// Split by spaces and track absolute position of each class
-							fullText.split(' ').forEach(className => {
-								if (className) {
-									// Skip empty strings from multiple spaces
-									classNames.push({
-										className: className,
-										absoluteStart: stringContentStart + offset,
-										length: className.length,
-										line: lineNumber,
-										file: sourceFile.fileName
-									});
-								}
-								// Update offset for next class (class length + space)
-								offset += className.length + 1;
-							});
-						}
-
-						// Handle JSX expression: className={'foo bar'}
-						else if (typescript.isJsxExpression(initializer)) {
-							const expression = initializer.expression;
-
-							// Check if the expression is a string literal
-							if (expression && typescript.isStringLiteral(expression)) {
-								const fullText = expression.text;
-								// Get the start position of the string content (after opening quote)
-								const stringContentStart = expression.getStart() + 1;
-								let offset = 0;
-
-								// Split by spaces and track absolute position of each class
-								fullText.split(' ').forEach(className => {
-									if (className) {
-										// Skip empty strings from multiple spaces
-										classNames.push({
-											className: className,
-											absoluteStart: stringContentStart + offset,
-											length: className.length,
-											line: lineNumber,
-											file: sourceFile.fileName
-										});
-									}
-									// Update offset for next class (class length + space)
-									offset += className.length + 1;
-								});
-							}
-
-							// Handle template literals: className={`flex ${someClass} invalid-class`}
-							else if (expression && typescript.isTemplateExpression(expression)) {
-								// Template expression has a head and template spans
-								// Extract static parts and also check interpolated expressions for conditionals
-								const parts: Array<{ text: string; start: number }> = [];
-
-								// Add the head (the part before the first ${})
-								// getStart() + 1 to skip the opening backtick
-								parts.push({
-									text: expression.head.text,
-									start: expression.head.getStart() + 1
-								});
-
-								// Add each template span's literal part (the parts after each ${})
-								expression.templateSpans.forEach(span => {
-									// Check the interpolated expression for conditional expressions
-									extractFromExpression(span.expression, lineNumber);
-
-									// span.literal is either TemplateMiddle or TemplateTail
-									// getStart() + 1 to skip the closing brace of ${}
-									parts.push({
-										text: span.literal.text,
-										start: span.literal.getStart() + 1
-									});
-								});
-
-								// Process each static part for class names
-								parts.forEach(part => {
-									let offset = 0;
-									part.text.split(' ').forEach(className => {
-										if (className) {
-											classNames.push({
-												className: className,
-												absoluteStart: part.start + offset,
-												length: className.length,
-												line: lineNumber,
-												file: sourceFile.fileName
-											});
-										}
-										offset += className.length + 1;
-									});
-								});
-							}
-
-							// Handle no-substitution template literal: className={`flex items-center`}
-							else if (expression && typescript.isNoSubstitutionTemplateLiteral(expression)) {
-								const fullText = expression.text;
-								// Get the start position of the string content (after opening backtick)
-								const stringContentStart = expression.getStart() + 1;
-								let offset = 0;
-
-								// Split by spaces and track absolute position of each class
-								fullText.split(' ').forEach(className => {
-									if (className) {
-										classNames.push({
-											className: className,
-											absoluteStart: stringContentStart + offset,
-											length: className.length,
-											line: lineNumber,
-											file: sourceFile.fileName
-										});
-									}
-									offset += className.length + 1;
-								});
-							}
-
-							// Handle function calls: className={clsx('flex', 'items-center')}
-							else if (expression && typescript.isCallExpression(expression)) {
-								// Only validate if it's a configured utility function
-								if (shouldValidateFunctionCall(expression, utilityFunctions)) {
-									// Process each argument of the function call
-									expression.arguments.forEach(arg => {
-										// Extract classes from each argument (strings, binary, ternary, etc.)
-										extractFromExpression(arg, lineNumber);
-									});
-								}
-							}
-
-							// Handle direct binary expressions: className={isError && 'text-red-500'}
-							else if (expression && typescript.isBinaryExpression(expression)) {
-								extractFromExpression(expression, lineNumber);
-							}
-
-							// Handle direct conditional expressions: className={isActive ? 'bg-blue' : 'bg-gray'}
-							else if (expression && typescript.isConditionalExpression(expression)) {
-								extractFromExpression(expression, lineNumber);
-							}
-
-							// Handle parenthesized expressions: className={(isError && 'text-red-500')}
-							else if (expression && typescript.isParenthesizedExpression(expression)) {
-								extractFromExpression(expression.expression, lineNumber);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		typescript.forEachChild(node, visit);
-	}
-
-	visit(sourceFile);
-	return classNames;
-};
-
-class TailwindTypescriptPlugin {
-	// @ts-expect-error
-	private logger: Logger;
-	// @ts-expect-error
-	private validator: TailwindValidator;
-	private initializationPromise: Promise<void> | null = null;
-	private utilityFunctions: string[] = DEFAULT_UTILITY_FUNCTIONS;
-
-	constructor(private readonly typescript: typeof ts) {}
-
-	create(info: ts.server.PluginCreateInfo) {
-		this.logger = new LoggerImpl(info);
-
-		this.logger.log('============= Plugin Starting =============');
-
-		// Configure utility functions - merge user config with defaults
-		if (
-			info.config &&
-			info.config.utilityFunctions &&
-			Array.isArray(info.config.utilityFunctions)
-		) {
-			// Merge user-provided functions with defaults (remove duplicates)
-			const userFunctions = info.config.utilityFunctions;
-			this.utilityFunctions = [...new Set([...DEFAULT_UTILITY_FUNCTIONS, ...userFunctions])];
-			this.logger.log(
-				`Using utility functions (defaults + custom): ${this.utilityFunctions.join(', ')}`
-			);
-		} else {
-			// Use defaults only
-			this.logger.log(`Using default utility functions: ${DEFAULT_UTILITY_FUNCTIONS.join(', ')}`);
-		}
-
-		if (info.config && info.config.globalCss) {
-			const projectRoot = info.project.getCurrentDirectory();
-			const relativeCssPath = info.config.globalCss;
-			const absoluteCssPath = path.resolve(projectRoot, relativeCssPath);
-
-			// Check if CSS file exists
-			if (fs.existsSync(absoluteCssPath)) {
-				this.logger.log(`CSS file found, initializing Tailwind validator...`);
-
-				this.validator = new TailwindValidator(absoluteCssPath, this.logger);
-				this.initializationPromise = this.validator
-					.initialize()
-					.then(() => {
-						this.logger.log('Tailwind validator initialized');
-					})
-					.catch(error => {
-						this.logger.log(`Failed to initialize Tailwind validator: ${error}`);
-					});
-			} else {
-				this.logger.log(`CSS file not found at: ${absoluteCssPath}`);
-			}
-		}
-
-		// Set up decorator object
-		const proxy: ts.LanguageService = Object.create(null);
-		for (const k of Object.keys(info.languageService) as Array<keyof ts.LanguageService>) {
-			const x = info.languageService[k]!;
-			// @ts-ignore
-			proxy[k] = (...args: Array<unknown>) => x.apply(info.languageService, args);
-		}
-
-		proxy.getSemanticDiagnostics = this.getSemanticDiagnostics(info);
-		return proxy;
-	}
-
-	getInitializationPromise(): Promise<void> | null {
-		return this.initializationPromise;
-	}
-
-	private getSemanticDiagnostics =
-		(info: ts.server.PluginCreateInfo) =>
-		(fileName: string): ts.Diagnostic[] => {
-			this.logger.log(`[getSemanticDiagnostics] Getting semantic diagnostics for ${fileName}`);
-			const prior = info.languageService.getSemanticDiagnostics(fileName);
-
-			if (!this.validator.isInitialized()) {
-				this.logger.log(`[getSemanticDiagnostics] Validator not initialized yet for ${fileName}`);
-				return prior;
-			}
-
-			// Only process .tsx and .jsx files for "className" prop
-			if (fileName.endsWith('.tsx') || fileName.endsWith('.jsx')) {
-				this.logger.log(`[getSemanticDiagnostics] Processing file: ${fileName}`);
-				const program = info.languageService.getProgram()!;
-				const sourceFile = program.getSourceFile(fileName);
-
-				if (sourceFile) {
-					const classNames = extractClassNames(this.typescript, sourceFile, this.utilityFunctions);
-					this.logger.log(
-						`[getSemanticDiagnostics] Found ${classNames.length} class names to validate`
-					);
-
-					// Validate each class and create diagnostics
-					const newDiagnostics: ts.Diagnostic[] = [];
-
-					for (const classInfo of classNames) {
-						const { className, absoluteStart, length } = classInfo;
-
-						// Validate the class name using the Tailwind validator
-						const isValid = this.validator.isValidClass(className);
-						this.logger.log(
-							`[getSemanticDiagnostics] Validating "${className}": ${isValid ? 'VALID' : 'INVALID'}`
-						);
-
-						if (!isValid) {
-							newDiagnostics.push({
-								file: sourceFile,
-								start: absoluteStart,
-								length: length,
-								messageText: `The class "${className}" is not a valid Tailwind class`,
-								category: ts.DiagnosticCategory.Error,
-								code: 9999,
-								source: 'tw-plugin'
-							});
-						}
-					}
-
-					if (newDiagnostics.length > 0) {
-						this.logger.log(
-							`[getSemanticDiagnostics] Returning ${newDiagnostics.length} diagnostics`
-						);
-						return [...prior, ...newDiagnostics];
-					} else {
-						this.logger.log(`[getSemanticDiagnostics] No invalid classes found`);
-					}
-				}
-			}
-
-			return prior;
-		};
-}
-
-// Export for TypeScript Language Service
+/**
+ * Main entry point for the TypeScript Language Service Plugin
+ *
+ * REFACTORED ARCHITECTURE:
+ *
+ * This plugin now follows Clean Architecture and SOLID principles:
+ *
+ * 1. Core Layer (src/core/):
+ *    - types.ts: Domain types (ClassNameInfo, ExtractionContext, etc.)
+ *    - interfaces.ts: Contracts (IClassNameExtractor, IClassNameValidator, etc.)
+ *
+ * 2. Extractors Layer (src/extractors/):
+ *    - BaseExtractor: Abstract base with common functionality
+ *    - StringLiteralExtractor: Handles string literals
+ *    - TemplateExpressionExtractor: Handles template strings
+ *    - ExpressionExtractor: Handles all expression types (ternary, binary, etc.)
+ *    - JsxAttributeExtractor: Main orchestrator for JSX className attributes
+ *
+ * 3. Services Layer (src/services/):
+ *    - ClassNameExtractionService: Orchestrates AST traversal and extraction
+ *    - DiagnosticService: Creates TypeScript diagnostics
+ *    - ValidationService: Validates classes and creates diagnostics
+ *    - PluginConfigService: Manages plugin configuration
+ *    - PerformanceCache: LRU cache for performance optimization
+ *
+ * 4. Plugin Layer (src/plugin/):
+ *    - TailwindTypescriptPlugin: Thin adapter to TypeScript API
+ *
+ * 5. Infrastructure Layer:
+ *    - TailwindValidator: Validates against Tailwind CSS design system
+ *    - Logger: Logging abstraction
+ *
+ * SOLID PRINCIPLES APPLIED:
+ *
+ * - Single Responsibility: Each class has one clear purpose
+ * - Open/Closed: Easy to add new extractors without modifying existing code
+ * - Liskov Substitution: All extractors implement the same interface
+ * - Interface Segregation: Small, focused interfaces
+ * - Dependency Inversion: Depends on abstractions (IClassNameValidator, etc.)
+ *
+ * EXTENSIBILITY:
+ *
+ * To add a new extraction pattern:
+ * 1. Create a new extractor class extending BaseExtractor
+ * 2. Implement canHandle() and extract() methods
+ * 3. Add it to ClassNameExtractionService.extractors array
+ *
+ * To use the TypeScript type checker:
+ * The type checker is obtained fresh for each file validation from the current program.
+ * It's available in the ExtractionContext passed to extractors for type-based features.
+ *
+ * PERFORMANCE OPTIMIZATIONS:
+ *
+ * - LRU cache for validation results (2000 entries)
+ * - Lazy initialization of design system
+ * - Fresh type checker per-file (always accurate, no staleness)
+ * - Fast path for static class validation
+ */
 export = (mod: { typescript: typeof ts }) => new TailwindTypescriptPlugin(mod.typescript);

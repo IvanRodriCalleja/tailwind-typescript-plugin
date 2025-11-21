@@ -236,11 +236,7 @@ export function ArrayBinaryWithArbitraryAndInvalid() {
 export function ArrayBinaryAndTernaryValid() {
 	return (
 		<div
-			className={cn([
-				'flex',
-				isError && 'text-red-500',
-				isActive ? 'bg-blue-500' : 'bg-gray-500'
-			])}>
+			className={cn(['flex', isError && 'text-red-500', isActive ? 'bg-blue-500' : 'bg-gray-500'])}>
 			Binary and ternary in array
 		</div>
 	);
@@ -309,7 +305,9 @@ export function ArrayBinaryInClsxInvalid() {
  * @validClasses [flex, text-red-500]
  */
 export function ArrayBinaryInClassNames() {
-	return <div className={classNames(['flex', isError && 'text-red-500'])}>Binary in classNames</div>;
+	return (
+		<div className={classNames(['flex', isError && 'text-red-500'])}>Binary in classNames</div>
+	);
 }
 
 // ========================================

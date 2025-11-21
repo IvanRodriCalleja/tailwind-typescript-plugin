@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 
-import { Logger } from './utils/Logger';
+import { IClassNameValidator } from '../core/interfaces';
+import { PerformanceCache } from '../services/PerformanceCache';
+import { Logger } from '../utils/Logger';
 
 type Tailwind = {
 	__unstable__loadDesignSystem: (
@@ -26,16 +28,20 @@ type DesignSystem = {
 /**
  * Class validator for Tailwind CSS v4
  * This loads the design system once and caches it for validation
+ * Implements IClassNameValidator for dependency inversion
  */
-export class TailwindValidator {
+export class TailwindValidator implements IClassNameValidator {
 	private classSet: Set<string> | null = null;
 	// @ts-expect-error
 	private designSystem: DesignSystem;
 	private cssFilePath: string;
 	private logger: Logger;
+	private validationCache: PerformanceCache<string, boolean>;
+
 	constructor(cssFilePath: string, logger: Logger) {
 		this.cssFilePath = cssFilePath;
 		this.logger = logger;
+		this.validationCache = new PerformanceCache<string, boolean>(2000);
 	}
 
 	/**
@@ -112,6 +118,7 @@ export class TailwindValidator {
 	/**
 	 * Check if a class name is valid
 	 * This handles both static classes and arbitrary values (e.g., w-[100px])
+	 * Performance optimized with LRU cache
 	 */
 	isValidClass(className: string): boolean {
 		if (!this.classSet || !this.designSystem) {
@@ -119,8 +126,14 @@ export class TailwindValidator {
 			return true; // Assume valid if not initialized
 		}
 
+		// Check cache first (performance optimization)
+		if (this.validationCache.has(className)) {
+			return this.validationCache.get(className)!;
+		}
+
 		// First, check if it's in the static class list (fast path)
 		if (this.classSet.has(className)) {
+			this.validationCache.set(className, true);
 			return true;
 		}
 
@@ -129,10 +142,13 @@ export class TailwindValidator {
 		try {
 			const result = this.designSystem.candidatesToCss([className]);
 			// If candidatesToCss returns a non-null value, the class is valid
-			return result[0] !== null;
+			const isValid = result[0] !== null;
+			this.validationCache.set(className, isValid);
+			return isValid;
 		} catch (err) {
 			this.logger.log(`[TailwindValidator] Failed to check class: ${err}`);
 			// If there's an error, consider it invalid
+			this.validationCache.set(className, false);
 			return false;
 		}
 	}
@@ -153,6 +169,17 @@ export class TailwindValidator {
 	 */
 	async reload(): Promise<void> {
 		this.classSet = null;
+		this.validationCache.clear();
 		await this.initialize();
+	}
+
+	/**
+	 * Get cache statistics (for performance monitoring)
+	 */
+	getCacheStats(): { size: number; maxSize: number } {
+		return {
+			size: this.validationCache.size,
+			maxSize: 2000
+		};
 	}
 }

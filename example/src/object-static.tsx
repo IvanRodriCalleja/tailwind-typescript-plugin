@@ -283,7 +283,15 @@ export function ObjectInClassNamesFunction() {
  * @validClasses [flex, items-center, justify-center, bg-blue-500]
  */
 export function MultipleObjectsAllValid() {
-	return <div className={clsx({ flex: true, 'items-center': true }, { 'justify-center': isActive, 'bg-blue-500': true })}>Multiple objects</div>;
+	return (
+		<div
+			className={clsx(
+				{ flex: true, 'items-center': true },
+				{ 'justify-center': isActive, 'bg-blue-500': true }
+			)}>
+			Multiple objects
+		</div>
+	);
 }
 
 /**
@@ -292,7 +300,15 @@ export function MultipleObjectsAllValid() {
  * @validClasses [flex, items-center, justify-center]
  */
 export function MultipleObjectsInvalidInSecond() {
-	return <div className={clsx({ flex: true, 'items-center': true }, { 'justify-center': isActive, 'invalid-class': true })}>Invalid in second</div>;
+	return (
+		<div
+			className={clsx(
+				{ flex: true, 'items-center': true },
+				{ 'justify-center': isActive, 'invalid-class': true }
+			)}>
+			Invalid in second
+		</div>
+	);
 }
 
 /**
@@ -301,7 +317,15 @@ export function MultipleObjectsInvalidInSecond() {
  * @validClasses [items-center, justify-center, bg-blue-500]
  */
 export function MultipleObjectsInvalidInFirst() {
-	return <div className={clsx({ 'invalid-error': hasError, 'items-center': true }, { 'justify-center': isActive, 'bg-blue-500': true })}>Invalid in first</div>;
+	return (
+		<div
+			className={clsx(
+				{ 'invalid-error': hasError, 'items-center': true },
+				{ 'justify-center': isActive, 'bg-blue-500': true }
+			)}>
+			Invalid in first
+		</div>
+	);
 }
 
 /**
@@ -310,7 +334,15 @@ export function MultipleObjectsInvalidInFirst() {
  * @validClasses [flex, bg-blue-500]
  */
 export function MultipleObjectsInvalidInBoth() {
-	return <div className={clsx({ flex: true, 'invalid-first': true }, { 'invalid-second': isActive, 'bg-blue-500': true })}>Invalid in both</div>;
+	return (
+		<div
+			className={clsx(
+				{ flex: true, 'invalid-first': true },
+				{ 'invalid-second': isActive, 'bg-blue-500': true }
+			)}>
+			Invalid in both
+		</div>
+	);
 }
 
 /**
@@ -318,7 +350,16 @@ export function MultipleObjectsInvalidInBoth() {
  * @validClasses [flex, items-center, justify-center, bg-blue-500, text-white, font-bold]
  */
 export function ThreeObjectsAllValid() {
-	return <div className={clsx({ flex: true }, { 'items-center': true, 'justify-center': isActive }, { 'bg-blue-500': true, 'text-white': true, 'font-bold': hasError })}>Three objects</div>;
+	return (
+		<div
+			className={clsx(
+				{ flex: true },
+				{ 'items-center': true, 'justify-center': isActive },
+				{ 'bg-blue-500': true, 'text-white': true, 'font-bold': hasError }
+			)}>
+			Three objects
+		</div>
+	);
 }
 
 // ========================================
@@ -578,17 +619,17 @@ export function ObjectTrailingComma() {
 
 // Mock function declarations
 declare function clsx(
-	...args: (string | string[] | Record<string, boolean | any> | boolean | null | undefined)[]
+	...args: (string | string[] | Record<string, boolean | unknown> | boolean | null | undefined)[]
 ): string;
 declare function cn(
-	...args: (string | string[] | Record<string, boolean | any> | boolean | null | undefined)[]
+	...args: (string | string[] | Record<string, boolean | unknown> | boolean | null | undefined)[]
 ): string;
 declare function classNames(
-	...args: (string | string[] | Record<string, boolean | any> | boolean | null | undefined)[]
+	...args: (string | string[] | Record<string, boolean | unknown> | boolean | null | undefined)[]
 ): string;
-declare function unknownBuilder(...args: any[]): string;
-declare function myCustomBuilder(...args: any[]): string;
+declare function unknownBuilder(...args: unknown[]): string;
+declare function myCustomBuilder(...args: unknown[]): string;
 
 declare const utils: {
-	clsx(...args: any[]): string;
+	clsx(...args: unknown[]): string;
 };

@@ -7,8 +7,8 @@
  * - clsx([['foo'], ['bar']])
  * - clsx([[['deeply', 'nested']]])
  */
-
 import { clsx } from 'clsx';
+
 import { cn } from './utils';
 
 /**
@@ -33,7 +33,15 @@ export function NestedArraySingleLevelInvalid() {
  * @validClasses [flex, items-center, justify-center, bg-blue-500]
  */
 export function NestedArrayTwoGroupsValid() {
-	return <div className={cn([['flex', 'items-center'], ['justify-center', 'bg-blue-500']])}>Two groups</div>;
+	return (
+		<div
+			className={cn([
+				['flex', 'items-center'],
+				['justify-center', 'bg-blue-500']
+			])}>
+			Two groups
+		</div>
+	);
 }
 
 /**
@@ -42,7 +50,15 @@ export function NestedArrayTwoGroupsValid() {
  * @validClasses [flex, items-center, justify-center]
  */
 export function NestedArrayTwoGroupsInvalidSecond() {
-	return <div className={cn([['flex', 'items-center'], ['justify-center', 'invalid-class']])}>Invalid in second</div>;
+	return (
+		<div
+			className={cn([
+				['flex', 'items-center'],
+				['justify-center', 'invalid-class']
+			])}>
+			Invalid in second
+		</div>
+	);
 }
 
 /**
@@ -51,7 +67,15 @@ export function NestedArrayTwoGroupsInvalidSecond() {
  * @validClasses [items-center, justify-center, bg-blue-500]
  */
 export function NestedArrayTwoGroupsInvalidFirst() {
-	return <div className={cn([['invalid-error', 'items-center'], ['justify-center', 'bg-blue-500']])}>Invalid in first</div>;
+	return (
+		<div
+			className={cn([
+				['invalid-error', 'items-center'],
+				['justify-center', 'bg-blue-500']
+			])}>
+			Invalid in first
+		</div>
+	);
 }
 
 /**
@@ -68,7 +92,9 @@ export function NestedArrayDeepValid() {
  * @validClasses [flex, items-center]
  */
 export function NestedArrayDeepInvalid() {
-	return <div className={cn([[['flex', 'invalid-deep', 'items-center']]])}>Invalid deep nested</div>;
+	return (
+		<div className={cn([[['flex', 'invalid-deep', 'items-center']]])}>Invalid deep nested</div>
+	);
 }
 
 /**
@@ -76,7 +102,11 @@ export function NestedArrayDeepInvalid() {
  * @validClasses [flex, items-center, justify-center, bg-blue-500]
  */
 export function NestedArrayMixedValid() {
-	return <div className={cn(['flex', ['items-center', 'justify-center'], 'bg-blue-500'])}>Mixed nesting</div>;
+	return (
+		<div className={cn(['flex', ['items-center', 'justify-center'], 'bg-blue-500'])}>
+			Mixed nesting
+		</div>
+	);
 }
 
 /**
@@ -85,7 +115,11 @@ export function NestedArrayMixedValid() {
  * @validClasses [flex, items-center, bg-blue-500]
  */
 export function NestedArrayMixedInvalidNested() {
-	return <div className={cn(['flex', ['items-center', 'invalid-nested'], 'bg-blue-500'])}>Invalid in nested</div>;
+	return (
+		<div className={cn(['flex', ['items-center', 'invalid-nested'], 'bg-blue-500'])}>
+			Invalid in nested
+		</div>
+	);
 }
 
 /**
@@ -94,7 +128,11 @@ export function NestedArrayMixedInvalidNested() {
  * @validClasses [items-center, justify-center, bg-blue-500]
  */
 export function NestedArrayMixedInvalidFlat() {
-	return <div className={cn(['invalid-flat', ['items-center', 'justify-center'], 'bg-blue-500'])}>Invalid in flat</div>;
+	return (
+		<div className={cn(['invalid-flat', ['items-center', 'justify-center'], 'bg-blue-500'])}>
+			Invalid in flat
+		</div>
+	);
 }
 
 /**
@@ -103,7 +141,11 @@ export function NestedArrayMixedInvalidFlat() {
  * @validClasses [flex, items-center, justify-center, text-lg]
  */
 export function NestedArrayComplexValid() {
-	return <div className={cn([['flex', [['items-center'], 'justify-center']], 'text-lg'])}>Complex nesting</div>;
+	return (
+		<div className={cn([['flex', [['items-center'], 'justify-center']], 'text-lg'])}>
+			Complex nesting
+		</div>
+	);
 }
 
 /**
@@ -112,7 +154,11 @@ export function NestedArrayComplexValid() {
  * @validClasses [flex, items-center, justify-center]
  */
 export function NestedArrayComplexInvalid() {
-	return <div className={cn([['flex', [['items-center'], 'invalid-complex']], 'justify-center'])}>Invalid complex</div>;
+	return (
+		<div className={cn([['flex', [['items-center'], 'invalid-complex']], 'justify-center'])}>
+			Invalid complex
+		</div>
+	);
 }
 
 /**
@@ -120,7 +166,15 @@ export function NestedArrayComplexInvalid() {
  * @validClasses [flex, hover:bg-blue-500, md:flex-col, lg:items-center]
  */
 export function NestedArrayWithVariants() {
-	return <div className={cn([['flex', 'hover:bg-blue-500'], ['md:flex-col', 'lg:items-center']])}>With variants</div>;
+	return (
+		<div
+			className={cn([
+				['flex', 'hover:bg-blue-500'],
+				['md:flex-col', 'lg:items-center']
+			])}>
+			With variants
+		</div>
+	);
 }
 
 /**
@@ -128,7 +182,15 @@ export function NestedArrayWithVariants() {
  * @validClasses [flex, h-[50vh], w-[100px], bg-[#ff0000]]
  */
 export function NestedArrayWithArbitrary() {
-	return <div className={cn([['flex', 'h-[50vh]'], ['w-[100px]', 'bg-[#ff0000]']])}>With arbitrary</div>;
+	return (
+		<div
+			className={cn([
+				['flex', 'h-[50vh]'],
+				['w-[100px]', 'bg-[#ff0000]']
+			])}>
+			With arbitrary
+		</div>
+	);
 }
 
 /**
@@ -154,7 +216,12 @@ export function NestedArrayVeryDeep() {
  */
 export function NestedArrayVariadic() {
 	return (
-		<div className={cn(['flex'], ['', 0, false, 'items-center'], [['justify-center', [['bg-blue-500'], 'text-white']]])}>
+		<div
+			className={cn(
+				['flex'],
+				['', 0, false, 'items-center'],
+				[['justify-center', [['bg-blue-500'], 'text-white']]]
+			)}>
 			Variadic nested
 		</div>
 	);
@@ -167,7 +234,12 @@ export function NestedArrayVariadic() {
  */
 export function NestedArrayVariadicInvalid() {
 	return (
-		<div className={cn(['flex'], ['items-center'], [['justify-center', [['bg-blue-500'], 'invalid-variadic']]])}>
+		<div
+			className={cn(
+				['flex'],
+				['items-center'],
+				[['justify-center', [['bg-blue-500'], 'invalid-variadic']]]
+			)}>
 			Invalid variadic
 		</div>
 	);
@@ -191,7 +263,11 @@ export function NestedArrayDifferentFunctions() {
  * @validClasses [flex, items-center, justify-center, bg-blue-500]
  */
 export function NestedArrayNestedFunctions() {
-	return <div className={cn([clsx([['flex', 'items-center']]), ['justify-center', 'bg-blue-500']])}>Nested functions</div>;
+	return (
+		<div className={cn([clsx([['flex', 'items-center']]), ['justify-center', 'bg-blue-500']])}>
+			Nested functions
+		</div>
+	);
 }
 
 /**
@@ -200,5 +276,10 @@ export function NestedArrayNestedFunctions() {
  * @validClasses [flex, items-center, justify-center]
  */
 export function NestedArrayNestedFunctionsInvalid() {
-	return <div className={cn([clsx([['flex', 'invalid-nested-fn']]), ['items-center', 'justify-center']])}>Invalid nested fn</div>;
+	return (
+		<div
+			className={cn([clsx([['flex', 'invalid-nested-fn']]), ['items-center', 'justify-center']])}>
+			Invalid nested fn
+		</div>
+	);
 }

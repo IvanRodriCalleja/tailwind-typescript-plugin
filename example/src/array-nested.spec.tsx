@@ -1,6 +1,12 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 import path from 'path';
-import { TestCase, createTestAssertion, parseTestFile, runPluginOnFile } from '../test/test-helpers';
+
+import {
+	TestCase,
+	createTestAssertion,
+	parseTestFile,
+	runPluginOnFile
+} from '../test/test-helpers';
 
 describe('E2E Tests - Nested Arrays', () => {
 	const testFile = path.join(__dirname, 'array-nested.tsx');
