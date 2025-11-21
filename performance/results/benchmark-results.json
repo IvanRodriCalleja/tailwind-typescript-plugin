@@ -1,0 +1,227 @@
+[
+  {
+    "timestamp": "2025-11-21T09:23:14.739Z",
+    "new": {
+      "version": "new",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 6.45679199999995,
+        "run2": 6.934750000000008,
+        "run3": 6.289916999999946,
+        "run4": 5.773249999999962,
+        "run5": 5.368709000000081,
+        "average": 6.164683599999989,
+        "median": 6.289916999999946
+      },
+      "memoryUsage": {
+        "heapUsed": 3368136,
+        "heapTotal": 3145728
+      }
+    },
+    "old": {
+      "version": "old",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 5.0001250000000255,
+        "run2": 4.395958000000064,
+        "run3": 4.535834000000023,
+        "run4": 5.717374999999947,
+        "run5": 4.414625000000115,
+        "average": 4.8127834000000345,
+        "median": 4.535834000000023
+      },
+      "memoryUsage": {
+        "heapUsed": -3149008,
+        "heapTotal": 2621440
+      }
+    }
+  },
+  {
+    "timestamp": "2025-11-21T09:59:45.722Z",
+    "new": {
+      "version": "new",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 6.756833000000029,
+        "run2": 6.064041999999972,
+        "run3": 5.938541999999984,
+        "run4": 6.638250000000085,
+        "run5": 6.165916000000038,
+        "average": 6.312716600000021,
+        "median": 6.165916000000038
+      },
+      "memoryUsage": {
+        "heapUsed": 557400,
+        "heapTotal": 3145728
+      }
+    },
+    "old": {
+      "version": "old",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 5.267582999999831,
+        "run2": 5.019958000000088,
+        "run3": 4.62241599999993,
+        "run4": 4.244750000000067,
+        "run5": 5.138374999999996,
+        "average": 4.858616399999983,
+        "median": 5.019958000000088
+      },
+      "memoryUsage": {
+        "heapUsed": -3039808,
+        "heapTotal": 3407872
+      }
+    }
+  },
+  {
+    "timestamp": "2025-11-21T10:26:36.067Z",
+    "new": {
+      "version": "new",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 25.774917000000187,
+        "run2": 38.047250000000076,
+        "run3": 65.89220800000021,
+        "run4": 27.209625000000187,
+        "run5": 58.2338749999999,
+        "average": 43.03157500000011,
+        "median": 38.047250000000076
+      },
+      "memoryUsage": {
+        "heapUsed": 589160,
+        "heapTotal": 2883584
+      }
+    },
+    "old": {
+      "version": "old",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 13.591167000000041,
+        "run2": 14.251333000000159,
+        "run3": 17.541791999999987,
+        "run4": 9.945416999999907,
+        "run5": 10.238832999999886,
+        "average": 13.113708399999997,
+        "median": 13.591167000000041
+      },
+      "memoryUsage": {
+        "heapUsed": -2460840,
+        "heapTotal": 3407872
+      }
+    }
+  },
+  {
+    "timestamp": "2025-11-21T10:41:06.393Z",
+    "new": {
+      "version": "new",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 8.304708000000119,
+        "run2": 7.29808399999979,
+        "run3": 9.211917000000085,
+        "run4": 10.401082999999971,
+        "run5": 11.301458000000139,
+        "average": 9.303450000000021,
+        "median": 9.211917000000085
+      },
+      "memoryUsage": {
+        "heapUsed": 662944,
+        "heapTotal": 2883584
+      }
+    },
+    "old": {
+      "version": "old",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 13.848375000000033,
+        "run2": 11.552250000000186,
+        "run3": 5.731457999999748,
+        "run4": 11.334458999999697,
+        "run5": 7.07641700000022,
+        "average": 9.908591799999977,
+        "median": 11.334458999999697
+      },
+      "memoryUsage": {
+        "heapUsed": -2507832,
+        "heapTotal": 3145728
+      }
+    }
+  },
+  {
+    "timestamp": "2025-11-21T11:03:50.474Z",
+    "new": {
+      "version": "new",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 6.437000000000012,
+        "run2": 7.063666000000012,
+        "run3": 6.954833000000008,
+        "run4": 15.818083999999999,
+        "run5": 5.788374999999974,
+        "average": 8.412391600000001,
+        "median": 6.954833000000008
+      },
+      "memoryUsage": {
+        "heapUsed": 668536,
+        "heapTotal": 3145728
+      }
+    },
+    "old": {
+      "version": "old",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 5.1782499999999345,
+        "run2": 4.530415999999832,
+        "run3": 4.373333000000002,
+        "run4": 4.0426659999998265,
+        "run5": 4.814292000000023,
+        "average": 4.587791399999924,
+        "median": 4.530415999999832
+      },
+      "memoryUsage": {
+        "heapUsed": -2995152,
+        "heapTotal": 3145728
+      }
+    }
+  }
+]

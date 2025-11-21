@@ -10,7 +10,9 @@
     "test": "jest",
     "lint": "eslint src --ext .ts,.tsx,.json --quiet --cache",
     "tsc": "tsc --noEmit",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "benchmark": "npm run build && node --expose-gc $(which npx) ts-node performance/run-benchmark.ts",
+    "benchmark:report": "npx ts-node performance/format-benchmark-report.ts"
   },
   "keywords": [
     "typescript",
@@ -34,6 +36,7 @@
     "jest": "^29.7.0",
     "prettier": "^3.5.3",
     "ts-jest": "^29.4.5",
+    "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
   },
   "peerDependencies": {

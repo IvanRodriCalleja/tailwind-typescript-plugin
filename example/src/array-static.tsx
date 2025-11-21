@@ -31,7 +31,9 @@ export function SingleElementInvalid() {
  * @validClasses [flex, items-center, justify-center]
  */
 export function SingleElementMultipleClasses() {
-	return <div className={cn(['flex items-center justify-center'])}>Multiple classes in one element</div>;
+	return (
+		<div className={cn(['flex items-center justify-center'])}>Multiple classes in one element</div>
+	);
 }
 
 /**
@@ -52,7 +54,9 @@ export function SingleElementMixedClasses() {
  * @validClasses [flex, items-center, justify-center]
  */
 export function MultipleElementsAllValid() {
-	return <div className={cn(['flex', 'items-center', 'justify-center'])}>Multiple valid elements</div>;
+	return (
+		<div className={cn(['flex', 'items-center', 'justify-center'])}>Multiple valid elements</div>
+	);
 }
 
 /**
@@ -78,7 +82,9 @@ export function MultipleElementsMixed() {
  * @validClasses [items-center, justify-center]
  */
 export function InvalidInFirstElement() {
-	return <div className={cn(['invalid-first', 'items-center', 'justify-center'])}>Invalid first</div>;
+	return (
+		<div className={cn(['invalid-first', 'items-center', 'justify-center'])}>Invalid first</div>
+	);
 }
 
 /**
@@ -135,7 +141,9 @@ export function MultipleSpacesInElements() {
  * @validClasses [h-[50vh], w-[100px], bg-[#ff0000]]
  */
 export function ArrayWithArbitraryValues() {
-	return <div className={cn(['h-[50vh]', 'w-[100px]', 'bg-[#ff0000]'])}>Array with arbitrary values</div>;
+	return (
+		<div className={cn(['h-[50vh]', 'w-[100px]', 'bg-[#ff0000]'])}>Array with arbitrary values</div>
+	);
 }
 
 /**
@@ -143,7 +151,11 @@ export function ArrayWithArbitraryValues() {
  * @validClasses [hover:bg-blue-500, focus:ring-2, active:scale-95]
  */
 export function ArrayWithVariants() {
-	return <div className={cn(['hover:bg-blue-500', 'focus:ring-2', 'active:scale-95'])}>Array with variants</div>;
+	return (
+		<div className={cn(['hover:bg-blue-500', 'focus:ring-2', 'active:scale-95'])}>
+			Array with variants
+		</div>
+	);
 }
 
 /**
@@ -159,7 +171,11 @@ export function ArrayWithResponsiveVariants() {
  * @validClasses [bg-white, dark:bg-gray-900, text-black, dark:text-white]
  */
 export function ArrayWithDarkMode() {
-	return <div className={cn(['bg-white dark:bg-gray-900', 'text-black dark:text-white'])}>Array with dark mode</div>;
+	return (
+		<div className={cn(['bg-white dark:bg-gray-900', 'text-black dark:text-white'])}>
+			Array with dark mode
+		</div>
+	);
 }
 
 /**
@@ -177,7 +193,11 @@ export function ArrayWithInvalidVariant() {
  * @validClasses [h-[50vh], w-[100px]]
  */
 export function ArrayWithArbitraryAndInvalid() {
-	return <div className={cn(['h-[50vh]', 'invalid-size', 'w-[100px]'])}>Array with arbitrary and invalid</div>;
+	return (
+		<div className={cn(['h-[50vh]', 'invalid-size', 'w-[100px]'])}>
+			Array with arbitrary and invalid
+		</div>
+	);
 }
 
 // ========================================
@@ -198,7 +218,9 @@ export function ArrayInClsxFunction() {
  * @validClasses [flex, items-center]
  */
 export function ArrayInClsxFunctionInvalid() {
-	return <div className={clsx(['flex', 'invalid-class', 'items-center'])}>Array in clsx() invalid</div>;
+	return (
+		<div className={clsx(['flex', 'invalid-class', 'items-center'])}>Array in clsx() invalid</div>
+	);
 }
 
 /**
@@ -206,7 +228,11 @@ export function ArrayInClsxFunctionInvalid() {
  * @validClasses [flex, items-center, justify-center]
  */
 export function ArrayInClassNamesFunction() {
-	return <div className={classNames(['flex', 'items-center', 'justify-center'])}>Array in classNames()</div>;
+	return (
+		<div className={classNames(['flex', 'items-center', 'justify-center'])}>
+			Array in classNames()
+		</div>
+	);
 }
 
 /**
@@ -215,7 +241,11 @@ export function ArrayInClassNamesFunction() {
  * @validClasses [flex, items-center]
  */
 export function ArrayInClassNamesFunctionInvalid() {
-	return <div className={classNames(['flex', 'invalid-class', 'items-center'])}>Array in classNames() invalid</div>;
+	return (
+		<div className={classNames(['flex', 'invalid-class', 'items-center'])}>
+			Array in classNames() invalid
+		</div>
+	);
 }
 
 // ========================================
@@ -227,7 +257,11 @@ export function ArrayInClassNamesFunctionInvalid() {
  * @validClasses [flex, items-center, justify-center, bg-blue-500]
  */
 export function NestedFunctionCallsWithArrays() {
-	return <div className={clsx('flex', cn(['items-center', 'justify-center']), 'bg-blue-500')}>Nested with arrays</div>;
+	return (
+		<div className={clsx('flex', cn(['items-center', 'justify-center']), 'bg-blue-500')}>
+			Nested with arrays
+		</div>
+	);
 }
 
 /**
@@ -236,7 +270,11 @@ export function NestedFunctionCallsWithArrays() {
  * @validClasses [flex, items-center, bg-blue-500]
  */
 export function NestedFunctionCallsWithArraysInvalid() {
-	return <div className={clsx('flex', cn(['items-center', 'invalid-class']), 'bg-blue-500')}>Nested with invalid</div>;
+	return (
+		<div className={clsx('flex', cn(['items-center', 'invalid-class']), 'bg-blue-500')}>
+			Nested with invalid
+		</div>
+	);
 }
 
 /**
@@ -256,7 +294,11 @@ export function NestedArrays() {
  * @validClasses [flex, items-center, justify-center, bg-blue-500]
  */
 export function ArrayWithStaticStrings() {
-	return <div className={cn('flex', ['items-center', 'justify-center'], 'bg-blue-500')}>Array with static</div>;
+	return (
+		<div className={cn('flex', ['items-center', 'justify-center'], 'bg-blue-500')}>
+			Array with static
+		</div>
+	);
 }
 
 /**
@@ -265,7 +307,11 @@ export function ArrayWithStaticStrings() {
  * @validClasses [flex, items-center, bg-blue-500]
  */
 export function ArrayWithStaticStringsInvalid() {
-	return <div className={cn('flex', ['items-center', 'invalid-class'], 'bg-blue-500')}>Array with static invalid</div>;
+	return (
+		<div className={cn('flex', ['items-center', 'invalid-class'], 'bg-blue-500')}>
+			Array with static invalid
+		</div>
+	);
 }
 
 // ========================================
@@ -323,7 +369,9 @@ export function SelfClosingWithArrayInvalid() {
  * @validClasses [flex, items-center, justify-center]
  */
 export function MemberExpressionWithArray() {
-	return <div className={utils.cn(['flex', 'items-center', 'justify-center'])}>Member with array</div>;
+	return (
+		<div className={utils.cn(['flex', 'items-center', 'justify-center'])}>Member with array</div>
+	);
 }
 
 /**
@@ -332,7 +380,9 @@ export function MemberExpressionWithArray() {
  * @validClasses [flex, items-center]
  */
 export function MemberExpressionWithArrayInvalid() {
-	return <div className={utils.cn(['flex', 'invalid-class', 'items-center'])}>Member with invalid</div>;
+	return (
+		<div className={utils.cn(['flex', 'invalid-class', 'items-center'])}>Member with invalid</div>
+	);
 }
 
 // ========================================
@@ -343,7 +393,11 @@ export function MemberExpressionWithArrayInvalid() {
  * ✅ Valid: Unknown function with array (ignored, not validated)
  */
 export function UnknownFunctionWithArray() {
-	return <div className={unknownBuilder(['flex', 'totally-invalid', 'items-center'])}>Unknown function ignored</div>;
+	return (
+		<div className={unknownBuilder(['flex', 'totally-invalid', 'items-center'])}>
+			Unknown function ignored
+		</div>
+	);
 }
 
 // ========================================
@@ -356,7 +410,11 @@ export function UnknownFunctionWithArray() {
  * @validClasses [flex, items-center, justify-center]
  */
 export function CustomUtilityWithArray() {
-	return <div className={myCustomBuilder(['flex', 'items-center', 'justify-center'])}>Custom with array</div>;
+	return (
+		<div className={myCustomBuilder(['flex', 'items-center', 'justify-center'])}>
+			Custom with array
+		</div>
+	);
 }
 
 // ========================================
@@ -368,7 +426,7 @@ export function CustomUtilityWithArray() {
  * @validClasses [flex, items-center, justify-center]
  */
 export function ArrayWithTrailingComma() {
-	return <div className={cn(['flex', 'items-center', 'justify-center',])}>Trailing comma</div>;
+	return <div className={cn(['flex', 'items-center', 'justify-center'])}>Trailing comma</div>;
 }
 
 // Mock function declarations

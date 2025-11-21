@@ -7,8 +7,8 @@
  * - clsx({ foo: ['bar'], baz: ['qux'] })
  * - clsx({ foo: [['nested']] })
  */
-
 import { clsx } from 'clsx';
+
 import { cn } from './utils';
 
 const isActive = true;
@@ -36,7 +36,12 @@ export function ObjectArrayValueInvalid() {
  * @validClasses [flex, items-center, justify-center, bg-blue-500, text-white]
  */
 export function ObjectMultipleArrayValues() {
-	return <div className={clsx({ flex: ['items-center', 'justify-center'], 'bg-blue-500': ['text-white'] })}>Multiple arrays</div>;
+	return (
+		<div
+			className={clsx({ flex: ['items-center', 'justify-center'], 'bg-blue-500': ['text-white'] })}>
+			Multiple arrays
+		</div>
+	);
 }
 
 /**
@@ -45,7 +50,15 @@ export function ObjectMultipleArrayValues() {
  * @validClasses [flex, items-center, justify-center, bg-blue-500]
  */
 export function ObjectMultipleArrayValuesInvalidSecond() {
-	return <div className={clsx({ flex: ['items-center', 'justify-center'], 'bg-blue-500': ['invalid-text'] })}>Invalid in second</div>;
+	return (
+		<div
+			className={clsx({
+				flex: ['items-center', 'justify-center'],
+				'bg-blue-500': ['invalid-text']
+			})}>
+			Invalid in second
+		</div>
+	);
 }
 
 /**
@@ -54,7 +67,12 @@ export function ObjectMultipleArrayValuesInvalidSecond() {
  * @validClasses [items-center, bg-blue-500, text-white]
  */
 export function ObjectMultipleArrayValuesInvalidFirst() {
-	return <div className={clsx({ flex: ['invalid-flex', 'items-center'], 'bg-blue-500': ['text-white'] })}>Invalid in first</div>;
+	return (
+		<div
+			className={clsx({ flex: ['invalid-flex', 'items-center'], 'bg-blue-500': ['text-white'] })}>
+			Invalid in first
+		</div>
+	);
 }
 
 /**
@@ -62,7 +80,11 @@ export function ObjectMultipleArrayValuesInvalidFirst() {
  * @validClasses [flex, items-center, justify-center, bg-blue-500]
  */
 export function ObjectNestedArrayValue() {
-	return <div className={clsx({ flex: [['items-center', 'justify-center']], 'bg-blue-500': true })}>Nested array value</div>;
+	return (
+		<div className={clsx({ flex: [['items-center', 'justify-center']], 'bg-blue-500': true })}>
+			Nested array value
+		</div>
+	);
 }
 
 /**
@@ -71,7 +93,11 @@ export function ObjectNestedArrayValue() {
  * @validClasses [flex, items-center, justify-center]
  */
 export function ObjectNestedArrayValueInvalid() {
-	return <div className={clsx({ flex: [['items-center', 'invalid-nested']], 'justify-center': true })}>Invalid nested</div>;
+	return (
+		<div className={clsx({ flex: [['items-center', 'invalid-nested']], 'justify-center': true })}>
+			Invalid nested
+		</div>
+	);
 }
 
 /**
@@ -79,7 +105,16 @@ export function ObjectNestedArrayValueInvalid() {
  * @validClasses [flex, items-center, justify-center, bg-blue-500, text-white]
  */
 export function ObjectMixedBooleanAndArray() {
-	return <div className={clsx({ flex: true, 'items-center': ['justify-center', 'bg-blue-500'], 'text-white': true })}>Mixed types</div>;
+	return (
+		<div
+			className={clsx({
+				flex: true,
+				'items-center': ['justify-center', 'bg-blue-500'],
+				'text-white': true
+			})}>
+			Mixed types
+		</div>
+	);
 }
 
 /**
@@ -88,7 +123,16 @@ export function ObjectMixedBooleanAndArray() {
  * @validClasses [flex, items-center, justify-center, text-white]
  */
 export function ObjectMixedBooleanAndArrayInvalid() {
-	return <div className={clsx({ flex: true, 'items-center': ['justify-center', 'invalid-mix'], 'text-white': true })}>Invalid mixed</div>;
+	return (
+		<div
+			className={clsx({
+				flex: true,
+				'items-center': ['justify-center', 'invalid-mix'],
+				'text-white': true
+			})}>
+			Invalid mixed
+		</div>
+	);
 }
 
 /**
@@ -96,7 +140,11 @@ export function ObjectMixedBooleanAndArrayInvalid() {
  * @validClasses [flex, items-center, text-red-500]
  */
 export function ObjectArrayValueWithBinary() {
-	return <div className={clsx({ flex: ['items-center', hasError && 'text-red-500'] })}>Array with binary</div>;
+	return (
+		<div className={clsx({ flex: ['items-center', hasError && 'text-red-500'] })}>
+			Array with binary
+		</div>
+	);
 }
 
 /**
@@ -105,7 +153,11 @@ export function ObjectArrayValueWithBinary() {
  * @validClasses [flex, items-center]
  */
 export function ObjectArrayValueWithBinaryInvalid() {
-	return <div className={clsx({ flex: ['items-center', hasError && 'invalid-error'] })}>Invalid binary in array</div>;
+	return (
+		<div className={clsx({ flex: ['items-center', hasError && 'invalid-error'] })}>
+			Invalid binary in array
+		</div>
+	);
 }
 
 /**
@@ -113,7 +165,11 @@ export function ObjectArrayValueWithBinaryInvalid() {
  * @validClasses [flex, items-center, bg-blue-500, bg-gray-500]
  */
 export function ObjectArrayValueWithTernary() {
-	return <div className={clsx({ flex: ['items-center', isActive ? 'bg-blue-500' : 'bg-gray-500'] })}>Array with ternary</div>;
+	return (
+		<div className={clsx({ flex: ['items-center', isActive ? 'bg-blue-500' : 'bg-gray-500'] })}>
+			Array with ternary
+		</div>
+	);
 }
 
 /**
@@ -122,7 +178,11 @@ export function ObjectArrayValueWithTernary() {
  * @validClasses [flex, items-center, bg-gray-500]
  */
 export function ObjectArrayValueWithTernaryInvalid() {
-	return <div className={clsx({ flex: ['items-center', isActive ? 'invalid-active' : 'bg-gray-500'] })}>Invalid ternary</div>;
+	return (
+		<div className={clsx({ flex: ['items-center', isActive ? 'invalid-active' : 'bg-gray-500'] })}>
+			Invalid ternary
+		</div>
+	);
 }
 
 /**
@@ -138,7 +198,11 @@ export function ObjectEmptyArrayValue() {
  * @validClasses [flex, hover:bg-blue-500, md:flex-col, dark:text-white]
  */
 export function ObjectArrayValueWithVariants() {
-	return <div className={clsx({ flex: ['hover:bg-blue-500', 'md:flex-col', 'dark:text-white'] })}>With variants</div>;
+	return (
+		<div className={clsx({ flex: ['hover:bg-blue-500', 'md:flex-col', 'dark:text-white'] })}>
+			With variants
+		</div>
+	);
 }
 
 /**
@@ -146,7 +210,9 @@ export function ObjectArrayValueWithVariants() {
  * @validClasses [flex, h-[50vh], w-[100px], bg-[#ff0000]]
  */
 export function ObjectArrayValueWithArbitrary() {
-	return <div className={clsx({ flex: ['h-[50vh]', 'w-[100px]', 'bg-[#ff0000]'] })}>With arbitrary</div>;
+	return (
+		<div className={clsx({ flex: ['h-[50vh]', 'w-[100px]', 'bg-[#ff0000]'] })}>With arbitrary</div>
+	);
 }
 
 /**
@@ -154,7 +220,11 @@ export function ObjectArrayValueWithArbitrary() {
  * @validClasses [flex, items-center, justify-center, bg-blue-500]
  */
 export function ObjectDeeplyNestedArrayValue() {
-	return <div className={clsx({ flex: [[['items-center', 'justify-center', 'bg-blue-500']]] })}>Deeply nested</div>;
+	return (
+		<div className={clsx({ flex: [[['items-center', 'justify-center', 'bg-blue-500']]] })}>
+			Deeply nested
+		</div>
+	);
 }
 
 /**
@@ -163,7 +233,11 @@ export function ObjectDeeplyNestedArrayValue() {
  * @validClasses [flex, items-center, justify-center]
  */
 export function ObjectDeeplyNestedArrayValueInvalid() {
-	return <div className={clsx({ flex: [[['items-center', 'invalid-deep', 'justify-center']]] })}>Invalid deep</div>;
+	return (
+		<div className={clsx({ flex: [[['items-center', 'invalid-deep', 'justify-center']]] })}>
+			Invalid deep
+		</div>
+	);
 }
 
 /**
@@ -171,7 +245,14 @@ export function ObjectDeeplyNestedArrayValueInvalid() {
  * @validClasses [flex, items-center, justify-center, bg-blue-500]
  */
 export function ObjectArrayValueWithNestedObject() {
-	return <div className={clsx({ flex: ['items-center', { 'justify-center': true, 'bg-blue-500': isActive }] })}>Object in array</div>;
+	return (
+		<div
+			className={clsx({
+				flex: ['items-center', { 'justify-center': true, 'bg-blue-500': isActive }]
+			})}>
+			Object in array
+		</div>
+	);
 }
 
 /**
@@ -180,7 +261,14 @@ export function ObjectArrayValueWithNestedObject() {
  * @validClasses [flex, items-center, justify-center]
  */
 export function ObjectArrayValueWithNestedObjectInvalid() {
-	return <div className={clsx({ flex: ['items-center', { 'justify-center': true, 'invalid-nested-obj': isActive }] })}>Invalid object in array</div>;
+	return (
+		<div
+			className={clsx({
+				flex: ['items-center', { 'justify-center': true, 'invalid-nested-obj': isActive }]
+			})}>
+			Invalid object in array
+		</div>
+	);
 }
 
 /**
@@ -189,7 +277,11 @@ export function ObjectArrayValueWithNestedObjectInvalid() {
  */
 export function MultipleObjectsWithArrayValues() {
 	return (
-		<div className={clsx({ flex: ['items-center', 'justify-center'] }, { 'bg-blue-500': ['text-white', 'font-bold'] })}>
+		<div
+			className={clsx(
+				{ flex: ['items-center', 'justify-center'] },
+				{ 'bg-blue-500': ['text-white', 'font-bold'] }
+			)}>
 			Multiple objects with arrays
 		</div>
 	);
@@ -202,7 +294,11 @@ export function MultipleObjectsWithArrayValues() {
  */
 export function MultipleObjectsWithArrayValuesInvalidSecond() {
 	return (
-		<div className={clsx({ flex: ['items-center', 'justify-center'] }, { 'bg-blue-500': ['invalid-text'] })}>
+		<div
+			className={clsx(
+				{ flex: ['items-center', 'justify-center'] },
+				{ 'bg-blue-500': ['invalid-text'] }
+			)}>
 			Invalid in second
 		</div>
 	);
@@ -215,7 +311,11 @@ export function MultipleObjectsWithArrayValuesInvalidSecond() {
  */
 export function MultipleObjectsWithArrayValuesInvalidFirst() {
 	return (
-		<div className={clsx({ flex: ['invalid-items', 'justify-center'] }, { 'bg-blue-500': ['text-white'] })}>
+		<div
+			className={clsx(
+				{ flex: ['invalid-items', 'justify-center'] },
+				{ 'bg-blue-500': ['text-white'] }
+			)}>
 			Invalid in first
 		</div>
 	);
@@ -239,7 +339,11 @@ export function ObjectArrayValueDifferentFunctions() {
  * @validClasses [flex, items-center, justify-center, bg-blue-500]
  */
 export function ObjectArrayValueNestedFunctions() {
-	return <div className={cn([clsx({ flex: ['items-center', 'justify-center'] }), 'bg-blue-500'])}>Nested functions</div>;
+	return (
+		<div className={cn([clsx({ flex: ['items-center', 'justify-center'] }), 'bg-blue-500'])}>
+			Nested functions
+		</div>
+	);
 }
 
 /**
@@ -248,5 +352,9 @@ export function ObjectArrayValueNestedFunctions() {
  * @validClasses [flex, items-center, bg-blue-500]
  */
 export function ObjectArrayValueNestedFunctionsInvalid() {
-	return <div className={cn([clsx({ flex: ['items-center', 'invalid-nested'] }), 'bg-blue-500'])}>Invalid nested fn</div>;
+	return (
+		<div className={cn([clsx({ flex: ['items-center', 'invalid-nested'] }), 'bg-blue-500'])}>
+			Invalid nested fn
+		</div>
+	);
 }

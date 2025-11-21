@@ -2,8 +2,7 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import fs from 'fs';
 import path from 'path';
 
-// Import the plugin factory
-const pluginFactory = require('../../src/index');
+import pluginFactory from '../../src/index';
 
 export interface ElementExpectation {
 	elementId: number;
