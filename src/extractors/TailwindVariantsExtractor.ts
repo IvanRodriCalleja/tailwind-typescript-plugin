@@ -12,6 +12,7 @@ import { BaseExtractor } from './BaseExtractor';
  * - compoundVariants: array of objects with class/className properties
  * - slots: object where values contain classes
  * - Import aliasing: import { tv as myTv } from 'tailwind-variants'
+ * - class property overrides: button({ color: 'primary', class: 'bg-pink-500' })
  *
  * PERFORMANCE OPTIMIZATIONS:
  * - ✅ Import detection cached per file (one-time AST scan)
@@ -19,9 +20,11 @@ import { BaseExtractor } from './BaseExtractor';
  * - ✅ Direct property access (no unnecessary traversal)
  * - ✅ Inline hot paths (string literal extraction)
  * - ✅ Short-circuit evaluation (skip work when possible)
+ * - ✅ TypeChecker-based origin tracking (cached per symbol)
  */
 export class TailwindVariantsExtractor extends BaseExtractor {
 	private tvImportCache = new Map<string, Set<string>>();
+	private tvVariableCache = new Map<ts.Symbol, boolean>();
 
 	canHandle(node: ts.Node, context: ExtractionContext): boolean {
 		return context.typescript.isCallExpression(node);
@@ -35,25 +38,31 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 
 		const callExpression = node as ts.CallExpression;
 
-		// OPTIMIZATION: Check if this is a tv() call (includes import cache check)
-		if (!this.isTvCall(callExpression, context)) {
-			return [];
+		// OPTIMIZATION: Check if this is a tv() definition call
+		if (this.isTvCall(callExpression, context)) {
+			// OPTIMIZATION: Early exit for empty arguments
+			if (callExpression.arguments.length === 0) {
+				return [];
+			}
+
+			const configArg = callExpression.arguments[0];
+
+			// OPTIMIZATION: Early exit if not an object literal
+			if (!context.typescript.isObjectLiteralExpression(configArg)) {
+				return [];
+			}
+
+			// Extract class names from the tv() configuration object
+			return this.extractFromTvConfig(configArg, context);
 		}
 
-		// OPTIMIZATION: Early exit for empty arguments
-		if (callExpression.arguments.length === 0) {
-			return [];
+		// Check if this is a call to a function created by tv() (e.g., button({ class: '...' }))
+		// IMPORTANT: Only validate if NOT a utility function
+		if (this.isTvCreatedFunctionCall(callExpression, context)) {
+			return this.extractFromTvFunctionCall(callExpression, context);
 		}
 
-		const configArg = callExpression.arguments[0];
-
-		// OPTIMIZATION: Early exit if not an object literal
-		if (!context.typescript.isObjectLiteralExpression(configArg)) {
-			return [];
-		}
-
-		// Extract class names from the configuration object
-		return this.extractFromTvConfig(configArg, context);
+		return [];
 	}
 
 	/**
@@ -171,9 +180,7 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 
 				case 'compoundVariants':
 					// compoundVariants: [{ size: 'sm', color: 'primary', class: 'font-bold' }]
-					classNames.push(
-						...this.extractFromCompoundVariants(property.initializer, context)
-					);
+					classNames.push(...this.extractFromCompoundVariants(property.initializer, context));
 					break;
 
 				case 'slots':
@@ -199,10 +206,7 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 	 * Extract class names from the variants object
 	 * Structure: { variantName: { optionName: 'classes' } }
 	 */
-	private extractFromVariants(
-		node: ts.Expression,
-		context: ExtractionContext
-	): ClassNameInfo[] {
+	private extractFromVariants(node: ts.Expression, context: ExtractionContext): ClassNameInfo[] {
 		if (!context.typescript.isObjectLiteralExpression(node)) {
 			return [];
 		}
@@ -272,10 +276,7 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 	 * Extract class names from slots object
 	 * Structure: { slotName: 'classes' } or { slotName: { base: 'classes', variants: {...} } }
 	 */
-	private extractFromSlots(
-		node: ts.Expression,
-		context: ExtractionContext
-	): ClassNameInfo[] {
+	private extractFromSlots(node: ts.Expression, context: ExtractionContext): ClassNameInfo[] {
 		if (!context.typescript.isObjectLiteralExpression(node)) {
 			return [];
 		}
@@ -335,8 +336,7 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 		// For now, we extract only the static parts
 		if (context.typescript.isTemplateExpression(node)) {
 			const classNames: ClassNameInfo[] = [];
-			const lineNumber =
-				context.sourceFile.getLineAndCharacterOfPosition(node.getStart()).line + 1;
+			const lineNumber = context.sourceFile.getLineAndCharacterOfPosition(node.getStart()).line + 1;
 
 			// Extract from head
 			if (node.head.text) {
@@ -406,9 +406,142 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 	}
 
 	/**
+	 * Check if this call expression is calling a function created by tv()
+	 * Uses TypeChecker for accurate origin tracking
+	 * IMPORTANT: Returns false for utility functions
+	 */
+	private isTvCreatedFunctionCall(
+		callExpression: ts.CallExpression,
+		context: ExtractionContext
+	): boolean {
+		// OPTIMIZATION: Early exit if no type checker available
+		if (!context.typeChecker) {
+			return false;
+		}
+
+		const expr = callExpression.expression;
+
+		// OPTIMIZATION: Only handle simple identifiers and property access
+		// This covers: button(...), variants.button(...), etc.
+		if (
+			!context.typescript.isIdentifier(expr) &&
+			!context.typescript.isPropertyAccessExpression(expr)
+		) {
+			return false;
+		}
+
+		// OPTIMIZATION: Check if this is a utility function (exclude from validation)
+		const functionName = context.typescript.isIdentifier(expr)
+			? expr.text
+			: context.typescript.isPropertyAccessExpression(expr)
+				? expr.name.text
+				: null;
+
+		if (functionName && context.utilityFunctions.includes(functionName)) {
+			// Debug: log when skipping utility function
+			// console.log(`[TV] Skipping utility function: ${functionName}`);
+			return false;
+		}
+
+		// Debug: log function being checked
+		// console.log(`[TV] Checking if ${functionName} is tv-created, utility functions:`, context.utilityFunctions);
+
+		// Get the symbol for the called function
+		const symbol = context.typeChecker.getSymbolAtLocation(expr);
+		if (!symbol) {
+			return false;
+		}
+
+		// OPTIMIZATION: Check cache first
+		if (this.tvVariableCache.has(symbol)) {
+			return this.tvVariableCache.get(symbol)!;
+		}
+
+		// Check if this symbol's declaration is assigned from a tv() call
+		const isTvCreated = this.isSymbolFromTvCall(symbol, context);
+		this.tvVariableCache.set(symbol, isTvCreated);
+
+		return isTvCreated;
+	}
+
+	/**
+	 * Check if a symbol's declaration is from a tv() call
+	 * Handles: const button = tv(...), export const button = tv(...), etc.
+	 */
+	private isSymbolFromTvCall(symbol: ts.Symbol, context: ExtractionContext): boolean {
+		const declarations = symbol.getDeclarations();
+		if (!declarations || declarations.length === 0) {
+			return false;
+		}
+
+		// Check each declaration to see if it's assigned from tv()
+		for (const declaration of declarations) {
+			// Handle: const button = tv(...)
+			if (context.typescript.isVariableDeclaration(declaration)) {
+				const initializer = declaration.initializer;
+				if (initializer && context.typescript.isCallExpression(initializer)) {
+					if (this.isTvCall(initializer, context)) {
+						return true;
+					}
+				}
+			}
+			// Handle: export default tv(...) or similar patterns
+			else if (context.typescript.isExportAssignment(declaration)) {
+				const expr = declaration.expression;
+				if (context.typescript.isCallExpression(expr)) {
+					if (this.isTvCall(expr, context)) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Extract class names from a tv() function call
+	 * Example: button({ color: 'primary', class: 'bg-pink-500' })
+	 */
+	private extractFromTvFunctionCall(
+		callExpression: ts.CallExpression,
+		context: ExtractionContext
+	): ClassNameInfo[] {
+		// OPTIMIZATION: Early exit for empty arguments
+		if (callExpression.arguments.length === 0) {
+			return [];
+		}
+
+		const arg = callExpression.arguments[0];
+
+		// The argument should be an object literal with properties like { color: 'primary', class: '...' }
+		if (!context.typescript.isObjectLiteralExpression(arg)) {
+			return [];
+		}
+
+		const classNames: ClassNameInfo[] = [];
+
+		// Look for 'class' or 'className' properties
+		for (const property of arg.properties) {
+			if (!context.typescript.isPropertyAssignment(property)) {
+				continue;
+			}
+
+			const propName = this.getPropertyName(property, context);
+			if (propName === 'class' || propName === 'className') {
+				// Extract classes from the value
+				classNames.push(...this.extractFromValue(property.initializer, context));
+			}
+		}
+
+		return classNames;
+	}
+
+	/**
 	 * Clear the import cache (useful for testing or when files change)
 	 */
 	clearCache(): void {
 		this.tvImportCache.clear();
+		this.tvVariableCache.clear();
 	}
 }
