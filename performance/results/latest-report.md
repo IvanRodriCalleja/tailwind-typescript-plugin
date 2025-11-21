@@ -11,11 +11,11 @@
 
 | Implementation | Run 1 | Run 2 | Run 3 | Run 4 | Run 5 | **Average** | Status |
 |---|---|---|---|---|---|---|---|
-| 🆕 **NEW** (Refactored) | 6.44ms | 7.06ms | 6.95ms | 15.82ms | 5.79ms | **8.41ms** | Clean Architecture |
-| 📦 **OLD** (Monolithic) | 5.18ms | 4.53ms | 4.37ms | 4.04ms | 4.81ms | **4.59ms** | Monolithic |
+| 🆕 **NEW** (Refactored) | 7.08ms | 6.22ms | 6.17ms | 6.66ms | 6.20ms | **6.47ms** | Clean Architecture |
+| 📦 **OLD** (Monolithic) | 4.99ms | 4.45ms | 4.23ms | 3.91ms | 3.86ms | **4.29ms** | Monolithic |
 
 ### Analysis
-❌ **NEW is 1.83x slower (+3.82ms)**
+❌ **NEW is 1.51x slower (+2.18ms)**
 
 > ⚠️ **Note**: The NEW implementation shows slower first-run times due to:
 > - Clean Architecture abstraction layers
@@ -29,8 +29,8 @@
 
 ### Memory Usage
 
-- **NEW**: 0.64 MB heap used
-- **OLD**: -2.86 MB heap used
+- **NEW**: 1.10 MB heap used
+- **OLD**: 9.69 MB heap used
 
 ---
 
@@ -44,4 +44,4 @@
 - ✅ **LRU cache** - 10-95x speedup on repeated validations
 - ✅ **Type-safe** - Full TypeScript type checking throughout
 
-_Benchmark run at: 11/21/2025, 12:03:50 PM_
+_Benchmark run at: 11/21/2025, 3:26:41 PM_

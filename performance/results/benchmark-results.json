@@ -223,5 +223,95 @@
         "heapTotal": 3145728
       }
     }
+  },
+  {
+    "timestamp": "2025-11-21T14:26:33.550Z",
+    "new": {
+      "version": "new",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 7.090750000000071,
+        "run2": 6.284666000000016,
+        "run3": 6.6186250000000655,
+        "run4": 5.908750000000055,
+        "run5": 6.743374999999901,
+        "average": 6.5292332000000215,
+        "median": 6.6186250000000655
+      },
+      "memoryUsage": {
+        "heapUsed": 637936,
+        "heapTotal": 3932160
+      }
+    },
+    "old": {
+      "version": "old",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 5.68141700000001,
+        "run2": 4.938457999999855,
+        "run3": 5.388249999999971,
+        "run4": 4.390625,
+        "run5": 4.145999999999958,
+        "average": 4.908949999999959,
+        "median": 4.938457999999855
+      },
+      "memoryUsage": {
+        "heapUsed": 10394144,
+        "heapTotal": 1310720
+      }
+    }
+  },
+  {
+    "timestamp": "2025-11-21T14:26:41.231Z",
+    "new": {
+      "version": "new",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 7.078374999999937,
+        "run2": 6.220708000000059,
+        "run3": 6.168209000000047,
+        "run4": 6.664750000000026,
+        "run5": 6.202875000000063,
+        "average": 6.466983400000027,
+        "median": 6.220708000000059
+      },
+      "memoryUsage": {
+        "heapUsed": 1149104,
+        "heapTotal": 3407872
+      }
+    },
+    "old": {
+      "version": "old",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 4.989166999999952,
+        "run2": 4.44541700000002,
+        "run3": 4.232333999999923,
+        "run4": 3.905540999999971,
+        "run5": 3.857208000000014,
+        "average": 4.285933399999976,
+        "median": 4.232333999999923
+      },
+      "memoryUsage": {
+        "heapUsed": 10160952,
+        "heapTotal": 1048576
+      }
+    }
   }
 ]
