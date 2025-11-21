@@ -178,5 +178,50 @@
         "heapTotal": 3145728
       }
     }
+  },
+  {
+    "timestamp": "2025-11-21T11:03:50.474Z",
+    "new": {
+      "version": "new",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 6.437000000000012,
+        "run2": 7.063666000000012,
+        "run3": 6.954833000000008,
+        "run4": 15.818083999999999,
+        "run5": 5.788374999999974,
+        "average": 8.412391600000001,
+        "median": 6.954833000000008
+      },
+      "memoryUsage": {
+        "heapUsed": 668536,
+        "heapTotal": 3145728
+      }
+    },
+    "old": {
+      "version": "old",
+      "fileName": "AllUseCases.tsx",
+      "fileSize": 254976,
+      "linesOfCode": 8114,
+      "classNameCount": 1481,
+      "invalidClassCount": 278,
+      "runs": {
+        "run1": 5.1782499999999345,
+        "run2": 4.530415999999832,
+        "run3": 4.373333000000002,
+        "run4": 4.0426659999998265,
+        "run5": 4.814292000000023,
+        "average": 4.587791399999924,
+        "median": 4.530415999999832
+      },
+      "memoryUsage": {
+        "heapUsed": -2995152,
+        "heapTotal": 3145728
+      }
+    }
   }
 ]

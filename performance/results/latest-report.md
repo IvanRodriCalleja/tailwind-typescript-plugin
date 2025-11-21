@@ -11,16 +11,26 @@
 
 | Implementation | Run 1 | Run 2 | Run 3 | Run 4 | Run 5 | **Average** | Status |
 |---|---|---|---|---|---|---|---|
-| 🆕 **NEW** (Refactored) | 8.30ms | 7.30ms | 9.21ms | 10.40ms | 11.30ms | **9.30ms** | Clean Architecture |
-| 📦 **OLD** (Monolithic) | 13.85ms | 11.55ms | 5.73ms | 11.33ms | 7.08ms | **9.91ms** | Monolithic |
+| 🆕 **NEW** (Refactored) | 6.44ms | 7.06ms | 6.95ms | 15.82ms | 5.79ms | **8.41ms** | Clean Architecture |
+| 📦 **OLD** (Monolithic) | 5.18ms | 4.53ms | 4.37ms | 4.04ms | 4.81ms | **4.59ms** | Monolithic |
 
 ### Analysis
-✅ **NEW is within acceptable range (-6.1% difference)**
+❌ **NEW is 1.83x slower (+3.82ms)**
+
+> ⚠️ **Note**: The NEW implementation shows slower first-run times due to:
+> - Clean Architecture abstraction layers
+> - Service initialization overhead
+> - Object creation for proper separation of concerns
+
+> ✅ **Benefits in Real Usage**:
+> - **10-95x faster** on repeated validations (LRU cache)
+> - Much better developer experience during editing
+> - See [PERFORMANCE_ANALYSIS.md](../PERFORMANCE_ANALYSIS.md) for detailed analysis
 
 ### Memory Usage
 
-- **NEW**: 0.63 MB heap used
-- **OLD**: -2.39 MB heap used
+- **NEW**: 0.64 MB heap used
+- **OLD**: -2.86 MB heap used
 
 ---
 
@@ -34,4 +44,4 @@
 - ✅ **LRU cache** - 10-95x speedup on repeated validations
 - ✅ **Type-safe** - Full TypeScript type checking throughout
 
-_Benchmark run at: 11/21/2025, 11:41:06 AM_
+_Benchmark run at: 11/21/2025, 12:03:50 PM_
