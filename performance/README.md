@@ -130,7 +130,23 @@ Total for session:       28.86ms   9.21ms   NEW wins by 68%!
 
 ## Running Benchmarks
 
-### Benchmark (Old vs New comparison)
+### Quick Benchmark
+```bash
+npm run benchmark
+```
+
+### Generate Markdown Report
+```bash
+npm run benchmark:report
+```
+
+This will:
+1. Read the latest benchmark results
+2. Generate a formatted markdown report
+3. Save to `performance/results/latest-report.md`
+4. Display in console
+
+### Manual Benchmark
 ```bash
 npm run build
 node --expose-gc $(which npx) ts-node performance/run-benchmark.ts

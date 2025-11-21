@@ -10,7 +10,9 @@
     "test": "jest",
     "lint": "eslint src --ext .ts,.tsx,.json --quiet --cache",
     "tsc": "tsc --noEmit",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "benchmark": "npm run build && node --expose-gc -r ts-node/register performance/run-benchmark.ts",
+    "benchmark:report": "npx ts-node performance/format-benchmark-report.ts"
   },
   "keywords": [
     "typescript",
