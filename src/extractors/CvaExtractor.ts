@@ -213,10 +213,7 @@ export class CvaExtractor extends BaseExtractor {
 	 * Extract class names from the variants object
 	 * Structure: { variantName: { optionName: 'classes' | ['classes'] | null } }
 	 */
-	private extractFromVariants(
-		node: ts.Expression,
-		context: ExtractionContext
-	): ClassNameInfo[] {
+	private extractFromVariants(node: ts.Expression, context: ExtractionContext): ClassNameInfo[] {
 		if (!context.typescript.isObjectLiteralExpression(node)) {
 			return [];
 		}
@@ -241,7 +238,10 @@ export class CvaExtractor extends BaseExtractor {
 					const value = optionProp.initializer;
 
 					// Skip null values (common for boolean variants: { false: null })
-					if (context.typescript.isToken(value) && value.kind === context.typescript.SyntaxKind.NullKeyword) {
+					if (
+						context.typescript.isToken(value) &&
+						value.kind === context.typescript.SyntaxKind.NullKeyword
+					) {
 						continue;
 					}
 
@@ -319,8 +319,7 @@ export class CvaExtractor extends BaseExtractor {
 		// For now, we extract only the static parts
 		if (context.typescript.isTemplateExpression(node)) {
 			const classNames: ClassNameInfo[] = [];
-			const lineNumber =
-				context.sourceFile.getLineAndCharacterOfPosition(node.getStart()).line + 1;
+			const lineNumber = context.sourceFile.getLineAndCharacterOfPosition(node.getStart()).line + 1;
 
 			// Extract from head
 			if (node.head.text) {
