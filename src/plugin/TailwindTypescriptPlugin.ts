@@ -72,8 +72,11 @@ export class TailwindTypescriptPlugin {
 		this.logger.log(`CSS file found, initializing Tailwind validator...`);
 		this.validator = new TailwindValidator(absoluteCssPath, this.logger);
 
-		// Initialize services
-		const extractionService = new ClassNameExtractionService();
+		// Initialize services with config flags
+		const extractionService = new ClassNameExtractionService(
+			this.configService.isTailwindVariantsEnabled(),
+			this.configService.isClassVarianceAuthorityEnabled()
+		);
 		const diagnosticService = new DiagnosticService();
 		this.validationService = new ValidationService(
 			extractionService,

@@ -27,11 +27,20 @@ export interface IClassNameValidator {
 }
 
 /**
+ * Interface for variant library configuration
+ */
+export interface IVariantsConfig {
+	tailwindVariants?: boolean;
+	classVarianceAuthority?: boolean;
+}
+
+/**
  * Interface for configuration management
  */
 export interface IPluginConfig {
 	globalCss?: string;
 	utilityFunctions?: string[];
+	variants?: IVariantsConfig;
 }
 
 /**

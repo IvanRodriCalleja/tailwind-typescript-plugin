@@ -22,6 +22,8 @@ const DEFAULT_UTILITY_FUNCTIONS = [
 export class PluginConfigService {
 	private utilityFunctions: string[];
 	private cssFilePath?: string;
+	private tailwindVariantsEnabled: boolean;
+	private classVarianceAuthorityEnabled: boolean;
 
 	constructor(
 		config: IPluginConfig,
@@ -29,6 +31,26 @@ export class PluginConfigService {
 	) {
 		this.utilityFunctions = this.initializeUtilityFunctions(config);
 		this.cssFilePath = config.globalCss;
+
+		// If ANY variant config is defined, only enable those explicitly set to true
+		// If NO variant config is defined, enable both by default
+		const variantsConfig = config.variants;
+		const hasAnyVariantConfig =
+			variantsConfig &&
+			(variantsConfig.tailwindVariants !== undefined ||
+				variantsConfig.classVarianceAuthority !== undefined);
+
+		if (hasAnyVariantConfig) {
+			// User specified at least one variant - only enable those explicitly set to true
+			this.tailwindVariantsEnabled = variantsConfig.tailwindVariants === true;
+			this.classVarianceAuthorityEnabled = variantsConfig.classVarianceAuthority === true;
+		} else {
+			// No variants configured - enable both by default
+			this.tailwindVariantsEnabled = true;
+			this.classVarianceAuthorityEnabled = true;
+		}
+
+		this.logExtractorConfig();
 	}
 
 	private initializeUtilityFunctions(config: IPluginConfig): string[] {
@@ -53,5 +75,25 @@ export class PluginConfigService {
 
 	hasValidCssPath(): boolean {
 		return this.cssFilePath !== undefined && this.cssFilePath.length > 0;
+	}
+
+	isTailwindVariantsEnabled(): boolean {
+		return this.tailwindVariantsEnabled;
+	}
+
+	isClassVarianceAuthorityEnabled(): boolean {
+		return this.classVarianceAuthorityEnabled;
+	}
+
+	private logExtractorConfig(): void {
+		const enabled: string[] = [];
+		if (this.tailwindVariantsEnabled) enabled.push('tailwind-variants');
+		if (this.classVarianceAuthorityEnabled) enabled.push('class-variance-authority');
+
+		if (enabled.length === 0) {
+			this.logger.log('⚠️  No variant library extractors enabled');
+		} else {
+			this.logger.log(`✓ Enabled variant extractors: ${enabled.join(', ')}`);
+		}
 	}
 }
