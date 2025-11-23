@@ -198,6 +198,19 @@ Most editors that support TypeScript Language Service plugins should work automa
   <p className="p-[20px] text-[14px]">Custom values</p>
 </div>
 
+// ✅ CSS variables (Tailwind v3.1+)
+<div
+  className="
+    [--card-bg:#1e293b]
+    [--card-radius:16px]
+    bg-[var(--card-bg)]
+    rounded-[var(--card-radius)]
+    p-4
+  "
+>
+  CSS custom properties
+</div>
+
 // ✅ Variants (responsive, state, etc.)
 <div className="hover:bg-blue-500 md:flex lg:grid-cols-3 dark:text-white">
   Responsive and state variants
@@ -473,6 +486,10 @@ const invalidVariant = cva(['font-semibold'], {
 - [X] **Expression Parenthesized** → [`expression-parenthesized.tsx`](./example/src/expression-parenthesized.tsx)
   Validates parenthesized expressions and type assertions
   Example: `className={(isError ? 'bg-red-500' : 'bg-blue-500')}`, `className={('flex' as string)}`, `className={expr!}`
+
+- [X] **CSS Variables** → [`css-variables.tsx`](./example/src/css-variables.tsx)
+  Validates CSS custom properties (variables) using arbitrary property syntax
+  Example: `className="[--card-bg:#1e293b] bg-[var(--card-bg)]"`
 
 - [ ] **Expression Variable**
   Validates variable references
