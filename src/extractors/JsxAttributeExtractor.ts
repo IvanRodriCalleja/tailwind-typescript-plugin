@@ -118,7 +118,10 @@ export class JsxAttributeExtractor extends BaseExtractor {
 				} else if (
 					context.typescript.isBinaryExpression(expression) ||
 					context.typescript.isConditionalExpression(expression) ||
-					context.typescript.isParenthesizedExpression(expression)
+					context.typescript.isParenthesizedExpression(expression) ||
+					context.typescript.isAsExpression(expression) ||
+					context.typescript.isNonNullExpression(expression) ||
+					context.typescript.isTypeAssertionExpression(expression)
 				) {
 					classNames.push(...this.expressionExtractor.extract(expression, context));
 				}

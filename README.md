@@ -202,6 +202,19 @@ Most editors that support TypeScript Language Service plugins should work automa
 <div className="hover:bg-blue-500 md:flex lg:grid-cols-3 dark:text-white">
   Responsive and state variants
 </div>
+
+// ✅ Parenthesized expressions
+<div className={(isError ? 'bg-red-500' : 'bg-blue-500')}>
+  Parenthesized ternary
+</div>
+
+// ✅ Type assertions
+<div className={('flex items-center' as string)}>
+  Type assertion
+</div>
+
+// ✅ Non-null assertions
+<div className={className!}>Non-null assertion</div>
 ```
 
 **Invalid classes are flagged**:
@@ -456,6 +469,10 @@ const invalidVariant = cva(['font-semibold'], {
 - [X] **Allowed Classes** → [`allowed-classes.tsx`](./example/src/allowed-classes.tsx)
   Validates custom classes configured via `allowedClasses` config option
   Example: `className="custom-button app-header"` (where these are in the allowedClasses config)
+
+- [X] **Expression Parenthesized** → [`expression-parenthesized.tsx`](./example/src/expression-parenthesized.tsx)
+  Validates parenthesized expressions and type assertions
+  Example: `className={(isError ? 'bg-red-500' : 'bg-blue-500')}`, `className={('flex' as string)}`, `className={expr!}`
 
 - [ ] **Expression Variable**
   Validates variable references
