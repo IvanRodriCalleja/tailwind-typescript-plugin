@@ -19,6 +19,7 @@ Ever written `className="flex itms-center"` instead of `"flex items-center"`? Th
 - [How It Works](#how-it-works)
 - [Performance Optimizations](#performance-optimizations)
 - [Development](#development)
+- [Publishing](#publishing)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -468,6 +469,61 @@ yarn setup-e2e
 │   ├── plugin/          # The TypeScript plugin package
 │   └── e2e/             # End-to-end test examples
 ```
+
+## Publishing
+
+This project uses an automated publishing workflow with beta releases on every commit and manual stable releases.
+
+### Beta Releases (Automatic)
+
+Every commit to `main` automatically publishes a beta version to npm:
+
+```
+Commit to main → Auto-publishes 1.0.33-beta.1
+Commit to main → Auto-publishes 1.0.33-beta.2
+Commit to main → Auto-publishes 1.0.33-beta.3
+```
+
+Users can install beta versions:
+```bash
+npm install typescript-custom-plugin@beta
+```
+
+### Stable Releases (Manual)
+
+To publish a stable release:
+
+1. Go to **Actions** tab on GitHub
+2. Click **"Stable Release"** workflow
+3. Click **"Run workflow"** button
+4. Select version bump type:
+   - **patch**: Bug fixes (1.0.32 → 1.0.33)
+   - **minor**: New features (1.0.32 → 1.1.0)
+   - **major**: Breaking changes (1.0.32 → 2.0.0)
+5. Click **"Run workflow"**
+
+The workflow will:
+- Run tests and build
+- Bump version in `package.json`
+- Create git tag
+- Publish to npm as `@latest`
+- Create GitHub Release
+
+### Version Timeline Example
+
+```
+package.json: 1.0.32
+
+Day 1: Commit → Publishes 1.0.33-beta.1
+Day 2: Commit → Publishes 1.0.33-beta.2
+Day 3: Click "Stable Release" (patch) → Publishes 1.0.33
+Day 4: Commit → Publishes 1.0.34-beta.1 (starts over)
+```
+
+### Requirements
+
+- **NPM_TOKEN**: Set in GitHub repository secrets (Settings → Secrets → Actions)
+  - Create at [npmjs.com](https://www.npmjs.com/) → Access Tokens → Generate New Token (Automation)
 
 ## Contributing
 

@@ -1,0 +1,75 @@
+name: Beta Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  beta-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+      - name: Get current version
+        id: current_version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Calculate next beta version
+        id: next_version
+        run: |
+          CURRENT_VERSION="${{ steps.current_version.outputs.version }}"
+
+          # Extract base version (remove any existing -beta suffix)
+          BASE_VERSION=$(echo $CURRENT_VERSION | sed 's/-beta.*//')
+
+          # Increment patch version
+          IFS='.' read -r major minor patch <<< "$BASE_VERSION"
+          NEXT_PATCH=$((patch + 1))
+          NEXT_BASE="$major.$minor.$NEXT_PATCH"
+
+          # Check npm for existing beta versions
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          EXISTING_BETAS=$(npm view "$PACKAGE_NAME@$NEXT_BASE-beta" versions --json 2>/dev/null || echo "[]")
+
+          # Count existing betas and increment
+          BETA_COUNT=$(echo "$EXISTING_BETAS" | jq -r 'if type=="array" then length else 1 end')
+          NEXT_BETA=$((BETA_COUNT + 1))
+
+          BETA_VERSION="$NEXT_BASE-beta.$NEXT_BETA"
+          echo "version=$BETA_VERSION" >> $GITHUB_OUTPUT
+          echo "Publishing beta version: $BETA_VERSION"
+
+      - name: Set beta version in package.json (temporary, not committed)
+        run: |
+          npm version ${{ steps.next_version.outputs.version }} --no-git-tag-version
+
+      - name: Publish to npm with @beta tag
+        run: npm publish --tag beta
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Comment on commit
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const packageName = require('./package.json').name;
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: `✅ Published beta version: \`${{ steps.next_version.outputs.version }}\`\n\nInstall with:\n\`\`\`bash\nnpm install ${packageName}@beta\n\`\`\``
+            })
