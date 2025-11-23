@@ -62,6 +62,18 @@ export class ExpressionExtractor extends BaseExtractor {
 		else if (context.typescript.isParenthesizedExpression(expression)) {
 			classNames.push(...this.extractFromExpression(expression.expression, context));
 		}
+		// Handle type assertions: ('class-name' as string) or ('class-name' as const)
+		else if (context.typescript.isAsExpression(expression)) {
+			classNames.push(...this.extractFromExpression(expression.expression, context));
+		}
+		// Handle non-null assertions: expr!
+		else if (context.typescript.isNonNullExpression(expression)) {
+			classNames.push(...this.extractFromExpression(expression.expression, context));
+		}
+		// Handle type assertions with angle brackets: <string>'class-name' (rare in JSX)
+		else if (context.typescript.isTypeAssertionExpression(expression)) {
+			classNames.push(...this.extractFromExpression(expression.expression, context));
+		}
 		// Handle array literal expressions: ['class1', 'class2']
 		else if (context.typescript.isArrayLiteralExpression(expression)) {
 			expression.elements.forEach(element => {
