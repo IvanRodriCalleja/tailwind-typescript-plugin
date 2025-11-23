@@ -6,15 +6,171 @@ A TypeScript Language Service plugin that catches **typos and invalid Tailwind C
 
 Ever written `className="flex itms-center"` instead of `"flex items-center"`? That typo silently fails—Tailwind ignores invalid classes and your component looks broken. This plugin prevents that by analyzing your JSX/TSX code and validating that all Tailwind classes used in `className` attributes actually exist in your Tailwind CSS configuration. It provides real-time feedback by showing TypeScript errors for invalid or misspelled Tailwind classes, catching styling mistakes before they reach production.
 
-### Features
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Configuration](#configuration)
+  - [Add the plugin to your tsconfig.json](#1-add-the-plugin-to-your-tsconfigjson)
+  - [Ensure your CSS file imports Tailwind](#2-ensure-your-css-file-imports-tailwind)
+  - [Enable the plugin in your editor](#3-enable-the-plugin-in-your-editor)
+- [What it validates](#what-it-validates)
+- [Implemented features](#implemented-features)
+- [How It Works](#how-it-works)
+- [Performance Optimizations](#performance-optimizations)
+- [Development](#development)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Features
 
 - **Real-time validation**: Get instant feedback on invalid Tailwind classes while you code
 - **Editor integration**: Works with any editor that supports TypeScript Language Service (VS Code, WebStorm, etc.)
 - **Supports Tailwind variants**: Validates responsive (`md:`, `lg:`), state (`hover:`, `focus:`), and other variants
 - **Arbitrary values**: Correctly handles Tailwind arbitrary values like `h-[50vh]` or `bg-[#ff0000]`
-- **tailwind-variants support**: Validates classes in `tv()` function calls including `base`, `variants`, `compoundVariants`, and `slots` properties
+- **Variant library support**:
+  - **tailwind-variants**: Validates classes in `tv()` function calls including `base`, `variants`, `compoundVariants`, `slots`, and `class`/`className` override properties
+  - **class-variance-authority**: Validates classes in `cva()` function calls including base classes, `variants`, `compoundVariants`, and `class`/`className` override properties
 
-### What it validates
+## Installation
+
+Install the plugin as a dependency:
+
+```bash
+npm install tailwind-typescript-plugin
+# or
+yarn add tailwind-typescript-plugin
+# or
+pnpm add tailwind-typescript-plugin
+```
+
+## Configuration
+
+### 1. Add the plugin to your `tsconfig.json`
+
+Add the plugin to the `compilerOptions.plugins` array in your `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "tailwind-typescript-plugin",
+        "globalCss": "./src/global.css",
+        "utilityFunctions": ["clsx", "cn", "classnames"],
+        "variants": {
+          "tailwindVariants": true,
+          "classVarianceAuthority": true
+        }
+      }
+    ]
+  }
+}
+```
+
+**Configuration options:**
+
+- `globalCss` (required): Path to your global CSS file that imports Tailwind CSS. This can be relative to your project root.
+
+- `variants` (optional): Configure which variant library extractors to enable. This is useful for performance optimization when you only use one library.
+  - **Default behavior (no config)**: Both `tailwind-variants` and `class-variance-authority` are enabled
+  - **Selective enabling**: If you specify ANY variant config, only those explicitly set to `true` are enabled
+  - **Example configurations**:
+    ```json
+    // Enable only tailwind-variants
+    {
+      "variants": {
+        "tailwindVariants": true
+      }
+    }
+
+    // Enable only class-variance-authority
+    {
+      "variants": {
+        "classVarianceAuthority": true
+      }
+    }
+
+    // Enable both explicitly
+    {
+      "variants": {
+        "tailwindVariants": true,
+        "classVarianceAuthority": true
+      }
+    }
+
+    // No config = both enabled by default
+    {
+      // variants not specified - both libraries validated
+    }
+    ```
+  - **Performance impact**: Disabling unused extractors skips TypeChecker operations and symbol resolution for that library, providing faster validation
+
+- `utilityFunctions` (optional): Array of additional function names to validate. These will be **merged with the defaults**, so you don't lose the common ones.
+  - **Defaults (always included)**: `['clsx', 'cn', 'classnames', 'classNames', 'cx', 'cva', 'twMerge', 'tv']`
+  - **Add your own**: Provide custom function names that will be added to the defaults
+  - **Example config**:
+    ```json
+    {
+      "utilityFunctions": ["myCustomFn", "buildClasses"]
+    }
+    ```
+    This will validate: `clsx`, `cn`, `classnames`, `classNames`, `cx`, `cva`, `twMerge`, `tv`, **`myCustomFn`**, **`buildClasses`**
+
+  - **Supported patterns**:
+    ```typescript
+    // Simple calls (validated by default):
+    className={clsx('flex', 'items-center')}
+    className={cn('flex', 'items-center')}
+
+    // Member expressions (nested property access):
+    className={utils.cn('flex', 'items-center')}
+    className={lib.clsx('flex', 'items-center')}
+
+    // Custom functions (add via config):
+    className={myCustomFn('flex', 'items-center')}
+    className={buildClasses('flex', 'items-center')}
+
+    // Dynamic calls (ignored, won't throw errors):
+    className={functions['cn']('flex', 'items-center')}
+    ```
+
+### 2. Ensure your CSS file imports Tailwind
+
+Your global CSS file (referenced in `globalCss`) should import Tailwind CSS:
+
+```css
+@import "tailwindcss";
+```
+
+Or using the traditional approach:
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+### 3. Enable the plugin in your editor
+
+#### VS Code
+
+The plugin should work automatically if you have the TypeScript version from your workspace selected. To ensure this:
+
+1. Open a TypeScript or TSX file
+2. Open the command palette (Cmd+Shift+P on Mac, Ctrl+Shift+P on Windows/Linux)
+3. Type "TypeScript: Select TypeScript Version"
+4. Choose "Use Workspace Version"
+
+You may need to restart the TypeScript server:
+- Open command palette
+- Type "TypeScript: Restart TS Server"
+
+#### Other Editors
+
+Most editors that support TypeScript Language Service plugins should work automatically. Refer to your editor's documentation for TypeScript plugin configuration.
+
+## What it validates
 
 **Valid classes**:
 ```tsx
@@ -102,9 +258,75 @@ const invalidArray = tv({
   base: ['font-semibold', 'invalid-array-class', 'text-white']
   // Error: The class "invalid-array-class" is not a valid Tailwind class
 });
+
+// ✅ Valid: class override at call site
+<button className={button({ color: 'primary', class: 'bg-pink-500 hover:bg-pink-700' })}>
+  Override
+</button>
+
+// ❌ Invalid: class override with invalid class
+<button className={button({ color: 'primary', class: 'invalid-override-class' })}>
+  // Error: The class "invalid-override-class" is not a valid Tailwind class
+</button>
 ```
 
-### Implemented features
+**class-variance-authority validation**:
+```tsx
+import { cva } from 'class-variance-authority';
+import { cva as myCva } from 'class-variance-authority'; // Import aliasing supported!
+
+// ✅ Valid cva() usage
+const button = cva(['font-semibold', 'border', 'rounded'], {
+  variants: {
+    intent: {
+      primary: ['bg-blue-500', 'text-white', 'border-transparent'],
+      secondary: ['bg-white', 'text-gray-800', 'border-gray-400']
+    },
+    size: {
+      small: ['text-sm', 'py-1', 'px-2'],
+      medium: ['text-base', 'py-2', 'px-4']
+    }
+  }
+});
+
+// ✅ Valid: String syntax for base
+const buttonString = cva('font-semibold border rounded', {
+  variants: {
+    intent: {
+      primary: 'bg-blue-500 text-white'
+    }
+  }
+});
+
+// ✅ Valid: Import aliasing
+const buttonAliased = myCva(['flex', 'items-center', 'gap-2']);
+
+// ❌ Invalid class in base array
+const invalid = cva(['font-semibold', 'invalid-class', 'border']);
+// Error: The class "invalid-class" is not a valid Tailwind class
+
+// ❌ Invalid class in variant
+const invalidVariant = cva(['font-semibold'], {
+  variants: {
+    intent: {
+      primary: 'bg-blue-500 wrong-class'
+      // Error: The class "wrong-class" is not a valid Tailwind class
+    }
+  }
+});
+
+// ✅ Valid: class override at call site
+<button className={button({ intent: 'primary', class: 'bg-pink-500 hover:bg-pink-700' })}>
+  Override
+</button>
+
+// ❌ Invalid: class override with invalid class
+<button className={button({ intent: 'primary', class: 'invalid-override-class' })}>
+  // Error: The class "invalid-override-class" is not a valid Tailwind class
+</button>
+```
+
+## Implemented features
 
 > **Note on examples:** Each feature has a corresponding test file in `example/src/` following the naming pattern `[context]-[pattern].tsx` where:
 > - **Context** = the container (literal, expression, template, function, array, object, tv)
@@ -179,134 +401,47 @@ const invalidArray = tv({
   Example: `className={clsx('flex', [1 && 'bar', { baz: ['invalid-class'] }])}`
 
 - [X] **TV Static** → [`tv-static.tsx`](./example/src/tv-static.tsx)
-  Validates `tailwind-variants` tv() function calls
+  Validates `tailwind-variants` tv() function definitions
   Example: `const styles = tv({ base: 'invalid-class', variants: { size: { sm: 'invalid-class' } } })`
+
+- [X] **TV Class Override** → [`tv-class-override.tsx`](./example/src/tv-class-override.tsx)
+  Validates `tailwind-variants` class/className property overrides at call site
+  Example: `button({ color: 'primary', class: 'invalid-class' })`
+
+- [X] **CVA Static** → [`cva-static.tsx`](./example/src/cva-static.tsx)
+  Validates `class-variance-authority` cva() function definitions
+  Example: `const button = cva(['invalid-class'], { variants: { intent: { primary: 'invalid-class' } } })`
+
+- [X] **CVA Class Override** → [`cva-class-override.tsx`](./example/src/cva-class-override.tsx)
+  Validates `class-variance-authority` class/className property overrides at call site
+  Example: `button({ intent: 'primary', class: 'invalid-class' })`
 
 - [ ] **Expression Variable**
   Validates variable references
   Example: `const dynamicClass = isActive ? 'bg-blue-500' : 'bg-gray-500'; <div className={dynamicClass}>Dynamic</div>`
 
-
-## Installation
-
-Install the plugin as a dependency:
-
-```bash
-npm install tailwind-typescript-plugin
-# or
-yarn add tailwind-typescript-plugin
-# or
-pnpm add tailwind-typescript-plugin
-```
-
-## Configuration
-
-### 1. Add the plugin to your `tsconfig.json`
-
-Add the plugin to the `compilerOptions.plugins` array in your `tsconfig.json`:
-
-```json
-{
-  "compilerOptions": {
-    "plugins": [
-      {
-        "name": "tailwind-typescript-plugin",
-        "globalCss": "./src/global.css",
-        "utilityFunctions": ["clsx", "cn", "classnames"]
-      }
-    ]
-  }
-}
-```
-
-**Configuration options:**
-
-- `globalCss` (required): Path to your global CSS file that imports Tailwind CSS. This can be relative to your project root.
-
-- `utilityFunctions` (optional): Array of additional function names to validate. These will be **merged with the defaults**, so you don't lose the common ones.
-  - **Defaults (always included)**: `['clsx', 'cn', 'classnames', 'classNames', 'cx', 'cva', 'twMerge', 'tv']`
-  - **Add your own**: Provide custom function names that will be added to the defaults
-  - **Example config**:
-    ```json
-    {
-      "utilityFunctions": ["myCustomFn", "buildClasses"]
-    }
-    ```
-    This will validate: `clsx`, `cn`, `classnames`, `classNames`, `cx`, `cva`, `twMerge`, `tv`, **`myCustomFn`**, **`buildClasses`**
-
-  - **Supported patterns**:
-    ```typescript
-    // Simple calls (validated by default):
-    className={clsx('flex', 'items-center')}
-    className={cn('flex', 'items-center')}
-
-    // Member expressions (nested property access):
-    className={utils.cn('flex', 'items-center')}
-    className={lib.clsx('flex', 'items-center')}
-
-    // Custom functions (add via config):
-    className={myCustomFn('flex', 'items-center')}
-    className={buildClasses('flex', 'items-center')}
-
-    // Dynamic calls (ignored, won't throw errors):
-    className={functions['cn']('flex', 'items-center')}
-    ```
-
-### 2. Ensure your CSS file imports Tailwind
-
-Your global CSS file (referenced in `globalCss`) should import Tailwind CSS:
-
-```css
-@import "tailwindcss";
-```
-
-Or using the traditional approach:
-
-```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-```
-
-### 3. Enable the plugin in your editor
-
-#### VS Code
-
-The plugin should work automatically if you have the TypeScript version from your workspace selected. To ensure this:
-
-1. Open a TypeScript or TSX file
-2. Open the command palette (Cmd+Shift+P on Mac, Ctrl+Shift+P on Windows/Linux)
-3. Type "TypeScript: Select TypeScript Version"
-4. Choose "Use Workspace Version"
-
-You may need to restart the TypeScript server:
-- Open command palette
-- Type "TypeScript: Restart TS Server"
-
-#### Other Editors
-
-Most editors that support TypeScript Language Service plugins should work automatically. Refer to your editor's documentation for TypeScript plugin configuration.
-
 ## How It Works
 
 The plugin hooks into the TypeScript Language Service and:
 
-1. Parses your TSX/JSX files to find `className` attributes and `tv()` calls
-2. Extracts individual class names from className strings and tv() configurations
+1. Parses your TSX/JSX files to find `className` attributes, `tv()` calls, and `cva()` calls
+2. Extracts individual class names from className strings, tv() configurations, and cva() configurations
 3. Validates each class against your Tailwind CSS configuration
 4. Reports invalid classes as TypeScript errors in your editor
 
-### Performance Optimizations
+## Performance Optimizations
 
 The plugin is designed for minimal performance impact:
 
-- **Import caching**: Detects tailwind-variants imports once per file
-- **Early bailout**: Skips tv() validation for files without tailwind-variants imports
+- **Import caching**: Detects tailwind-variants and class-variance-authority imports once per file
+- **Early bailout**: Skips tv()/cva() validation for files without respective library imports
+- **Configurable extractors**: Disable unused variant libraries via `variants` config for better performance
 - **Smart traversal**: Only processes JSX elements and call expressions
 - **Fast paths**: Optimized hot paths for common patterns (string literals)
 - **Lazy validation**: Tailwind design system loaded on-demand
+- **Symbol caching**: TypeChecker results cached to avoid redundant type resolution
 
-**Typical overhead**: <1ms per file for most files, ~2-3ms for files with many tv() calls
+**Typical overhead**: <1ms per file for most files, ~2-3ms for files with many tv()/cva() calls
 
 ## Development
 
