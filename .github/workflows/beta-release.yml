@@ -32,6 +32,7 @@ jobs:
         id: next_version
         run: |
           CURRENT_VERSION="${{ steps.current_version.outputs.version }}"
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
 
           # Extract base version (remove any existing -beta suffix)
           BASE_VERSION=$(echo $CURRENT_VERSION | sed 's/-beta.*//')
@@ -42,14 +43,21 @@ jobs:
           NEXT_BASE="$major.$minor.$NEXT_PATCH"
 
           # Check npm for existing beta versions
-          PACKAGE_NAME=$(node -p "require('./package.json').name")
-          EXISTING_BETAS=$(npm view "$PACKAGE_NAME@$NEXT_BASE-beta" versions --json 2>/dev/null || echo "[]")
+          # Try to get all versions matching the pattern
+          ALL_VERSIONS=$(npm view "$PACKAGE_NAME" versions --json 2>/dev/null || echo "[]")
 
-          # Count existing betas and increment
-          BETA_COUNT=$(echo "$EXISTING_BETAS" | jq -r 'if type=="array" then length else 1 end')
+          # Filter for beta versions of the next base version and count them
+          if [ "$ALL_VERSIONS" = "[]" ] || [ -z "$ALL_VERSIONS" ]; then
+            # Package doesn't exist yet or no versions
+            BETA_COUNT=0
+          else
+            # Count existing betas for this base version
+            BETA_COUNT=$(echo "$ALL_VERSIONS" | jq -r --arg base "$NEXT_BASE" '[.[] | select(startswith($base + "-beta."))] | length')
+          fi
+
           NEXT_BETA=$((BETA_COUNT + 1))
-
           BETA_VERSION="$NEXT_BASE-beta.$NEXT_BETA"
+
           echo "version=$BETA_VERSION" >> $GITHUB_OUTPUT
           echo "Publishing beta version: $BETA_VERSION"
 
