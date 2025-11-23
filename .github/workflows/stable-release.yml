@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write  # Required for Trusted Publishers
 
 jobs:
   release:
@@ -60,10 +61,8 @@ jobs:
           git push origin main
           git push origin ${{ steps.version.outputs.tag }}
 
-      - name: Publish to npm with @latest tag
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish to npm with @latest tag and provenance
+        run: npm publish --provenance --access public
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
