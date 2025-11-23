@@ -37,6 +37,7 @@ export class TailwindValidator implements IClassNameValidator {
 	private cssFilePath: string;
 	private logger: Logger;
 	private validationCache: PerformanceCache<string, boolean>;
+	private allowedClasses: Set<string> = new Set();
 
 	constructor(cssFilePath: string, logger: Logger) {
 		this.cssFilePath = cssFilePath;
@@ -116,6 +117,18 @@ export class TailwindValidator implements IClassNameValidator {
 	}
 
 	/**
+	 * Set custom allowed classes from configuration
+	 */
+	setAllowedClasses(allowedClasses: string[]): void {
+		this.allowedClasses = new Set(allowedClasses);
+		// Clear cache when allowed classes change
+		this.validationCache.clear();
+		if (allowedClasses.length > 0) {
+			this.logger.log(`[TailwindValidator] Set ${allowedClasses.length} custom allowed classes`);
+		}
+	}
+
+	/**
 	 * Check if a class name is valid
 	 * This handles both static classes and arbitrary values (e.g., w-[100px])
 	 * Performance optimized with LRU cache
@@ -129,6 +142,12 @@ export class TailwindValidator implements IClassNameValidator {
 		// Check cache first (performance optimization)
 		if (this.validationCache.has(className)) {
 			return this.validationCache.get(className)!;
+		}
+
+		// Check if it's in the custom allowed classes (fast path)
+		if (this.allowedClasses.has(className)) {
+			this.validationCache.set(className, true);
+			return true;
 		}
 
 		// First, check if it's in the static class list (fast path)

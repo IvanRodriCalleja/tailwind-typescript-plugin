@@ -59,6 +59,7 @@ Add the plugin to the `compilerOptions.plugins` array in your `tsconfig.json`:
         "name": "tailwind-typescript-plugin",
         "globalCss": "./src/global.css",
         "utilityFunctions": ["clsx", "cn", "classnames"],
+        "allowedClasses": ["custom-button", "app-header", "project-card"],
         "variants": {
           "tailwindVariants": true,
           "classVarianceAuthority": true
@@ -72,6 +73,18 @@ Add the plugin to the `compilerOptions.plugins` array in your `tsconfig.json`:
 **Configuration options:**
 
 - `globalCss` (required): Path to your global CSS file that imports Tailwind CSS. This can be relative to your project root.
+
+- `allowedClasses` (optional): Array of custom class names that should be treated as valid alongside Tailwind classes. Useful for project-specific or third-party utility classes that aren't part of Tailwind.
+  - **Default**: `[]` (no custom classes allowed)
+  - **Example**:
+    ```json
+    {
+      "allowedClasses": ["custom-button", "app-header", "project-card"]
+    }
+    ```
+  - Classes in this list will be considered valid and won't trigger validation errors
+  - Works with all extraction patterns (literals, expressions, functions, arrays, etc.)
+  - Combines with Tailwind classes - both are validated independently
 
 - `variants` (optional): Configure which variant library extractors to enable. This is useful for performance optimization when you only use one library.
   - **Default behavior (no config)**: Both `tailwind-variants` and `class-variance-authority` are enabled
@@ -195,15 +208,38 @@ Most editors that support TypeScript Language Service plugins should work automa
 ```tsx
 // ❌ Invalid class name
 <div className="random-class">Invalid class</div>
-// Error: The class "holii" is not a valid Tailwind class
+// Error: The class "random-class" is not a valid Tailwind class
 
 // ❌ Mix of valid and invalid
 <div className="random-class container mx-auto">Mixed classes</div>
-// Error: The class "holii" is not a valid Tailwind class
+// Error: The class "random-class" is not a valid Tailwind class
 
 // ❌ Invalid variant
 <div className="invalid-variant:bg-blue-500">Bad variant</div>
-// Error: The class "invalidvariant:bg-blue-500" is not a valid Tailwind class
+// Error: The class "invalid-variant:bg-blue-500" is not a valid Tailwind class
+```
+
+**Custom allowed classes**:
+```tsx
+// Configuration in tsconfig.json:
+// "allowedClasses": ["custom-button", "app-header", "project-card"]
+
+// ✅ Valid: Custom allowed class
+<div className="custom-button">Custom button</div>
+
+// ✅ Valid: Custom allowed classes with Tailwind
+<div className="custom-button flex items-center bg-blue-500">
+  Mixed custom and Tailwind
+</div>
+
+// ✅ Valid: Multiple custom allowed classes
+<div className="custom-button app-header project-card">
+  Multiple custom classes
+</div>
+
+// ❌ Invalid: Custom class NOT in allowed list
+<div className="not-in-config">Not configured</div>
+// Error: The class "not-in-config" is not a valid Tailwind class
 ```
 
 **tailwind-variants validation**:
@@ -416,6 +452,10 @@ const invalidVariant = cva(['font-semibold'], {
 - [X] **CVA Class Override** → [`cva-class-override.tsx`](./example/src/cva-class-override.tsx)
   Validates `class-variance-authority` class/className property overrides at call site
   Example: `button({ intent: 'primary', class: 'invalid-class' })`
+
+- [X] **Allowed Classes** → [`allowed-classes.tsx`](./example/src/allowed-classes.tsx)
+  Validates custom classes configured via `allowedClasses` config option
+  Example: `className="custom-button app-header"` (where these are in the allowedClasses config)
 
 - [ ] **Expression Variable**
   Validates variable references
