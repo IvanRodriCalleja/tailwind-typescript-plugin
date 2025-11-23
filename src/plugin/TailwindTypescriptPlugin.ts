@@ -85,6 +85,12 @@ export class TailwindTypescriptPlugin {
 			this.logger
 		);
 
+		// Set allowed classes from config
+		const allowedClasses = this.configService.getAllowedClasses();
+		if (allowedClasses.length > 0) {
+			this.validator.setAllowedClasses(allowedClasses);
+		}
+
 		// Start async initialization
 		this.initializationPromise = this.validator
 			.initialize()

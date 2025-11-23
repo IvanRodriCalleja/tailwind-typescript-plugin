@@ -24,6 +24,7 @@ export interface IClassNameExtractor {
 export interface IClassNameValidator {
 	isValidClass(className: string): boolean;
 	isInitialized(): boolean;
+	setAllowedClasses(allowedClasses: string[]): void;
 }
 
 /**
@@ -41,6 +42,7 @@ export interface IPluginConfig {
 	globalCss?: string;
 	utilityFunctions?: string[];
 	variants?: IVariantsConfig;
+	allowedClasses?: string[];
 }
 
 /**

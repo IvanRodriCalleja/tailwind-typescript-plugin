@@ -24,6 +24,7 @@ export class PluginConfigService {
 	private cssFilePath?: string;
 	private tailwindVariantsEnabled: boolean;
 	private classVarianceAuthorityEnabled: boolean;
+	private allowedClasses: string[];
 
 	constructor(
 		config: IPluginConfig,
@@ -31,6 +32,7 @@ export class PluginConfigService {
 	) {
 		this.utilityFunctions = this.initializeUtilityFunctions(config);
 		this.cssFilePath = config.globalCss;
+		this.allowedClasses = this.initializeAllowedClasses(config);
 
 		// If ANY variant config is defined, only enable those explicitly set to true
 		// If NO variant config is defined, enable both by default
@@ -65,6 +67,15 @@ export class PluginConfigService {
 		}
 	}
 
+	private initializeAllowedClasses(config: IPluginConfig): string[] {
+		if (config.allowedClasses && Array.isArray(config.allowedClasses)) {
+			this.logger.log(`Custom allowed classes: ${config.allowedClasses.join(', ')}`);
+			return config.allowedClasses;
+		} else {
+			return [];
+		}
+	}
+
 	getUtilityFunctions(): string[] {
 		return this.utilityFunctions;
 	}
@@ -83,6 +94,10 @@ export class PluginConfigService {
 
 	isClassVarianceAuthorityEnabled(): boolean {
 		return this.classVarianceAuthorityEnabled;
+	}
+
+	getAllowedClasses(): string[] {
+		return this.allowedClasses;
 	}
 
 	private logExtractorConfig(): void {

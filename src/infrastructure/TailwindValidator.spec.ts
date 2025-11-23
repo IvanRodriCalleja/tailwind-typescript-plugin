@@ -241,6 +241,46 @@ describe('TailwindValidator', () => {
 		});
 	});
 
+	describe('setAllowedClasses', () => {
+		it('should allow custom classes when set', () => {
+			validator.setAllowedClasses(['my-custom-class', 'another-custom']);
+			expect(validator.isValidClass('my-custom-class')).toBe(true);
+			expect(validator.isValidClass('another-custom')).toBe(true);
+		});
+
+		it('should allow custom classes alongside Tailwind classes', () => {
+			validator.setAllowedClasses(['custom-button', 'custom-input']);
+			expect(validator.isValidClass('custom-button')).toBe(true);
+			expect(validator.isValidClass('flex')).toBe(true);
+			expect(validator.isValidClass('bg-blue-500')).toBe(true);
+			expect(validator.isValidClass('invalid-class')).toBe(false);
+		});
+
+		it('should clear validation cache when setting allowed classes', () => {
+			// First call - will be cached
+			expect(validator.isValidClass('my-custom')).toBe(false);
+
+			// Set as allowed
+			validator.setAllowedClasses(['my-custom']);
+
+			// Should now be valid (cache cleared)
+			expect(validator.isValidClass('my-custom')).toBe(true);
+		});
+
+		it('should work with getInvalidClasses', () => {
+			validator.setAllowedClasses(['app-specific-class', 'project-util']);
+			const classes = ['flex', 'app-specific-class', 'invalid-one', 'project-util', 'invalid-two'];
+			const invalid = validator.getInvalidClasses(classes);
+			expect(invalid).toEqual(['invalid-one', 'invalid-two']);
+		});
+
+		it('should handle empty allowed classes array', () => {
+			validator.setAllowedClasses([]);
+			expect(validator.isValidClass('flex')).toBe(true);
+			expect(validator.isValidClass('custom-class')).toBe(false);
+		});
+	});
+
 	describe('reload', () => {
 		it('should reload the design system', async () => {
 			const wasBefore = validator.isInitialized();
