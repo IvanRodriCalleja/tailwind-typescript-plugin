@@ -1,9 +1,15 @@
 {
-  "name": "typescript-custom-plugin",
-  "version": "0.1.0",
-  "description": "A custom TypeScript language service plugin",
+  "name": "tailwind-typescript-plugin",
+  "version": "0.0.1",
+  "description": "TypeScript Language Service plugin that validates Tailwind CSS class names in JSX/TSX files. Catches typos and invalid classes in real-time with support for tailwind-variants and class-variance-authority.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "files": [
+    "lib/**/*",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
@@ -16,9 +22,39 @@
   },
   "keywords": [
     "typescript",
-    "plugin",
-    "language-service"
+    "typescript-plugin",
+    "language-service",
+    "tailwind",
+    "tailwindcss",
+    "tailwind-css",
+    "validation",
+    "linter",
+    "class-names",
+    "className",
+    "jsx",
+    "tsx",
+    "react",
+    "tailwind-variants",
+    "class-variance-authority",
+    "cva",
+    "css-in-js",
+    "developer-tools",
+    "ide",
+    "vscode"
   ],
+  "author": {
+    "name": "Ivan Rodriguez Calleja",
+    "url": "https://github.com/IvanRodriCalleja"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IvanRodriCalleja/tailwind-typescript-plugin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/issues"
+  },
+  "homepage": "https://github.com/IvanRodriCalleja/tailwind-typescript-plugin#readme",
   "devDependencies": {
     "@eslint/compat": "^1.2.9",
     "@eslint/eslintrc": "^3",
