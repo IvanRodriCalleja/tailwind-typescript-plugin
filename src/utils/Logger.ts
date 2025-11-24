@@ -39,6 +39,7 @@ export class LoggerImpl implements Logger {
  * No-op logger for maximum performance (zero overhead)
  */
 export class NoOpLogger implements Logger {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	public log(_msg: string) {
 		// No-op
 	}
