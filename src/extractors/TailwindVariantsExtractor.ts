@@ -13,6 +13,7 @@ import { ExpressionExtractor } from './ExpressionExtractor';
  * - compoundVariants: array of objects with class/className properties
  * - slots: object where values contain classes
  * - Import aliasing: import { tv as myTv } from 'tailwind-variants'
+ * - Lite version: import { tv } from 'tailwind-variants/lite'
  * - class property overrides: button({ color: 'primary', class: 'bg-pink-500' })
  *
  * PERFORMANCE OPTIMIZATIONS:
@@ -100,7 +101,10 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 
 	/**
 	 * Get all local names for tv imports from tailwind-variants
-	 * Supports aliasing: import { tv as myTv } -> returns Set(['myTv'])
+	 * Supports:
+	 * - Standard: import { tv } from 'tailwind-variants'
+	 * - Lite version: import { tv } from 'tailwind-variants/lite'
+	 * - Aliasing: import { tv as myTv } -> returns Set(['myTv'])
 	 * Caches result per file for performance
 	 */
 	private getTvImportNames(context: ExtractionContext): Set<string> {
@@ -122,7 +126,8 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 			const moduleSpecifier = statement.moduleSpecifier;
 			if (
 				!context.typescript.isStringLiteral(moduleSpecifier) ||
-				moduleSpecifier.text !== 'tailwind-variants'
+				(moduleSpecifier.text !== 'tailwind-variants' &&
+					moduleSpecifier.text !== 'tailwind-variants/lite')
 			) {
 				continue;
 			}
