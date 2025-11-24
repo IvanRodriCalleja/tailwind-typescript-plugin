@@ -37,32 +37,6 @@ function formatReport(entry: HistoryEntry): string {
 	const newResult = entry.new;
 	const oldResult = entry.old;
 
-	// Calculate comparison
-	let comparison = '';
-	let performanceEmoji = '⚠️';
-
-	if (oldResult) {
-		const ratio = newResult.runs.average / oldResult.runs.average;
-		const diff = newResult.runs.average - oldResult.runs.average;
-
-		if (ratio < 1.1) {
-			// Within 10% - acceptable
-			performanceEmoji = '✅';
-			comparison = `NEW is within acceptable range (${(ratio * 100 - 100).toFixed(1)}% difference)`;
-		} else if (ratio < 1.5) {
-			// 10-50% slower
-			performanceEmoji = '⚠️';
-			comparison = `NEW is ${ratio.toFixed(2)}x slower (+${diff.toFixed(2)}ms)`;
-		} else {
-			// >50% slower
-			performanceEmoji = '❌';
-			comparison = `NEW is ${ratio.toFixed(2)}x slower (+${diff.toFixed(2)}ms)`;
-		}
-	} else {
-		performanceEmoji = 'ℹ️';
-		comparison = 'OLD version not available for comparison';
-	}
-
 	// Build markdown report
 	let report = '## 📊 Performance Benchmark Results\n\n';
 
@@ -102,21 +76,6 @@ function formatReport(entry: HistoryEntry): string {
 	}
 
 	report += '\n';
-
-	// Analysis
-	report += '### Analysis\n';
-	report += `${performanceEmoji} **${comparison}**\n\n`;
-
-	if (oldResult && newResult.runs.average > oldResult.runs.average) {
-		report += '> ⚠️ **Note**: The NEW implementation shows slower first-run times due to:\n';
-		report += '> - Clean Architecture abstraction layers\n';
-		report += '> - Service initialization overhead\n';
-		report += '> - Object creation for proper separation of concerns\n\n';
-		report += '> ✅ **Benefits in Real Usage**:\n';
-		report += '> - **10-95x faster** on repeated validations (LRU cache)\n';
-		report += '> - Much better developer experience during editing\n';
-		report += '> - See [PERFORMANCE_ANALYSIS.md](../PERFORMANCE_ANALYSIS.md) for detailed analysis\n\n';
-	}
 
 	// Memory usage
 	report += '### Memory Usage\n\n';
