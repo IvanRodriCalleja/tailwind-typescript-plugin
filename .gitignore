@@ -7,3 +7,7 @@ dist/
 example/node_modules/
 example/dist/
 example/src/tsconfig.json
+
+# Generated benchmark reports (regenerated on each run)
+performance/results/latest-report.md
+performance/pr-builds/
