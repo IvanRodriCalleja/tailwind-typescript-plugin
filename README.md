@@ -1,5 +1,11 @@
 # Tailwind TypeScript Plugin
 
+[![CI](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/tailwind-typescript-plugin.svg)](https://www.npmjs.com/package/tailwind-typescript-plugin)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/github/package-json/dependency-version/IvanRodriCalleja/tailwind-typescript-plugin/dev/typescript?label=TypeScript)](https://www.typescriptlang.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/blob/main/CONTRIBUTING.md)
+
 A TypeScript Language Service plugin that catches **typos and invalid Tailwind CSS class names** in your JSX/TSX files. When you write a class name that doesn't exist in Tailwind, it won't apply any styles—this plugin detects those mistakes and shows errors directly in your editor before you ship broken styles.
 
 ## What does this plugin do?
