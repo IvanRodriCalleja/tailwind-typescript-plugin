@@ -14,7 +14,6 @@
  * - Import aliasing: import { cva as myCva } from 'class-variance-authority'
  * - Array or string syntax: ['flex', 'items-center'] OR 'flex items-center'
  */
-
 import { cva } from 'class-variance-authority';
 import { cva as myCva } from 'class-variance-authority';
 

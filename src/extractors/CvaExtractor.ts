@@ -2,6 +2,7 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { ClassNameInfo, ExtractionContext } from '../core/types';
 import { BaseExtractor } from './BaseExtractor';
+import { ExpressionExtractor } from './ExpressionExtractor';
 
 /**
  * Extracts class names from class-variance-authority cva() function calls
@@ -25,6 +26,12 @@ import { BaseExtractor } from './BaseExtractor';
 export class CvaExtractor extends BaseExtractor {
 	private cvaImportCache = new Map<string, Set<string>>();
 	private cvaVariableCache = new Map<ts.Symbol, boolean>();
+	private expressionExtractor: ExpressionExtractor;
+
+	constructor() {
+		super();
+		this.expressionExtractor = new ExpressionExtractor();
+	}
 
 	canHandle(node: ts.Node, context: ExtractionContext): boolean {
 		return context.typescript.isCallExpression(node);
@@ -310,6 +317,11 @@ export class CvaExtractor extends BaseExtractor {
 			for (const element of node.elements) {
 				if (context.typescript.isStringLiteral(element)) {
 					classNames.push(...this.extractFromStringLiteral(element, context));
+				} else if (context.typescript.isExpression(element as ts.Expression)) {
+					// Handle complex expressions in arrays (ternary, binary, etc.)
+					classNames.push(
+						...this.expressionExtractor.extractFromExpression(element as ts.Expression, context)
+					);
 				}
 			}
 			return classNames;
@@ -363,6 +375,36 @@ export class CvaExtractor extends BaseExtractor {
 				}
 			}
 			return classNames;
+		}
+
+		// Handle ternary expressions: condition ? 'class1' : 'class2'
+		if (context.typescript.isConditionalExpression(node)) {
+			return this.expressionExtractor.extractFromExpression(node, context);
+		}
+
+		// Handle binary expressions: condition && 'class-name'
+		if (context.typescript.isBinaryExpression(node)) {
+			return this.expressionExtractor.extractFromExpression(node, context);
+		}
+
+		// Handle parenthesized expressions: ('class-name')
+		if (context.typescript.isParenthesizedExpression(node)) {
+			return this.expressionExtractor.extractFromExpression(node, context);
+		}
+
+		// Handle type assertions: ('class-name' as string)
+		if (context.typescript.isAsExpression(node)) {
+			return this.expressionExtractor.extractFromExpression(node, context);
+		}
+
+		// Handle non-null assertions: expr!
+		if (context.typescript.isNonNullExpression(node)) {
+			return this.expressionExtractor.extractFromExpression(node, context);
+		}
+
+		// Handle type assertions with angle brackets: <string>'class-name'
+		if (context.typescript.isTypeAssertionExpression(node)) {
+			return this.expressionExtractor.extractFromExpression(node, context);
 		}
 
 		return [];
