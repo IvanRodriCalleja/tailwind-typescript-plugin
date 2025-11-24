@@ -131,42 +131,45 @@ export class TailwindValidator implements IClassNameValidator {
 	/**
 	 * Check if a class name is valid
 	 * This handles both static classes and arbitrary values (e.g., w-[100px])
-	 * Performance optimized with LRU cache
+	 * PERFORMANCE OPTIMIZED: Reduced logging, faster cache checks
 	 */
 	isValidClass(className: string): boolean {
 		if (!this.classSet || !this.designSystem) {
+			// Only log if logging is enabled (checked internally by logger)
 			this.logger.log('[TailwindValidator] Validator not initialized. Call initialize() first.');
 			return true; // Assume valid if not initialized
 		}
 
-		// Check cache first (performance optimization)
-		if (this.validationCache.has(className)) {
-			return this.validationCache.get(className)!;
+		// PERFORMANCE: Check cache first (fastest path)
+		const cached = this.validationCache.get(className);
+		if (cached !== undefined) {
+			return cached;
 		}
 
-		// Check if it's in the custom allowed classes (fast path)
+		// PERFORMANCE: Check custom allowed classes (fast path)
 		if (this.allowedClasses.has(className)) {
 			this.validationCache.set(className, true);
 			return true;
 		}
 
-		// First, check if it's in the static class list (fast path)
+		// PERFORMANCE: Check static class list (fast path)
 		if (this.classSet.has(className)) {
 			this.validationCache.set(className, true);
 			return true;
 		}
 
-		// If not in the static list, it might be an arbitrary value like w-[100px]
+		// Arbitrary value validation (slower path)
 		// Use the design system to check if it generates valid CSS
 		try {
 			const result = this.designSystem.candidatesToCss([className]);
-			// If candidatesToCss returns a non-null value, the class is valid
 			const isValid = result[0] !== null;
 			this.validationCache.set(className, isValid);
 			return isValid;
 		} catch (err) {
-			this.logger.log(`[TailwindValidator] Failed to check class: ${err}`);
-			// If there's an error, consider it invalid
+			// PERFORMANCE: Only log errors if enabled
+			if (this.logger.isEnabled()) {
+				this.logger.log(`[TailwindValidator] Failed to check class: ${err}`);
+			}
 			this.validationCache.set(className, false);
 			return false;
 		}
@@ -174,13 +177,68 @@ export class TailwindValidator implements IClassNameValidator {
 
 	/**
 	 * Validate multiple class names and return invalid ones
+	 * PERFORMANCE OPTIMIZED: Batch validation for arbitrary values
 	 */
 	getInvalidClasses(classNames: string[]): string[] {
-		if (!this.classSet) {
+		if (!this.classSet || !this.designSystem) {
 			return [];
 		}
 
-		return classNames.filter(className => !this.isValidClass(className));
+		// PERFORMANCE: Separate classes into categories for efficient batch processing
+		const invalidClasses: string[] = [];
+		const uncachedArbitraryValues: string[] = [];
+
+		for (const className of classNames) {
+			// Check cache first
+			const cached = this.validationCache.get(className);
+			if (cached !== undefined) {
+				if (!cached) {
+					invalidClasses.push(className);
+				}
+				continue;
+			}
+
+			// Check allowed classes
+			if (this.allowedClasses.has(className)) {
+				this.validationCache.set(className, true);
+				continue;
+			}
+
+			// Check static class list
+			if (this.classSet.has(className)) {
+				this.validationCache.set(className, true);
+				continue;
+			}
+
+			// Needs arbitrary value validation
+			uncachedArbitraryValues.push(className);
+		}
+
+		// PERFORMANCE: Batch validate arbitrary values if any exist
+		if (uncachedArbitraryValues.length > 0) {
+			try {
+				const results = this.designSystem.candidatesToCss(uncachedArbitraryValues);
+				for (let i = 0; i < uncachedArbitraryValues.length; i++) {
+					const className = uncachedArbitraryValues[i];
+					const isValid = results[i] !== null;
+					this.validationCache.set(className, isValid);
+					if (!isValid) {
+						invalidClasses.push(className);
+					}
+				}
+			} catch (err) {
+				if (this.logger.isEnabled()) {
+					this.logger.log(`[TailwindValidator] Failed to batch validate: ${err}`);
+				}
+				// On error, mark all as invalid
+				for (const className of uncachedArbitraryValues) {
+					this.validationCache.set(className, false);
+					invalidClasses.push(className);
+				}
+			}
+		}
+
+		return invalidClasses;
 	}
 
 	/**

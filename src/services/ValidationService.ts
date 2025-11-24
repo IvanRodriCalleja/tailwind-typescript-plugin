@@ -20,6 +20,7 @@ export class ValidationService {
 
 	/**
 	 * Validate a source file and return diagnostics
+	 * PERFORMANCE OPTIMIZED: Minimal logging overhead
 	 */
 	validateFile(
 		typescript: typeof ts,
@@ -34,7 +35,10 @@ export class ValidationService {
 			return [];
 		}
 
-		this.logger.log(`[ValidationService] Processing file: ${sourceFile.fileName}`);
+		// PERFORMANCE: Only log if enabled
+		if (this.logger.isEnabled()) {
+			this.logger.log(`[ValidationService] Processing file: ${sourceFile.fileName}`);
+		}
 
 		// Extract all class names from the file
 		const classNames = this.extractionService.extractFromSourceFile(
@@ -44,30 +48,35 @@ export class ValidationService {
 			typeChecker
 		);
 
-		this.logger.log(`[ValidationService] Found ${classNames.length} class names to validate`);
+		// PERFORMANCE: Only log if enabled
+		if (this.logger.isEnabled()) {
+			this.logger.log(`[ValidationService] Found ${classNames.length} class names to validate`);
+		}
 
 		// Filter invalid class names
 		const invalidClasses = this.filterInvalidClasses(classNames);
 
-		if (invalidClasses.length > 0) {
-			this.logger.log(`[ValidationService] Returning ${invalidClasses.length} diagnostics`);
-			return this.diagnosticService.createDiagnostics(invalidClasses, sourceFile);
-		} else {
-			this.logger.log(`[ValidationService] No invalid classes found`);
-			return [];
+		// PERFORMANCE: Only log if enabled
+		if (this.logger.isEnabled()) {
+			if (invalidClasses.length > 0) {
+				this.logger.log(`[ValidationService] Returning ${invalidClasses.length} diagnostics`);
+			} else {
+				this.logger.log(`[ValidationService] No invalid classes found`);
+			}
 		}
+
+		return invalidClasses.length > 0
+			? this.diagnosticService.createDiagnostics(invalidClasses, sourceFile)
+			: [];
 	}
 
 	/**
 	 * Filter out valid classes and return only invalid ones
+	 * PERFORMANCE OPTIMIZED: No logging in hot path
 	 */
 	private filterInvalidClasses(classNames: ClassNameInfo[]): ClassNameInfo[] {
-		return classNames.filter(classInfo => {
-			const isValid = this.validator.isValidClass(classInfo.className);
-			this.logger.log(
-				`[ValidationService] Validating "${classInfo.className}": ${isValid ? 'VALID' : 'INVALID'}`
-			);
-			return !isValid;
-		});
+		// PERFORMANCE: Skip logging each class validation (hot path)
+		// This method is called for every class in every file
+		return classNames.filter(classInfo => !this.validator.isValidClass(classInfo.className));
 	}
 }

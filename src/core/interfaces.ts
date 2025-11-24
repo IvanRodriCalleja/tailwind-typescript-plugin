@@ -43,6 +43,7 @@ export interface IPluginConfig {
 	utilityFunctions?: string[];
 	variants?: IVariantsConfig;
 	allowedClasses?: string[];
+	enableLogging?: boolean;
 }
 
 /**

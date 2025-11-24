@@ -25,11 +25,13 @@ export class PluginConfigService {
 	private tailwindVariantsEnabled: boolean;
 	private classVarianceAuthorityEnabled: boolean;
 	private allowedClasses: string[];
+	private loggingEnabled: boolean;
 
 	constructor(
 		config: IPluginConfig,
 		private readonly logger: Logger
 	) {
+		this.loggingEnabled = config.enableLogging === true;
 		this.utilityFunctions = this.initializeUtilityFunctions(config);
 		this.cssFilePath = config.globalCss;
 		this.allowedClasses = this.initializeAllowedClasses(config);
@@ -98,6 +100,10 @@ export class PluginConfigService {
 
 	getAllowedClasses(): string[] {
 		return this.allowedClasses;
+	}
+
+	isLoggingEnabled(): boolean {
+		return this.loggingEnabled;
 	}
 
 	private logExtractorConfig(): void {

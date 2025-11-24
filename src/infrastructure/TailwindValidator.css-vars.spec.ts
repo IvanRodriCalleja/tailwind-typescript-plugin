@@ -11,6 +11,10 @@ class MockLogger implements Logger {
 	log(_message: string): void {
 		// Silent during tests
 	}
+
+	isEnabled(): boolean {
+		return false;
+	}
 }
 
 describe('TailwindValidator - CSS Variables', () => {
