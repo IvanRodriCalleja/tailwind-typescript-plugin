@@ -124,10 +124,9 @@ jobs:
 
       - name: Check performance regression
         run: |
-          # Parse benchmark results
-          RESULTS=$(cat performance/results/benchmark-results.json | tail -1)
-          NEW_AVG=$(echo $RESULTS | jq -r '.new.runs.average')
-          OLD_AVG=$(echo $RESULTS | jq -r '.old.runs.average // 0')
+          # Parse benchmark results (get last entry from array)
+          NEW_AVG=$(jq -r '.[-1].new.runs.average' performance/results/benchmark-results.json)
+          OLD_AVG=$(jq -r '.[-1].old.runs.average // 0' performance/results/benchmark-results.json)
 
           # Calculate ratio (only if OLD exists)
           if [ "$OLD_AVG" != "0" ] && [ "$OLD_AVG" != "null" ]; then
