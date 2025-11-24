@@ -15,7 +15,7 @@
  * @validClasses [flex, items-center]
  */
 export function ParenthesizedStringLiteral() {
-	return <div className={('flex items-center')}>Parenthesized string</div>;
+	return <div className={'flex items-center'}>Parenthesized string</div>;
 }
 
 /**
@@ -23,7 +23,7 @@ export function ParenthesizedStringLiteral() {
  * @invalidClasses [invalid-class]
  */
 export function ParenthesizedInvalidClass() {
-	return <div className={('invalid-class')}>Parenthesized invalid</div>;
+	return <div className={'invalid-class'}>Parenthesized invalid</div>;
 }
 
 /**
@@ -32,7 +32,7 @@ export function ParenthesizedInvalidClass() {
  * @validClasses [flex]
  */
 export function ParenthesizedMixed() {
-	return <div className={('flex invalid-class')}>Parenthesized mixed</div>;
+	return <div className={'flex invalid-class'}>Parenthesized mixed</div>;
 }
 
 // ========================================
@@ -45,7 +45,7 @@ export function ParenthesizedMixed() {
  */
 export function ParenthesizedTernary() {
 	const isError = true;
-	return <div className={(isError ? 'bg-red-500' : 'bg-blue-500')}>Parenthesized ternary</div>;
+	return <div className={isError ? 'bg-red-500' : 'bg-blue-500'}>Parenthesized ternary</div>;
 }
 
 /**
@@ -55,7 +55,7 @@ export function ParenthesizedTernary() {
  */
 export function ParenthesizedTernaryInvalid() {
 	const isError = true;
-	return <div className={(isError ? 'invalid-class' : 'bg-blue-500')}>Invalid in ternary</div>;
+	return <div className={isError ? 'invalid-class' : 'bg-blue-500'}>Invalid in ternary</div>;
 }
 
 // ========================================
@@ -68,7 +68,7 @@ export function ParenthesizedTernaryInvalid() {
  */
 export function ParenthesizedBinary() {
 	const isError = true;
-	return <div className={(isError && 'bg-red-500')}>Parenthesized binary</div>;
+	return <div className={isError && 'bg-red-500'}>Parenthesized binary</div>;
 }
 
 /**
@@ -77,7 +77,7 @@ export function ParenthesizedBinary() {
  */
 export function ParenthesizedBinaryInvalid() {
 	const isError = true;
-	return <div className={(isError && 'invalid-class')}>Invalid in binary</div>;
+	return <div className={isError && 'invalid-class'}>Invalid in binary</div>;
 }
 
 // ========================================
@@ -90,7 +90,7 @@ export function ParenthesizedBinaryInvalid() {
  */
 export function NestedParentheses() {
 	const isActive = true;
-	return <div className={((isActive ? 'bg-green-500' : 'bg-gray-500'))}>Nested parentheses</div>;
+	return <div className={isActive ? 'bg-green-500' : 'bg-gray-500'}>Nested parentheses</div>;
 }
 
 /**
@@ -100,7 +100,7 @@ export function NestedParentheses() {
  */
 export function NestedParenthesesInvalid() {
 	const isActive = true;
-	return <div className={((isActive ? 'invalid-class' : 'bg-gray-500'))}>Nested invalid</div>;
+	return <div className={isActive ? 'invalid-class' : 'bg-gray-500'}>Nested invalid</div>;
 }
 
 // ========================================
@@ -112,7 +112,7 @@ export function NestedParenthesesInvalid() {
  * @validClasses [flex, items-center]
  */
 export function TypeAssertionAsString() {
-	return <div className={('flex items-center' as string)}>Type assertion as string</div>;
+	return <div className={'flex items-center' as string}>Type assertion as string</div>;
 }
 
 /**
@@ -128,7 +128,7 @@ export function TypeAssertionAsConst() {
  * @invalidClasses [invalid-class]
  */
 export function TypeAssertionInvalid() {
-	return <div className={('invalid-class' as string)}>Type assertion invalid</div>;
+	return <div className={'invalid-class' as string}>Type assertion invalid</div>;
 }
 
 /**
@@ -137,7 +137,7 @@ export function TypeAssertionInvalid() {
  * @validClasses [flex]
  */
 export function TypeAssertionMixed() {
-	return <div className={('flex invalid-class' as string)}>Type assertion mixed</div>;
+	return <div className={'flex invalid-class' as string}>Type assertion mixed</div>;
 }
 
 // ========================================
@@ -172,7 +172,7 @@ export function NonNullAssertionInvalid() {
  */
 export function ParenthesizedWithClsx() {
 	const isActive = true;
-	return <div className={(clsx('flex', isActive && 'bg-blue-500'))}>Parenthesized clsx</div>;
+	return <div className={clsx('flex', isActive && 'bg-blue-500')}>Parenthesized clsx</div>;
 }
 
 /**
@@ -182,7 +182,7 @@ export function ParenthesizedWithClsx() {
  */
 export function ParenthesizedWithClsxInvalid() {
 	const isActive = true;
-	return <div className={(clsx('flex', isActive && 'invalid-class'))}>Invalid in clsx</div>;
+	return <div className={clsx('flex', isActive && 'invalid-class')}>Invalid in clsx</div>;
 }
 
 /**
@@ -217,7 +217,7 @@ export function TypeAssertionOnTernaryInvalid() {
  * @validClasses [flex, items-center, justify-center]
  */
 export function ParenthesesAndTypeAssertion() {
-	return <div className={(('flex items-center justify-center' as string))}>Combined</div>;
+	return <div className={'flex items-center justify-center' as string}>Combined</div>;
 }
 
 /**
@@ -226,7 +226,7 @@ export function ParenthesesAndTypeAssertion() {
  * @validClasses [flex]
  */
 export function ParenthesesAndTypeAssertionInvalid() {
-	return <div className={(('flex invalid-class' as string))}>Combined invalid</div>;
+	return <div className={'flex invalid-class' as string}>Combined invalid</div>;
 }
 
 declare function clsx(...args: any[]): string;

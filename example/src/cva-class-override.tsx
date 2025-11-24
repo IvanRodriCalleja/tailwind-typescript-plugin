@@ -12,7 +12,6 @@
  * 3. Does NOT validate utility functions
  * 4. Only validates functions created by cva()
  */
-
 import { cva } from 'class-variance-authority';
 
 // Setup: Define a cva() button (this definition is validated separately in cva-static.tsx)
@@ -72,8 +71,7 @@ export function CvaClassOverrideInvalid() {
  */
 export function CvaClassNameOverrideValid() {
 	return (
-		<button
-			className={button({ intent: 'secondary', className: 'bg-teal-500 hover:bg-teal-700' })}>
+		<button className={button({ intent: 'secondary', className: 'bg-teal-500 hover:bg-teal-700' })}>
 			Valid className Override
 		</button>
 	);

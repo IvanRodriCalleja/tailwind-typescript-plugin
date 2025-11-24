@@ -143,8 +143,7 @@ export function UserExampleMultiline() {
 				bg-[var(--card-bg)]
 				rounded-[var(--card-radius)]
 				p-4
-			"
-		>
+			">
 			User example multiline
 		</div>
 	);
@@ -223,7 +222,9 @@ export function CSSVariablesWithClsx() {
  * @validClasses [[--spacing:1rem], p-[var(--spacing)], flex]
  */
 export function CSSVariablesInTemplate() {
-	return <div className={`[--spacing:1rem] p-[var(--spacing)] flex`}>CSS variables in template</div>;
+	return (
+		<div className={`[--spacing:1rem] p-[var(--spacing)] flex`}>CSS variables in template</div>
+	);
 }
 
 declare function clsx(...args: any[]): string;

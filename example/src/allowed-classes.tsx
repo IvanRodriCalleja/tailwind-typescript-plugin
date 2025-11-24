@@ -66,9 +66,7 @@ export function MultipleAllowedWithTailwind() {
  */
 export function MixedAllowedTailwindInvalid() {
 	return (
-		<div className="custom-button flex invalid-class items-center">
-			Custom + Tailwind + Invalid
-		</div>
+		<div className="custom-button flex invalid-class items-center">Custom + Tailwind + Invalid</div>
 	);
 }
 
@@ -143,7 +141,9 @@ export function AllowedInTemplate() {
  */
 export function AllowedInTemplateDynamic() {
 	const isActive = true;
-	return <div className={`custom-button flex ${isActive ? 'bg-blue-500' : ''}`}>Allowed dynamic</div>;
+	return (
+		<div className={`custom-button flex ${isActive ? 'bg-blue-500' : ''}`}>Allowed dynamic</div>
+	);
 }
 
 /**
@@ -189,7 +189,9 @@ export function AllowedInArrayWithInvalid() {
  * @validClasses [custom-button, app-header]
  */
 export function AllowedInObject() {
-	return <div className={clsx({ 'custom-button': true, 'app-header': true })}>Allowed in object</div>;
+	return (
+		<div className={clsx({ 'custom-button': true, 'app-header': true })}>Allowed in object</div>
+	);
 }
 
 /**
@@ -214,7 +216,9 @@ export function AllowedInObjectWithInvalid() {
  * @validClasses [custom-button, app-header, project-card]
  */
 export function AllConfiguredClasses() {
-	return <div className="custom-button app-header project-card">All configured allowed classes</div>;
+	return (
+		<div className="custom-button app-header project-card">All configured allowed classes</div>
+	);
 }
 
 /**

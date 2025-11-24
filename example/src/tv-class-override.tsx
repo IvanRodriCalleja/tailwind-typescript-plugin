@@ -13,7 +13,6 @@
  * 3. Does NOT validate utility functions (myCustomBuilder, buildStyles)
  * 4. Only validates functions created by tv()
  */
-
 import { tv } from 'tailwind-variants';
 
 // Setup: Define a tv() button (this definition is validated separately in tv-static.tsx)
@@ -80,8 +79,7 @@ export function ClassOverrideInvalid() {
  */
 export function ClassNameOverrideValid() {
 	return (
-		<button
-			className={button({ color: 'success', className: 'bg-teal-500 hover:bg-teal-700' })}>
+		<button className={button({ color: 'success', className: 'bg-teal-500 hover:bg-teal-700' })}>
 			Valid className Override
 		</button>
 	);
