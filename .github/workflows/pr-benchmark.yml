@@ -56,13 +56,9 @@ jobs:
           cp performance/pr-builds/index-pr.js lib/index.js
 
       - name: Run benchmark
-        run: npm run benchmark
-        continue-on-error: true
-
-      - name: Generate report
-        id: report
+        id: benchmark
         run: |
-          REPORT=$(npm run benchmark:report 2>&1 | tail -n +2)
+          REPORT=$(npm run benchmark)
           echo "report<<EOF" >> $GITHUB_OUTPUT
           echo "$REPORT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -72,7 +68,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const report = `${{ steps.report.outputs.report }}`;
+            const report = `${{ steps.benchmark.outputs.report }}`;
 
             // Find existing comment
             const comments = await github.rest.issues.listComments({
@@ -83,14 +79,10 @@ jobs:
 
             const botComment = comments.data.find(comment =>
               comment.user.type === 'Bot' &&
-              comment.body.includes('Performance Benchmark Results')
+              comment.body.includes('Performance Benchmark')
             );
 
-            const body = `## 🚀 Performance Benchmark Results
-
-            Comparing **this PR** vs **main branch**
-
-            ${report}
+            const body = `${report}
 
             ---
             <details>
@@ -124,12 +116,16 @@ jobs:
 
       - name: Check performance regression
         run: |
-          # Parse benchmark results (get last entry from array)
-          NEW_AVG=$(jq -r '.[-1].new.runs.average' performance/results/benchmark-results.json)
-          OLD_AVG=$(jq -r '.[-1].old.runs.average // 0' performance/results/benchmark-results.json)
+          REPORT="${{ steps.benchmark.outputs.report }}"
+
+          # Extract average times from markdown table
+          # This PR average is in the first data row, last column
+          NEW_AVG=$(echo "$REPORT" | grep "This PR" | sed -E 's/.*\*\*([0-9.]+)ms\*\*.*/\1/')
+          # main average is in the second data row, last column
+          OLD_AVG=$(echo "$REPORT" | grep "| \*\*main\*\*" | sed -E 's/.*\*\*([0-9.]+)ms\*\*.*/\1/')
 
           # Calculate ratio (only if OLD exists)
-          if [ "$OLD_AVG" != "0" ] && [ "$OLD_AVG" != "null" ]; then
+          if [ -n "$OLD_AVG" ] && [ "$OLD_AVG" != "" ]; then
             RATIO=$(echo "scale=2; $NEW_AVG / $OLD_AVG" | bc)
 
             # Fail if >50% slower

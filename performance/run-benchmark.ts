@@ -1,6 +1,6 @@
 /**
  * Performance Benchmark Runner
- * Compares old (monolithic) vs new (refactored) plugin implementation
+ * Compares plugin performance between versions
  */
 import * as ts from 'typescript/lib/tsserverlibrary';
 import fs from 'fs';
@@ -191,14 +191,76 @@ async function benchmarkFile(
 }
 
 /**
+ * Format benchmark results as markdown report
+ */
+function formatReport(newResult: BenchmarkResult, oldResult: BenchmarkResult | null): string {
+	// Build markdown report
+	let report = '## 📊 Performance Benchmark\n\n';
+
+	// Performance comparison table
+	report += '| Version | Run 1 | Run 2 | Run 3 | Run 4 | Run 5 | **Average** |\n';
+	report += '|---------|-------|-------|-------|-------|-------|-------------|\n';
+
+	// PR row
+	report += `| **This PR** `;
+	report += `| ${newResult.runs.run1.toFixed(2)}ms `;
+	report += `| ${newResult.runs.run2.toFixed(2)}ms `;
+	report += `| ${newResult.runs.run3.toFixed(2)}ms `;
+	report += `| ${newResult.runs.run4.toFixed(2)}ms `;
+	report += `| ${newResult.runs.run5.toFixed(2)}ms `;
+	report += `| **${newResult.runs.average.toFixed(2)}ms** |\n`;
+
+	// Main row (if available)
+	if (oldResult) {
+		report += `| **main** `;
+		report += `| ${oldResult.runs.run1.toFixed(2)}ms `;
+		report += `| ${oldResult.runs.run2.toFixed(2)}ms `;
+		report += `| ${oldResult.runs.run3.toFixed(2)}ms `;
+		report += `| ${oldResult.runs.run4.toFixed(2)}ms `;
+		report += `| ${oldResult.runs.run5.toFixed(2)}ms `;
+		report += `| **${oldResult.runs.average.toFixed(2)}ms** |\n`;
+
+		// Simple comparison
+		const diff = newResult.runs.average - oldResult.runs.average;
+		const percentChange = ((diff / oldResult.runs.average) * 100).toFixed(1);
+		const absDiff = Math.abs(diff).toFixed(2);
+
+		report += '\n';
+		if (diff < 0) {
+			// Faster
+			report += `✅ **${absDiff}ms faster** (${Math.abs(parseFloat(percentChange))}% improvement)\n`;
+		} else if (diff > 0.5) {
+			// Slower by significant amount
+			report += `⚠️ **${absDiff}ms slower** (${percentChange}% slower)\n`;
+		} else {
+			// Within margin of error
+			report += `➡️ **No significant change** (within ${absDiff}ms)\n`;
+		}
+	} else {
+		report += '\n**Note:** No baseline available for comparison.\n';
+	}
+
+	report += '\n';
+
+	// Memory usage
+	report += '### Memory Usage\n\n';
+	report += `- **This PR**: ${(newResult.memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB\n`;
+	if (oldResult) {
+		report += `- **main**: ${(oldResult.memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB\n`;
+	}
+	report += '\n';
+
+	// Timestamp
+	report += '---\n\n';
+	report += `_Benchmark run at: ${new Date().toLocaleString()}_\n`;
+
+	return report;
+}
+
+/**
  * Run the complete benchmark suite
  */
 async function runBenchmark() {
-	console.log('='.repeat(100));
-	console.log('Performance Benchmark: Old vs New Implementation');
-	console.log('='.repeat(100));
-	console.log();
-
 	const testFile = path.join(__dirname, 'test-files', 'AllUseCases.tsx');
 	const oldPluginPath = path.join(__dirname, '..', 'lib', 'index.old.js');
 	const newPluginPath = path.join(__dirname, '..', 'lib', 'index.js');
@@ -207,144 +269,35 @@ async function runBenchmark() {
 	const hasOldVersion = fs.existsSync(oldPluginPath);
 
 	if (!hasOldVersion) {
-		console.log('⚠️  Old version not found at:', oldPluginPath);
-		console.log('   To compare with old version, ensure lib/index.old.js exists');
-		console.log('   (compile src/index.old.ts to lib/)');
-		console.log();
+		console.error('⚠️  Old version not found at:', oldPluginPath);
+		console.error('   To compare with old version, ensure lib/index.old.js exists');
+		console.error('   (compile src/index.old.ts to lib/)');
+		console.error();
 	}
 
-	// Benchmark new version
-	console.log('Benchmarking NEW (refactored) implementation...');
+	// Benchmark PR version
+	console.error('Benchmarking PR version...');
 	const newResult = await benchmarkFile(testFile, newPluginPath, 'new');
-	console.log('✓ Complete\n');
+	console.error('✓ Complete\n');
 
 	let oldResult: BenchmarkResult | null = null;
 
 	if (hasOldVersion) {
-		console.log('Benchmarking OLD (monolithic) implementation...');
+		console.error('Benchmarking main branch...');
 		oldResult = await benchmarkFile(testFile, oldPluginPath, 'old');
-		console.log('✓ Complete\n');
+		console.error('✓ Complete\n');
 	}
 
-	// Print results
-	console.log('='.repeat(100));
-	console.log('Results');
-	console.log('='.repeat(100));
-	console.log();
-
-	// File info
-	console.log('Test File: AllUseCases.tsx');
-	console.log('-'.repeat(100));
-	console.log(`  Size:              ${(newResult.fileSize / 1024).toFixed(2)} KB`);
-	console.log(`  Lines of Code:     ${newResult.linesOfCode.toLocaleString()}`);
-	console.log(`  className usages:  ${newResult.classNameCount.toLocaleString()}`);
-	console.log(`  Invalid classes:   ${newResult.invalidClassCount}`);
-	console.log();
-
-	// New version results
-	console.log('NEW Implementation (Refactored with Clean Architecture + SOLID)');
-	console.log('-'.repeat(100));
-	console.log('  Execution Times:');
-	console.log(`    Run 1:     ${newResult.runs.run1.toFixed(2)}ms`);
-	console.log(`    Run 2:     ${newResult.runs.run2.toFixed(2)}ms`);
-	console.log(`    Run 3:     ${newResult.runs.run3.toFixed(2)}ms`);
-	console.log(`    Run 4:     ${newResult.runs.run4.toFixed(2)}ms`);
-	console.log(`    Run 5:     ${newResult.runs.run5.toFixed(2)}ms`);
-	console.log(`    Average:   ${newResult.runs.average.toFixed(2)}ms`);
-	console.log(`    Median:    ${newResult.runs.median.toFixed(2)}ms`);
-	console.log();
-	console.log('  Memory:');
-	console.log(`    Heap Used:  ${(newResult.memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB`);
-	console.log();
-
-	if (oldResult) {
-		// Old version results
-		console.log('OLD Implementation (Monolithic)');
-		console.log('-'.repeat(100));
-		console.log('  Execution Times:');
-		console.log(`    Run 1:     ${oldResult.runs.run1.toFixed(2)}ms`);
-		console.log(`    Run 2:     ${oldResult.runs.run2.toFixed(2)}ms`);
-		console.log(`    Run 3:     ${oldResult.runs.run3.toFixed(2)}ms`);
-		console.log(`    Run 4:     ${oldResult.runs.run4.toFixed(2)}ms`);
-		console.log(`    Run 5:     ${oldResult.runs.run5.toFixed(2)}ms`);
-		console.log(`    Average:   ${oldResult.runs.average.toFixed(2)}ms`);
-		console.log(`    Median:    ${oldResult.runs.median.toFixed(2)}ms`);
-		console.log();
-		console.log('  Memory:');
-		console.log(`    Heap Used:  ${(oldResult.memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB`);
-		console.log();
-
-		// Comparison
-		console.log('='.repeat(100));
-		console.log('Comparison: NEW vs OLD');
-		console.log('='.repeat(100));
-
-		const speedup = oldResult.runs.average / newResult.runs.average;
-		const timeSaved = oldResult.runs.average - newResult.runs.average;
-		const percentFaster =
-			((oldResult.runs.average - newResult.runs.average) / oldResult.runs.average) * 100;
-
-		console.log('  Performance:');
-		if (speedup > 1) {
-			console.log(`    ✅ NEW is ${speedup.toFixed(2)}x FASTER`);
-			console.log(
-				`    ✅ Time saved: ${timeSaved.toFixed(2)}ms (${percentFaster.toFixed(1)}% faster)`
-			);
-		} else if (speedup < 1) {
-			const slowdown = 1 / speedup;
-			console.log(`    ⚠️  NEW is ${slowdown.toFixed(2)}x SLOWER`);
-			console.log(`    ⚠️  Time added: ${Math.abs(timeSaved).toFixed(2)}ms`);
-		} else {
-			console.log(`    ➡️  Performance is equivalent`);
-		}
-		console.log();
-
-		const memDiff = newResult.memoryUsage.heapUsed - oldResult.memoryUsage.heapUsed;
-		const memDiffMB = memDiff / 1024 / 1024;
-
-		console.log('  Memory:');
-		if (memDiff < 0) {
-			console.log(`    ✅ NEW uses ${Math.abs(memDiffMB).toFixed(2)} MB LESS memory`);
-		} else if (memDiff > 0) {
-			console.log(`    ⚠️  NEW uses ${memDiffMB.toFixed(2)} MB MORE memory`);
-		} else {
-			console.log(`    ➡️  Memory usage is equivalent`);
-		}
-		console.log();
-	}
-
-	// Save results
-	const resultsFile = path.join(__dirname, 'results', 'benchmark-results.json');
-	const timestamp = new Date().toISOString();
-
-	interface HistoryEntry {
-		timestamp: string;
-		new: BenchmarkResult;
-		old?: BenchmarkResult | null;
-	}
-
-	let history: HistoryEntry[] = [];
-	if (fs.existsSync(resultsFile)) {
-		history = JSON.parse(fs.readFileSync(resultsFile, 'utf-8'));
-	}
-
-	history.push({
-		timestamp,
-		new: newResult,
-		old: oldResult
-	});
-
-	fs.writeFileSync(resultsFile, JSON.stringify(history, null, 2));
-
-	console.log('Results saved to:', resultsFile);
-	console.log();
+	// Generate and output markdown report
+	const report = formatReport(newResult, oldResult);
+	console.log(report);
 }
 
 // Run with --expose-gc to enable garbage collection
 if (!global.gc) {
-	console.log('⚠️  Run with --expose-gc flag for more accurate memory measurements:');
-	console.log('   node --expose-gc -r ts-node/register performance/run-benchmark.ts');
-	console.log();
+	console.error('⚠️  Run with --expose-gc flag for more accurate memory measurements:');
+	console.error('   node --expose-gc -r ts-node/register performance/run-benchmark.ts');
+	console.error();
 }
 
 runBenchmark().catch(console.error);
