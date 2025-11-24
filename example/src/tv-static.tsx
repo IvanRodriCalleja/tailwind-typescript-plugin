@@ -12,10 +12,12 @@
  *
  * Also supports:
  * - Import aliasing: import { tv as myTv } from 'tailwind-variants'
+ * - Lite version: import { tv } from 'tailwind-variants/lite'
  * - Array syntax: base: ['font-semibold', 'text-white']
  */
 import { tv } from 'tailwind-variants';
 import { tv as myTv } from 'tailwind-variants';
+import { tv as tvLite } from 'tailwind-variants/lite';
 
 // ========================================
 // BASE PROPERTY TESTS
@@ -277,4 +279,93 @@ export function TvArrayAliasedInvalid() {
 		base: ['flex', 'items-center', 'invalid-combo-class']
 	});
 	return <div className={component()}>Invalid Array + Aliased</div>;
+}
+
+// ========================================
+// LITE VERSION TESTS
+// ========================================
+
+/**
+ * ✅ Valid: Lite version with valid base classes
+ * @validClasses [font-bold, text-blue-600, px-4, py-2, rounded-lg]
+ */
+export function TvLiteBaseValid() {
+	const button = tvLite({
+		base: 'font-bold text-blue-600 px-4 py-2 rounded-lg'
+	});
+	return <button className={button()}>Valid Lite Base</button>;
+}
+
+/**
+ * ❌ Invalid: Lite version with invalid base class
+ * @invalidClasses [invalid-lite-class]
+ * @validClasses [font-bold, text-blue-600]
+ */
+export function TvLiteBaseInvalid() {
+	const button = tvLite({
+		base: 'font-bold invalid-lite-class text-blue-600'
+	});
+	return <button className={button()}>Invalid Lite Base</button>;
+}
+
+/**
+ * ✅ Valid: Lite version with valid variants
+ * @validClasses [bg-red-500, hover:bg-red-700, bg-yellow-500, hover:bg-yellow-700]
+ */
+export function TvLiteVariantsValid() {
+	const button = tvLite({
+		base: 'px-4 py-2',
+		variants: {
+			color: {
+				danger: 'bg-red-500 hover:bg-red-700',
+				warning: 'bg-yellow-500 hover:bg-yellow-700'
+			}
+		}
+	});
+	return <button className={button({ color: 'danger' })}>Valid Lite Variants</button>;
+}
+
+/**
+ * ❌ Invalid: Lite version with invalid variant class
+ * @invalidClasses [invalid-lite-variant]
+ * @validClasses [bg-red-500]
+ */
+export function TvLiteVariantsInvalid() {
+	const button = tvLite({
+		base: 'px-4',
+		variants: {
+			color: {
+				danger: 'bg-red-500 invalid-lite-variant'
+			}
+		}
+	});
+	return <button className={button({ color: 'danger' })}>Invalid Lite Variants</button>;
+}
+
+/**
+ * ✅ Valid: Lite version with array syntax
+ * @validClasses [flex, items-center, gap-4, text-sm, font-medium]
+ */
+export function TvLiteArrayValid() {
+	const component = tvLite({
+		base: ['flex', 'items-center', 'gap-4'],
+		variants: {
+			size: {
+				sm: ['text-sm', 'font-medium']
+			}
+		}
+	});
+	return <div className={component({ size: 'sm' })}>Valid Lite Array</div>;
+}
+
+/**
+ * ❌ Invalid: Lite version with invalid class in array
+ * @invalidClasses [invalid-lite-array]
+ * @validClasses [flex, items-center]
+ */
+export function TvLiteArrayInvalid() {
+	const component = tvLite({
+		base: ['flex', 'invalid-lite-array', 'items-center']
+	});
+	return <div className={component()}>Invalid Lite Array</div>;
 }
