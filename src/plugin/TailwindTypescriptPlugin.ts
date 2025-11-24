@@ -5,9 +5,10 @@ import path from 'path';
 import { TailwindValidator } from '../infrastructure/TailwindValidator';
 import { ClassNameExtractionService } from '../services/ClassNameExtractionService';
 import { DiagnosticService } from '../services/DiagnosticService';
+import { FileDiagnosticCache } from '../services/FileDiagnosticCache';
 import { PluginConfigService } from '../services/PluginConfigService';
 import { ValidationService } from '../services/ValidationService';
-import { Logger, LoggerImpl } from '../utils/Logger';
+import { Logger, LoggerImpl, NoOpLogger } from '../utils/Logger';
 
 /**
  * Main plugin class - Refactored with clean architecture and SOLID principles
@@ -30,6 +31,7 @@ export class TailwindTypescriptPlugin {
 	private validator!: TailwindValidator;
 	private validationService!: ValidationService;
 	private configService!: PluginConfigService;
+	private diagnosticCache!: FileDiagnosticCache;
 	private initializationPromise: Promise<void> | null = null;
 
 	constructor(private readonly typescript: typeof ts) {}
@@ -38,11 +40,16 @@ export class TailwindTypescriptPlugin {
 	 * Create the plugin proxy for TypeScript Language Service
 	 */
 	create(info: ts.server.PluginCreateInfo): ts.LanguageService {
-		this.logger = new LoggerImpl(info);
+		// PERFORMANCE: Use NoOpLogger by default, only enable if configured
+		const enableLogging = (info.config || {}).enableLogging === true;
+		this.logger = enableLogging ? new LoggerImpl(info, true) : new NoOpLogger();
 		this.logger.log('============= Plugin Starting =============');
 
 		// Initialize configuration service
 		this.configService = new PluginConfigService(info.config || {}, this.logger);
+
+		// PERFORMANCE: Initialize file-level diagnostic cache
+		this.diagnosticCache = new FileDiagnosticCache(100);
 
 		// Initialize validator if CSS file is configured
 		this.initializeValidator(info);
@@ -124,6 +131,7 @@ export class TailwindTypescriptPlugin {
 
 	/**
 	 * Create the getSemanticDiagnostics method with Tailwind validation
+	 * PERFORMANCE OPTIMIZED with file-level caching
 	 */
 	private createGetSemanticDiagnostics =
 		(info: ts.server.PluginCreateInfo) =>
@@ -146,6 +154,17 @@ export class TailwindTypescriptPlugin {
 				return prior;
 			}
 
+			// PERFORMANCE: Check file-level cache first
+			const fileContent = sourceFile.getFullText();
+			const cachedDiagnostics = this.diagnosticCache.get(fileName, fileContent);
+
+			if (cachedDiagnostics !== undefined) {
+				this.logger.log(`[CACHE HIT] Returning cached diagnostics for ${fileName}`);
+				return [...prior, ...cachedDiagnostics];
+			}
+
+			this.logger.log(`[CACHE MISS] Validating ${fileName}`);
+
 			// Get fresh type checker from current program (always up-to-date)
 			const typeChecker = program.getTypeChecker();
 
@@ -156,6 +175,9 @@ export class TailwindTypescriptPlugin {
 				this.configService.getUtilityFunctions(),
 				typeChecker
 			);
+
+			// PERFORMANCE: Cache the result
+			this.diagnosticCache.set(fileName, fileContent, tailwindDiagnostics);
 
 			return [...prior, ...tailwindDiagnostics];
 		};
