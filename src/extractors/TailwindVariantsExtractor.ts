@@ -336,7 +336,9 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 					classNames.push(...this.extractFromStringLiteral(element, context));
 				} else if (context.typescript.isExpression(element as ts.Expression)) {
 					// Handle complex expressions in arrays (ternary, binary, etc.)
-					classNames.push(...this.expressionExtractor.extractFromExpression(element as ts.Expression, context));
+					classNames.push(
+						...this.expressionExtractor.extractFromExpression(element as ts.Expression, context)
+					);
 				}
 			}
 			return classNames;
