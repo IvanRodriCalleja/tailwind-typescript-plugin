@@ -126,18 +126,8 @@ function formatReport(entry: HistoryEntry): string {
 	}
 	report += '\n';
 
-	// Architecture benefits
-	report += '---\n\n';
-	report += '### 🎯 Architecture Benefits of NEW Implementation\n\n';
-	report += '- ✅ **Clean Architecture** + SOLID principles\n';
-	report += '- ✅ **19 focused files** vs 1 monolithic file (491 lines)\n';
-	report += '- ✅ **Easy to extend** - Add new extractors without modifying existing code\n';
-	report += '- ✅ **Easy to maintain** - Clear responsibilities and separation of concerns\n';
-	report += '- ✅ **474 tests passing** - Comprehensive test coverage\n';
-	report += '- ✅ **LRU cache** - 10-95x speedup on repeated validations\n';
-	report += '- ✅ **Type-safe** - Full TypeScript type checking throughout\n\n';
-
 	// Timestamp
+	report += '---\n\n';
 	report += `_Benchmark run at: ${new Date(entry.timestamp).toLocaleString()}_\n`;
 
 	return report;
