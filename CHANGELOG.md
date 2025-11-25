@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.0.0...v1.1.0) (2025-11-25)
+
+### ✨ Features
+
+* allow ts and js files for variants functions ([aa615a3](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/aa615a39bc8d91fdd1aca04e4019e5253b75b7ff))
+
 ## 1.0.0 (2025-11-25)
 
 ### ✨ Features
