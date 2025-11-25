@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.1.0...v1.2.0) (2025-11-25)
+
+### ✨ Features
+
+* add variable resolution for className validation ([e432634](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/e432634577357bf9dc2587573324a6a8dc4c8343))
+
 ## [1.1.0](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.0.0...v1.1.0) (2025-11-25)
 
 ### ✨ Features
