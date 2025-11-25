@@ -294,4 +294,50 @@ describe('TailwindValidator', () => {
 			expect(isAfter).toBe(true);
 		});
 	});
+
+	describe('getSimilarClasses', () => {
+		it('should suggest similar classes for typos', () => {
+			// "itms-center" is close to "items-center"
+			const suggestions = validator.getSimilarClasses('itms-center');
+			expect(suggestions).toContain('items-center');
+		});
+
+		it('should suggest similar classes for common misspellings', () => {
+			// "flx" is close to "flex"
+			const suggestions = validator.getSimilarClasses('flx');
+			expect(suggestions).toContain('flex');
+		});
+
+		it('should return at most maxSuggestions results', () => {
+			const suggestions = validator.getSimilarClasses('bg-blu', 2);
+			expect(suggestions.length).toBeLessThanOrEqual(2);
+		});
+
+		it('should return empty array for completely unrelated strings', () => {
+			const suggestions = validator.getSimilarClasses('xyzabc123notaclass');
+			expect(suggestions.length).toBe(0);
+		});
+
+		it('should suggest bg- color variants for typos', () => {
+			// "bg-bleu-500" is close to "bg-blue-500"
+			const suggestions = validator.getSimilarClasses('bg-bleu-500');
+			expect(suggestions).toContain('bg-blue-500');
+		});
+
+		it('should suggest text alignment for typos', () => {
+			// "text-cener" is close to "text-center"
+			const suggestions = validator.getSimilarClasses('text-cener');
+			expect(suggestions).toContain('text-center');
+		});
+	});
+
+	describe('getAllClasses', () => {
+		it('should return array of all valid classes', () => {
+			const allClasses = validator.getAllClasses();
+			expect(Array.isArray(allClasses)).toBe(true);
+			expect(allClasses.length).toBeGreaterThan(0);
+			expect(allClasses).toContain('flex');
+			expect(allClasses).toContain('items-center');
+		});
+	});
 });
