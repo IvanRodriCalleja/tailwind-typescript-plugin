@@ -175,9 +175,13 @@ export class TailwindTypescriptPlugin {
 			return false;
 		}
 
-		// Only process .tsx and .jsx files
-		const isJsxFile = fileName.endsWith('.tsx') || fileName.endsWith('.jsx');
-		if (!isJsxFile) {
+		// Process .ts, .tsx, .js, and .jsx files
+		const isSupportedFile =
+			fileName.endsWith('.ts') ||
+			fileName.endsWith('.tsx') ||
+			fileName.endsWith('.js') ||
+			fileName.endsWith('.jsx');
+		if (!isSupportedFile) {
 			return false;
 		}
 
