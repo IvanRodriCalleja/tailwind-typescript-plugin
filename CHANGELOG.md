@@ -1,3 +1,50 @@
+## 1.0.0 (2025-11-25)
+
+### ✨ Features
+
+* add class variance authority ([fa0f6c6](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/fa0f6c685f8ee9119403fc17dfdf29de037ac068))
+* add expression paranthesized ([a671a8c](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/a671a8c36c75dd13eb262ed404d4c52b6d9a1235))
+* add initial scaffolding ([007a762](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/007a762bfafac69a9e2b2ffe2448b2501e65f3b3))
+* add release actions ([09b24ca](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/09b24ca938afd67d19eaeb06b2c78a0354a1757f))
+* add semantic releases ([0146d7f](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/0146d7f56c4e4899fc91a9ded0307082fe772d31))
+* add string literal interpolation ([7b1c73b](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/7b1c73bfa14597c5c8da0da4ac7fc5d5f04772df))
+* add template literal with condition ([3a8903e](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/3a8903eabb84a054726e0b9979f5e5c988d1dc60))
+* allow all possible usecases for variants ([2489ade](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/2489ade5d17cbb2987a2d8c94ef4c130679201d7))
+* allow custom classes ([0e331f2](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/0e331f2c329dac9fdf9650a4751b758f35c7d299))
+* implement array use case ([6933035](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/6933035e84b47298f7a139b4146b98b7ab6aa423))
+* implement array use case ([86efd2b](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/86efd2b75dc0157311ddbf2a07ca5b7558c676ff))
+* implement expresion binary and espresion ternary ([76c4681](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/76c46814c8d4db63f78a6c1d773f0f8fd8369ac9))
+* implement function binary test cases ([e4c9fc4](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/e4c9fc4ce7e0c2e5f32d3a5963672971960f8882))
+* implement function static use case ([cc14e2d](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/cc14e2dc636af0efdc2ed4b8c9f0c72215e9682b))
+* implement function ternary test cases ([2103f22](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/2103f225f9119fd21d96a701a1a0b5926a5d51da))
+* implement JSX expresion string literal ([f9e6e7b](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/f9e6e7b3e2ac68380d6ca3ffa4116d74e6e671d6))
+* implement object static ([fddb6ba](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/fddb6bac02b90b29dddd0df2cde0b34cf587d44f))
+* implement tailwind-variants class validation ([9ed7210](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/9ed721079bb35814133eb038eabd6e72b3e13f44))
+* implement template binary use case ([e1a1a8e](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/e1a1a8e39407ac05a520f1b0e6d92226f78dd63e))
+* implement validation for string literal clases ([fac1d68](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/fac1d6804602e207a1ed20649102f600eb016b49))
+* support tailwind-variants lite import ([74f522f](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/74f522f65d6151d8079d51dfa0a2df98100dc8ac))
+
+### 🐛 Bug Fixes
+
+* beta-release version ([c419cee](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/c419cee1fe47b2cbdcd533c39d48d91ae7e3ae92))
+* filter npm output noise from benchmark report ([2a7817d](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/2a7817dd535731d2ecf00bb1acef88668cf828a8))
+* properly restructure performance workflow to avoid YAML parsing issues ([9214294](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/92142941e77a2e1114ed494d544f2d934b8b24bc))
+* release comments ([e60db41](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/e60db416f91316650c4bebdff124ebd9bcdccb94))
+* YAML syntax error in performance workflow ([b7fb1b7](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/b7fb1b7148fed0961abb71e4f140aeeda78ca93a))
+
+### 🔧 Chores
+
+* add css variables test ([10566cb](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/10566cb9d0590e925d6ae4cb1162038e6c519ba6))
+* add status on readme ([e75b4e5](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/e75b4e5dba2e12e45193713c2765471fb552352e))
+* architect plugin to make it more extensible ([86c861c](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/86c861c21ffcbd3b84fd7abd468528b4117f8418))
+* improve performance ([b6716e7](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/b6716e7c8c8b5c63c8d067e7f3689fe82d7f9630))
+* improve test execution ([c80796f](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/c80796f11684dda5fb0cdd74079f6e77b78589a2))
+* log into ts language server ([4802802](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/48028021383c709421b424080ff4b308889e29f8))
+* trigger benchmark workflow with new table format ([c39a6c5](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/c39a6c5637bd4d5922c5916d8220760a2a45e8cf))
+* update plugin documentation ([2f3bddf](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/2f3bddffba8db2af4f0b56a3f6a26078f6ca726a))
+* update repo structure and dev workflow ([8b28c44](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/8b28c44ca4f82564252242a8c13ee4f71d797c9e))
+* use trusted publisher ([f853a6e](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/f853a6e9cf46721d5b3915846f73b910285d6712))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
