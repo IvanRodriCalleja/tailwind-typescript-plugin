@@ -73,24 +73,24 @@ export class JsxAttributeExtractor extends BaseExtractor {
 				}
 
 				const stringContentStart = initializer.getStart() + 1;
-				const lineNumber =
-					context.sourceFile.getLineAndCharacterOfPosition(attr.getStart()).line + 1;
 				let offset = 0;
 
-				// OPTIMIZATION: Split and filter in one pass
-				const classes = fullText.split(' ');
-				for (let i = 0; i < classes.length; i++) {
-					const className = classes[i];
-					if (className) {
+				// Split by whitespace (including newlines, tabs) while tracking position
+				const parts = fullText.split(/(\s+)/);
+				for (const part of parts) {
+					if (part && !/^\s+$/.test(part)) {
+						// Non-whitespace part is a class name
 						classNames.push({
-							className,
+							className: part,
 							absoluteStart: stringContentStart + offset,
-							length: className.length,
-							line: lineNumber,
+							length: part.length,
+							line: context.sourceFile.getLineAndCharacterOfPosition(
+								stringContentStart + offset
+							).line + 1,
 							file: context.sourceFile.fileName
 						});
 					}
-					offset += className.length + 1;
+					offset += part.length;
 				}
 				continue; // Skip to next attribute
 			}
@@ -123,6 +123,19 @@ export class JsxAttributeExtractor extends BaseExtractor {
 					context.typescript.isNonNullExpression(expression) ||
 					context.typescript.isTypeAssertionExpression(expression)
 				) {
+					classNames.push(...this.expressionExtractor.extract(expression, context));
+				}
+				// Handle identifier references: className={dynamicClass}
+				// This resolves the variable to its declared value for validation
+				else if (context.typescript.isIdentifier(expression)) {
+					classNames.push(...this.expressionExtractor.extractFromIdentifier(expression, context));
+				}
+				// Handle array literal expressions: className={['flex', 'items-center']}
+				else if (context.typescript.isArrayLiteralExpression(expression)) {
+					classNames.push(...this.expressionExtractor.extract(expression, context));
+				}
+				// Handle object literal expressions: className={{ flex: true }}
+				else if (context.typescript.isObjectLiteralExpression(expression)) {
 					classNames.push(...this.expressionExtractor.extract(expression, context));
 				}
 			}

@@ -174,12 +174,23 @@ export function parseTestFile(filePath: string): TestCase[] {
 }
 
 /**
+ * Options for running the plugin on a file
+ */
+export interface RunPluginOptions {
+	utilityFunctions?: string[];
+	allowedClasses?: string[];
+}
+
+/**
  * Create a test environment and run plugin diagnostics
  */
 export async function runPluginOnFile(
 	testFilePath: string,
-	utilityFunctions?: string[]
+	options?: RunPluginOptions | string[]
 ): Promise<{ diagnostics: ts.Diagnostic[]; sourceCode: string }> {
+	// Support legacy signature where second param is utilityFunctions array
+	const opts: RunPluginOptions =
+		Array.isArray(options) ? { utilityFunctions: options } : options || {};
 	const tempDir = path.dirname(testFilePath);
 	const cssFile = path.join(tempDir, 'global.css');
 
@@ -241,7 +252,8 @@ export async function runPluginOnFile(
 		} as unknown as ts.server.Project,
 		config: {
 			globalCss: cssFile,
-			...(utilityFunctions && { utilityFunctions })
+			...(opts.utilityFunctions && { utilityFunctions: opts.utilityFunctions }),
+			...(opts.allowedClasses && { allowedClasses: opts.allowedClasses })
 		},
 		serverHost: {} as unknown as ts.server.ServerHost
 	};

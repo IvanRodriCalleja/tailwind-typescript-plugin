@@ -8,11 +8,18 @@ import { ClassNameInfo } from '../core/types';
  */
 export class DiagnosticService implements IDiagnosticService {
 	createDiagnostic(classInfo: ClassNameInfo, sourceFile: ts.SourceFile): ts.Diagnostic {
+		let messageText = `The class "${classInfo.className}" is not a valid Tailwind class`;
+
+		// Add context for variable references
+		if (classInfo.variableUsage) {
+			messageText += `. This value is used as className via variable "${classInfo.variableUsage.variableName}" on line ${classInfo.variableUsage.usageLine}`;
+		}
+
 		return {
 			file: sourceFile,
 			start: classInfo.absoluteStart,
 			length: classInfo.length,
-			messageText: `The class "${classInfo.className}" is not a valid Tailwind class`,
+			messageText,
 			category: ts.DiagnosticCategory.Error,
 			code: 9999,
 			source: 'tw-plugin'

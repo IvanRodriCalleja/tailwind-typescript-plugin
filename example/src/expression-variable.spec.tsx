@@ -3,22 +3,29 @@ import path from 'path';
 
 import {
 	TestCase,
-	createTestAssertion,
 	parseTestFile,
-	runPluginOnFile
+	runPluginOnFile,
+	createTestAssertion
 } from '../test/test-helpers';
 
-describe('E2E Tests - Allowed Classes Configuration', () => {
-	const testFile = path.join(__dirname, 'allowed-classes.tsx');
+/**
+ * E2E Tests for Variable Reference Validation.
+ *
+ * Variable references are validated by resolving to their declaration.
+ * Errors point to the actual class name string in the variable declaration,
+ * with a message indicating where the variable is used as className.
+ *
+ * This uses the standard test assertion helper since errors now point to
+ * the string literal positions (not the variable usage positions).
+ */
+describe('E2E Tests - Expression Variable Reference', () => {
+	const testFile = path.join(__dirname, 'expression-variable.tsx');
 	const testCases = parseTestFile(testFile);
 	let diagnostics: ts.Diagnostic[];
 	let sourceCode: string;
 
 	beforeAll(async () => {
-		// Configure allowed classes as specified in the test file header
-		const result = await runPluginOnFile(testFile, {
-			allowedClasses: ['custom-button', 'app-header', 'project-card']
-		});
+		const result = await runPluginOnFile(testFile);
 		diagnostics = result.diagnostics;
 		sourceCode = result.sourceCode;
 	});
@@ -31,7 +38,7 @@ describe('E2E Tests - Allowed Classes Configuration', () => {
 		expect(invalidCases.length).toBeGreaterThan(0);
 	});
 
-	// Generate a test for each test case
+	// Generate tests for each test case using the standard helper
 	testCases.forEach((testCase: TestCase) => {
 		const prefix = testCase.shouldBeValid ? '✅' : '❌';
 		it(`${prefix} ${testCase.functionName}: ${testCase.comment}`, () => {

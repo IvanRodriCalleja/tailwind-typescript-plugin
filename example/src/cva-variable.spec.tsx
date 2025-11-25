@@ -8,17 +8,14 @@ import {
 	runPluginOnFile
 } from '../test/test-helpers';
 
-describe('E2E Tests - Allowed Classes Configuration', () => {
-	const testFile = path.join(__dirname, 'allowed-classes.tsx');
+describe('E2E Tests - Class Variance Authority cva() with Variables', () => {
+	const testFile = path.join(__dirname, 'cva-variable.tsx');
 	const testCases = parseTestFile(testFile);
 	let diagnostics: ts.Diagnostic[];
 	let sourceCode: string;
 
 	beforeAll(async () => {
-		// Configure allowed classes as specified in the test file header
-		const result = await runPluginOnFile(testFile, {
-			allowedClasses: ['custom-button', 'app-header', 'project-card']
-		});
+		const result = await runPluginOnFile(testFile);
 		diagnostics = result.diagnostics;
 		sourceCode = result.sourceCode;
 	});

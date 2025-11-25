@@ -9,6 +9,14 @@ export interface ClassNameInfo {
 	length: number;
 	line: number;
 	file: string;
+	/**
+	 * If this class name comes from a variable reference, this contains
+	 * information about where the variable is used (for better error messages)
+	 */
+	variableUsage?: {
+		variableName: string;
+		usageLine: number;
+	};
 }
 
 /**

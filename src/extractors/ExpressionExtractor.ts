@@ -2,12 +2,20 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { ClassNameInfo, ExtractionContext } from '../core/types';
 import { BaseExtractor } from './BaseExtractor';
+import { VariableReferenceExtractor } from './VariableReferenceExtractor';
 
 /**
  * Extracts class names from various expression types
  * This is a utility extractor used by other extractors to handle nested expressions
  */
 export class ExpressionExtractor extends BaseExtractor {
+	private variableExtractor: VariableReferenceExtractor;
+
+	constructor() {
+		super();
+		this.variableExtractor = new VariableReferenceExtractor();
+	}
+
 	canHandle(node: ts.Node, context: ExtractionContext): boolean {
 		return (
 			context.typescript.isExpression(node) ||
@@ -58,26 +66,52 @@ export class ExpressionExtractor extends BaseExtractor {
 				});
 			}
 		}
-		// Handle parenthesized expressions: ('class-name')
+		// Handle parenthesized expressions: ('class-name') or (myVar)
 		else if (context.typescript.isParenthesizedExpression(expression)) {
-			classNames.push(...this.extractFromExpression(expression.expression, context));
+			const inner = expression.expression;
+			// If inner is an identifier, resolve it as a variable reference
+			if (context.typescript.isIdentifier(inner)) {
+				classNames.push(...this.variableExtractor.extractFromIdentifier(inner, context));
+			} else {
+				classNames.push(...this.extractFromExpression(inner, context));
+			}
 		}
-		// Handle type assertions: ('class-name' as string) or ('class-name' as const)
+		// Handle type assertions: ('class-name' as string) or (myVar as string)
 		else if (context.typescript.isAsExpression(expression)) {
-			classNames.push(...this.extractFromExpression(expression.expression, context));
+			const inner = expression.expression;
+			if (context.typescript.isIdentifier(inner)) {
+				classNames.push(...this.variableExtractor.extractFromIdentifier(inner, context));
+			} else {
+				classNames.push(...this.extractFromExpression(inner, context));
+			}
 		}
-		// Handle non-null assertions: expr!
+		// Handle non-null assertions: expr! or myVar!
 		else if (context.typescript.isNonNullExpression(expression)) {
-			classNames.push(...this.extractFromExpression(expression.expression, context));
+			const inner = expression.expression;
+			if (context.typescript.isIdentifier(inner)) {
+				classNames.push(...this.variableExtractor.extractFromIdentifier(inner, context));
+			} else {
+				classNames.push(...this.extractFromExpression(inner, context));
+			}
 		}
 		// Handle type assertions with angle brackets: <string>'class-name' (rare in JSX)
 		else if (context.typescript.isTypeAssertionExpression(expression)) {
-			classNames.push(...this.extractFromExpression(expression.expression, context));
+			const inner = expression.expression;
+			if (context.typescript.isIdentifier(inner)) {
+				classNames.push(...this.variableExtractor.extractFromIdentifier(inner, context));
+			} else {
+				classNames.push(...this.extractFromExpression(inner, context));
+			}
 		}
-		// Handle array literal expressions: ['class1', 'class2']
+		// Handle array literal expressions: ['class1', 'class2', myVar]
 		else if (context.typescript.isArrayLiteralExpression(expression)) {
 			expression.elements.forEach(element => {
-				classNames.push(...this.extractFromExpression(element as ts.Expression, context));
+				// Handle identifier elements (variable references in arrays)
+				if (context.typescript.isIdentifier(element)) {
+					classNames.push(...this.variableExtractor.extractFromIdentifier(element, context));
+				} else {
+					classNames.push(...this.extractFromExpression(element as ts.Expression, context));
+				}
 			});
 		}
 		// Handle object literal expressions: { 'class-name': true, 'another': condition }
@@ -116,9 +150,17 @@ export class ExpressionExtractor extends BaseExtractor {
 							file: context.sourceFile.fileName
 						});
 					}
-					// Handle computed property keys: { ['flex']: true }
+					// Handle computed property keys: { ['flex']: true } or { [myVar]: true }
 					else if (context.typescript.isComputedPropertyName(name)) {
-						classNames.push(...this.extractFromExpression(name.expression, context));
+						const computedExpr = name.expression;
+						// Handle identifier in computed property (variable reference)
+						if (context.typescript.isIdentifier(computedExpr)) {
+							classNames.push(
+								...this.variableExtractor.extractFromIdentifier(computedExpr, context)
+							);
+						} else {
+							classNames.push(...this.extractFromExpression(computedExpr, context));
+						}
 					}
 
 					// Process the value - it might contain arrays, nested objects, etc.
@@ -150,7 +192,17 @@ export class ExpressionExtractor extends BaseExtractor {
 		else if (context.typescript.isNoSubstitutionTemplateLiteral(expression)) {
 			return this.extractFromStringLiteral(expression, context);
 		}
+		// Note: Identifier handling is done in JsxAttributeExtractor for top-level variable references
+		// We don't resolve identifiers here to avoid validating dynamic variables inside template interpolations
 
 		return classNames;
+	}
+
+	/**
+	 * Extract class names from an identifier by resolving its declaration
+	 * This should only be called for top-level variable references in className
+	 */
+	extractFromIdentifier(identifier: ts.Identifier, context: ExtractionContext): ClassNameInfo[] {
+		return this.variableExtractor.extractFromIdentifier(identifier, context);
 	}
 }

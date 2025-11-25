@@ -8,17 +8,14 @@ import {
 	runPluginOnFile
 } from '../test/test-helpers';
 
-describe('E2E Tests - Allowed Classes Configuration', () => {
-	const testFile = path.join(__dirname, 'allowed-classes.tsx');
+describe('E2E Tests - Tailwind Variants tv() with Variables', () => {
+	const testFile = path.join(__dirname, 'tv-variable.tsx');
 	const testCases = parseTestFile(testFile);
 	let diagnostics: ts.Diagnostic[];
 	let sourceCode: string;
 
 	beforeAll(async () => {
-		// Configure allowed classes as specified in the test file header
-		const result = await runPluginOnFile(testFile, {
-			allowedClasses: ['custom-button', 'app-header', 'project-card']
-		});
+		const result = await runPluginOnFile(testFile);
 		diagnostics = result.diagnostics;
 		sourceCode = result.sourceCode;
 	});
