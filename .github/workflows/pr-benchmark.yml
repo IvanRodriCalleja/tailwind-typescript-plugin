@@ -1,0 +1,144 @@
+name: PR Performance Benchmark
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  benchmark:
+    name: Run Performance Benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build PR version
+        run: npm run build
+
+      - name: Save PR build as NEW version
+        run: |
+          mkdir -p performance/pr-builds
+          cp lib/index.js performance/pr-builds/index-pr.js
+
+      - name: Checkout main branch
+        run: |
+          git fetch origin main
+          git checkout origin/main
+
+      - name: Install dependencies (main)
+        run: npm ci
+
+      - name: Build main version
+        run: npm run build
+
+      - name: Save main build as OLD version
+        run: |
+          cp lib/index.js lib/index.old.js
+
+      - name: Restore PR build
+        run: |
+          cp performance/pr-builds/index-pr.js lib/index.js
+
+      - name: Run benchmark
+        id: benchmark
+        run: |
+          # Run benchmark and capture only stdout (markdown), ignore stderr (progress messages)
+          REPORT=$(npm run benchmark 2>/dev/null | tail -n +5)
+          echo "report<<EOF" >> $GITHUB_OUTPUT
+          echo "$REPORT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Comment PR with benchmark results
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const report = `${{ steps.benchmark.outputs.report }}`;
+
+            // Find existing comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.data.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Performance Benchmark')
+            );
+
+            const body = `${report}
+
+            ---
+            <details>
+            <summary>ℹ️ How to interpret these results</summary>
+
+            - **Average time**: Lower is better
+            - **Within 10%**: ✅ Acceptable performance
+            - **10-50% slower**: ⚠️ Consider optimization
+            - **>50% slower**: ❌ Performance regression
+
+            Benchmark runs on a standard GitHub Actions runner. Real-world performance may vary.
+            </details>`;
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
+
+      - name: Check performance regression
+        run: |
+          REPORT="${{ steps.benchmark.outputs.report }}"
+
+          # Extract average times from markdown table
+          # This PR average is in the first data row, last column
+          NEW_AVG=$(echo "$REPORT" | grep "This PR" | sed -E 's/.*\*\*([0-9.]+)ms\*\*.*/\1/')
+          # main average is in the second data row, last column
+          OLD_AVG=$(echo "$REPORT" | grep "| \*\*main\*\*" | sed -E 's/.*\*\*([0-9.]+)ms\*\*.*/\1/')
+
+          # Calculate ratio (only if OLD exists)
+          if [ -n "$OLD_AVG" ] && [ "$OLD_AVG" != "" ]; then
+            RATIO=$(echo "scale=2; $NEW_AVG / $OLD_AVG" | bc)
+
+            # Fail if >50% slower
+            if (( $(echo "$RATIO > 1.5" | bc -l) )); then
+              echo "::error::Performance regression detected! PR is ${RATIO}x slower than main"
+              exit 1
+            # cspell:disable-next-line
+            elif (( $(echo "$RATIO > 1.1" | bc -l) )); then
+              echo "::warning::Performance degradation detected. PR is ${RATIO}x slower than main"
+            else
+              echo "::notice::Performance within acceptable range (${RATIO}x)"
+            fi
+          else
+            echo "::notice::No baseline for comparison"
+          fi

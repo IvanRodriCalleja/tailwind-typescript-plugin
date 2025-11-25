@@ -10,22 +10,6 @@ import { PluginConfigService } from '../services/PluginConfigService';
 import { ValidationService } from '../services/ValidationService';
 import { Logger, LoggerImpl, NoOpLogger } from '../utils/Logger';
 
-/**
- * Main plugin class - Refactored with clean architecture and SOLID principles
- *
- * Architecture layers:
- * 1. Core Domain - Types and interfaces (src/core)
- * 2. Extractors - Strategy pattern for class extraction (src/extractors)
- * 3. Services - Business logic orchestration (src/services)
- * 4. Plugin - Thin adapter to TypeScript API (this file)
- *
- * Key improvements:
- * - Single Responsibility: Each class has one clear purpose
- * - Open/Closed: Easy to add new extractors without modifying existing code
- * - Dependency Inversion: Depends on abstractions (interfaces) not concretions
- * - Separation of Concerns: Clear boundaries between layers
- * - Testability: All components can be tested in isolation
- */
 export class TailwindTypescriptPlugin {
 	private logger!: Logger;
 	private validator!: TailwindValidator;

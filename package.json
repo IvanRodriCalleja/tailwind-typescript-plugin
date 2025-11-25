@@ -17,8 +17,7 @@
     "lint": "eslint src --ext .ts,.tsx,.json --quiet --cache",
     "tsc": "tsc --noEmit",
     "prepare": "npm run build",
-    "benchmark": "npm run build && node --expose-gc $(which npx) ts-node performance/run-benchmark.ts",
-    "benchmark:report": "npx ts-node performance/format-benchmark-report.ts"
+    "benchmark": "npm run build && node --expose-gc $(which npx) ts-node performance/run-benchmark.ts"
   },
   "keywords": [
     "typescript",
@@ -58,9 +57,12 @@
   "devDependencies": {
     "@eslint/compat": "^1.2.9",
     "@eslint/eslintrc": "^3",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/jest": "^29.5.0",
     "@types/node": "^24.10.1",
+    "conventional-changelog-conventionalcommits": "^9.1.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
     "eslint-config-prettier": "^10.1.5",
@@ -71,6 +73,7 @@
     "eslint-plugin-storybook": "^9.0.16",
     "jest": "^29.7.0",
     "prettier": "^3.5.3",
+    "semantic-release": "^24.2.9",
     "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
