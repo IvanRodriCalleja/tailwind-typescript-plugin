@@ -84,9 +84,9 @@ export class JsxAttributeExtractor extends BaseExtractor {
 							className: part,
 							absoluteStart: stringContentStart + offset,
 							length: part.length,
-							line: context.sourceFile.getLineAndCharacterOfPosition(
-								stringContentStart + offset
-							).line + 1,
+							line:
+								context.sourceFile.getLineAndCharacterOfPosition(stringContentStart + offset).line +
+								1,
 							file: context.sourceFile.fileName
 						});
 					}

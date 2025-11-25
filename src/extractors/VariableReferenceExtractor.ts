@@ -64,18 +64,14 @@ export class VariableReferenceExtractor extends BaseExtractor {
 			if (typescript.isVariableDeclaration(declaration)) {
 				const initializer = declaration.initializer;
 				if (initializer) {
-					classNames.push(
-						...this.extractFromInitializer(initializer, variableUsage, context)
-					);
+					classNames.push(...this.extractFromInitializer(initializer, variableUsage, context));
 				}
 			}
 			// Handle parameter declarations with default values
 			else if (typescript.isParameter(declaration)) {
 				const initializer = declaration.initializer;
 				if (initializer) {
-					classNames.push(
-						...this.extractFromInitializer(initializer, variableUsage, context)
-					);
+					classNames.push(...this.extractFromInitializer(initializer, variableUsage, context));
 				}
 			}
 		}
@@ -109,9 +105,7 @@ export class VariableReferenceExtractor extends BaseExtractor {
 		}
 		// Handle conditional expressions: const foo = condition ? 'bg-blue-500' : 'bg-gray-500'
 		else if (typescript.isConditionalExpression(initializer)) {
-			classNames.push(
-				...this.extractFromInitializer(initializer.whenTrue, variableUsage, context)
-			);
+			classNames.push(...this.extractFromInitializer(initializer.whenTrue, variableUsage, context));
 			classNames.push(
 				...this.extractFromInitializer(initializer.whenFalse, variableUsage, context)
 			);
@@ -122,9 +116,7 @@ export class VariableReferenceExtractor extends BaseExtractor {
 				initializer.operatorToken.kind === typescript.SyntaxKind.AmpersandAmpersandToken ||
 				initializer.operatorToken.kind === typescript.SyntaxKind.BarBarToken
 			) {
-				classNames.push(
-					...this.extractFromInitializer(initializer.right, variableUsage, context)
-				);
+				classNames.push(...this.extractFromInitializer(initializer.right, variableUsage, context));
 			}
 		}
 		// Handle parenthesized expressions: const foo = ('bg-blue-500')
@@ -145,16 +137,9 @@ export class VariableReferenceExtractor extends BaseExtractor {
 			const headText = initializer.head.text;
 			if (headText.trim()) {
 				const headStart = initializer.head.getStart() + 1; // +1 for opening backtick
-				const headLine =
-					context.sourceFile.getLineAndCharacterOfPosition(headStart).line + 1;
+				const headLine = context.sourceFile.getLineAndCharacterOfPosition(headStart).line + 1;
 				classNames.push(
-					...this.extractClassNamesFromText(
-						headText,
-						headStart,
-						headLine,
-						variableUsage,
-						context
-					)
+					...this.extractClassNamesFromText(headText, headStart, headLine, variableUsage, context)
 				);
 			}
 			// Extract from template spans (parts between and after interpolations)
@@ -162,16 +147,9 @@ export class VariableReferenceExtractor extends BaseExtractor {
 				const spanText = span.literal.text;
 				if (spanText.trim()) {
 					const spanStart = span.literal.getStart() + 1;
-					const spanLine =
-						context.sourceFile.getLineAndCharacterOfPosition(spanStart).line + 1;
+					const spanLine = context.sourceFile.getLineAndCharacterOfPosition(spanStart).line + 1;
 					classNames.push(
-						...this.extractClassNamesFromText(
-							spanText,
-							spanStart,
-							spanLine,
-							variableUsage,
-							context
-						)
+						...this.extractClassNamesFromText(spanText, spanStart, spanLine, variableUsage, context)
 					);
 				}
 			}
@@ -203,9 +181,8 @@ export class VariableReferenceExtractor extends BaseExtractor {
 					className: part,
 					absoluteStart: stringContentStart + offset,
 					length: part.length,
-					line: context.sourceFile.getLineAndCharacterOfPosition(
-						stringContentStart + offset
-					).line + 1,
+					line:
+						context.sourceFile.getLineAndCharacterOfPosition(stringContentStart + offset).line + 1,
 					file: context.sourceFile.fileName,
 					variableUsage
 				});
