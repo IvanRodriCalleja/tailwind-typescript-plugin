@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.2.0...v1.3.0) (2025-11-25)
+
+### ✨ Features
+
+* add quick fixes for invalid Tailwind classes ([2f96bc7](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/2f96bc7c3786f6c77e7d11914e7447900d83ef35))
+
 ## [1.2.0](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.1.0...v1.2.0) (2025-11-25)
 
 ### ✨ Features
