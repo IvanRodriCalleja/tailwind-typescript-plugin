@@ -55,7 +55,13 @@ export class CodeActionService {
 
 			// Add "Remove invalid class" action
 			actions.push(
-				this.createRemoveClassAction(typescript, fileName, diagnostic.start, diagnostic.length, invalidClass)
+				this.createRemoveClassAction(
+					typescript,
+					fileName,
+					diagnostic.start,
+					diagnostic.length,
+					invalidClass
+				)
 			);
 
 			// Add "Did you mean 'X'?" suggestions
