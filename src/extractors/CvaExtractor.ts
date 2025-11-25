@@ -3,6 +3,7 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import { ClassNameInfo, ExtractionContext } from '../core/types';
 import { BaseExtractor } from './BaseExtractor';
 import { ExpressionExtractor } from './ExpressionExtractor';
+import { VariableReferenceExtractor } from './VariableReferenceExtractor';
 
 /**
  * Extracts class names from class-variance-authority cva() function calls
@@ -27,10 +28,12 @@ export class CvaExtractor extends BaseExtractor {
 	private cvaImportCache = new Map<string, Set<string>>();
 	private cvaVariableCache = new Map<ts.Symbol, boolean>();
 	private expressionExtractor: ExpressionExtractor;
+	private variableExtractor: VariableReferenceExtractor;
 
 	constructor() {
 		super();
 		this.expressionExtractor = new ExpressionExtractor();
+		this.variableExtractor = new VariableReferenceExtractor();
 	}
 
 	canHandle(node: ts.Node, context: ExtractionContext): boolean {
@@ -298,7 +301,7 @@ export class CvaExtractor extends BaseExtractor {
 
 	/**
 	 * Extract class names from any expression value
-	 * Handles: strings, arrays, template literals
+	 * Handles: strings, arrays, template literals, variable references
 	 */
 	private extractFromValue(node: ts.Expression, context: ExtractionContext): ClassNameInfo[] {
 		// String literal: 'flex items-center'
@@ -311,12 +314,20 @@ export class CvaExtractor extends BaseExtractor {
 			return this.extractFromStringLiteral(node, context);
 		}
 
-		// Array: ['flex', 'items-center']
+		// Identifier (variable reference): base: myBaseClasses
+		if (context.typescript.isIdentifier(node)) {
+			return this.variableExtractor.extractFromIdentifier(node, context);
+		}
+
+		// Array: ['flex', 'items-center', myVar]
 		if (context.typescript.isArrayLiteralExpression(node)) {
 			const classNames: ClassNameInfo[] = [];
 			for (const element of node.elements) {
 				if (context.typescript.isStringLiteral(element)) {
 					classNames.push(...this.extractFromStringLiteral(element, context));
+				} else if (context.typescript.isIdentifier(element)) {
+					// Handle variable references in arrays
+					classNames.push(...this.variableExtractor.extractFromIdentifier(element, context));
 				} else if (context.typescript.isExpression(element as ts.Expression)) {
 					// Handle complex expressions in arrays (ternary, binary, etc.)
 					classNames.push(

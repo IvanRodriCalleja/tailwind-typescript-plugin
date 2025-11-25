@@ -13,6 +13,7 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 
 	/**
 	 * Helper method to create ClassNameInfo from a string literal
+	 * Handles both single-line and multiline strings with various whitespace
 	 */
 	protected extractFromStringLiteral(
 		literal: ts.StringLiteral | ts.NoSubstitutionTemplateLiteral,
@@ -23,18 +24,22 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 		const stringContentStart = literal.getStart() + 1;
 		let offset = 0;
 
-		fullText.split(' ').forEach(className => {
-			if (className) {
+		// Split by whitespace (including newlines, tabs, etc.) while tracking position
+		const parts = fullText.split(/(\s+)/);
+		for (const part of parts) {
+			if (part && !/^\s+$/.test(part)) {
+				// Non-whitespace part is a class name
 				classNames.push({
-					className: className,
+					className: part,
 					absoluteStart: stringContentStart + offset,
-					length: className.length,
-					line: context.sourceFile.getLineAndCharacterOfPosition(literal.getStart()).line + 1,
+					length: part.length,
+					line:
+						context.sourceFile.getLineAndCharacterOfPosition(stringContentStart + offset).line + 1,
 					file: context.sourceFile.fileName
 				});
 			}
-			offset += className.length + 1;
-		});
+			offset += part.length;
+		}
 
 		return classNames;
 	}
