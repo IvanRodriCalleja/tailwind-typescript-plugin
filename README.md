@@ -234,6 +234,18 @@ Most editors that support TypeScript Language Service plugins should work automa
 
 // ✅ Non-null assertions
 <div className={className!}>Non-null assertion</div>
+
+// ✅ Variable references (resolved to their values)
+const validClass = 'flex items-center';
+<div className={validClass}>Variable reference</div>
+
+// ✅ Variables in arrays
+const baseClass = 'flex';
+<div className={[baseClass, 'items-center']}>Array with variable</div>
+
+// ✅ Variables in tv() and cva()
+const buttonBase = 'font-semibold text-white';
+const button = tv({ base: buttonBase });
 ```
 
 **Invalid classes are flagged**:
@@ -249,6 +261,18 @@ Most editors that support TypeScript Language Service plugins should work automa
 // ❌ Invalid variant
 <div className="invalid-variant:bg-blue-500">Bad variant</div>
 // Error: The class "invalid-variant:bg-blue-500" is not a valid Tailwind class
+
+// ❌ Invalid class in variable (error points to declaration)
+const invalidClass = 'not-a-tailwind-class';
+// Error: The class "not-a-tailwind-class" is not a valid Tailwind class.
+//        This value is used as className via variable "invalidClass" on line 5
+<div className={invalidClass}>Variable with invalid class</div>
+
+// ❌ Invalid class in variable used in array
+const badClass = 'invalid-array-class';
+// Error: The class "invalid-array-class" is not a valid Tailwind class.
+//        This value is used as className via variable "badClass" on line 8
+<div className={['flex', badClass]}>Array with invalid variable</div>
 ```
 
 **Custom allowed classes**:
@@ -497,9 +521,25 @@ const invalidVariant = cva(['font-semibold'], {
   Validates CSS custom properties (variables) using arbitrary property syntax
   Example: `className="[--card-bg:#1e293b] bg-[var(--card-bg)]"`
 
-- [ ] **Expression Variable**
-  Validates variable references
-  Example: `const dynamicClass = isActive ? 'bg-blue-500' : 'bg-gray-500'; <div className={dynamicClass}>Dynamic</div>`
+- [X] **Expression Variable** → [`expression-variable.tsx`](./example/src/expression-variable.tsx)
+  Validates variable references by resolving to their declared string values
+  Example: `const dynamicClass = 'invalid-class'; <div className={dynamicClass}>Dynamic</div>`
+
+- [X] **Variable in Arrays** → [`test-variable-in-array.tsx`](./example/src/test-variable-in-array.tsx)
+  Validates variables used inside array expressions
+  Example: `const myClass = 'invalid-class'; <div className={[myClass, 'flex']}>Array</div>`
+
+- [X] **Variable in Objects** → [`test-variable-in-object.tsx`](./example/src/test-variable-in-object.tsx)
+  Validates variables used in computed object property keys
+  Example: `const myClass = 'invalid-class'; <div className={{ [myClass]: true }}>Object</div>`
+
+- [X] **TV Variable** → [`tv-variable.tsx`](./example/src/tv-variable.tsx)
+  Validates variables in tailwind-variants tv() definitions
+  Example: `const baseClasses = 'invalid-class'; const button = tv({ base: baseClasses })`
+
+- [X] **CVA Variable** → [`cva-variable.tsx`](./example/src/cva-variable.tsx)
+  Validates variables in class-variance-authority cva() definitions
+  Example: `const baseClasses = 'invalid-class'; const button = cva(baseClasses)`
 
 ## How It Works
 
