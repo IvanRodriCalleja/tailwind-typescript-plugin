@@ -4,6 +4,12 @@ import { IDiagnosticService } from '../core/interfaces';
 import { ClassNameInfo } from '../core/types';
 
 /**
+ * Diagnostic code for Tailwind plugin errors
+ * Used to identify our diagnostics for code actions
+ */
+export const TAILWIND_DIAGNOSTIC_CODE = 90001;
+
+/**
  * Service responsible for creating TypeScript diagnostics
  */
 export class DiagnosticService implements IDiagnosticService {
@@ -21,7 +27,7 @@ export class DiagnosticService implements IDiagnosticService {
 			length: classInfo.length,
 			messageText,
 			category: ts.DiagnosticCategory.Error,
-			code: 9999,
+			code: TAILWIND_DIAGNOSTIC_CODE,
 			source: 'tw-plugin'
 		};
 	}

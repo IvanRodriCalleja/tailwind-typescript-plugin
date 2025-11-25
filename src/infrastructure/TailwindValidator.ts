@@ -259,4 +259,74 @@ export class TailwindValidator implements IClassNameValidator {
 			maxSize: 2000
 		};
 	}
+
+	/**
+	 * Get similar class names for a given invalid class (for "Did you mean?" suggestions)
+	 * Uses Levenshtein distance to find closest matches
+	 */
+	getSimilarClasses(invalidClass: string, maxSuggestions: number = 3): string[] {
+		if (!this.classSet) {
+			return [];
+		}
+
+		// Calculate similarity scores for all classes
+		const scored: Array<{ className: string; distance: number }> = [];
+
+		for (const validClass of this.classSet) {
+			const distance = this.levenshteinDistance(invalidClass, validClass);
+			// Only consider classes with reasonable similarity (distance less than half the length)
+			const maxDistance = Math.max(invalidClass.length, validClass.length) * 0.6;
+			if (distance <= maxDistance) {
+				scored.push({ className: validClass, distance });
+			}
+		}
+
+		// Sort by distance (closest first) and return top suggestions
+		return scored
+			.sort((a, b) => a.distance - b.distance)
+			.slice(0, maxSuggestions)
+			.map(s => s.className);
+	}
+
+	/**
+	 * Calculate Levenshtein distance between two strings
+	 * This measures the minimum number of single-character edits needed to transform one string into another
+	 */
+	private levenshteinDistance(a: string, b: string): number {
+		const matrix: number[][] = [];
+
+		// Initialize first column
+		for (let i = 0; i <= a.length; i++) {
+			matrix[i] = [i];
+		}
+
+		// Initialize first row
+		for (let j = 0; j <= b.length; j++) {
+			matrix[0][j] = j;
+		}
+
+		// Fill in the rest of the matrix
+		for (let i = 1; i <= a.length; i++) {
+			for (let j = 1; j <= b.length; j++) {
+				const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+				matrix[i][j] = Math.min(
+					matrix[i - 1][j] + 1, // deletion
+					matrix[i][j - 1] + 1, // insertion
+					matrix[i - 1][j - 1] + cost // substitution
+				);
+			}
+		}
+
+		return matrix[a.length][b.length];
+	}
+
+	/**
+	 * Get all valid class names (for completions or other purposes)
+	 */
+	getAllClasses(): string[] {
+		if (!this.classSet) {
+			return [];
+		}
+		return Array.from(this.classSet);
+	}
 }
