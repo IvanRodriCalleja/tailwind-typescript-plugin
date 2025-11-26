@@ -1,3 +1,9 @@
+## [1.4.0-beta.2](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.1...v1.4.0-beta.2) (2025-11-26)
+
+### ✨ Features
+
+* add conflicting class detection ([a31c01a](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/a31c01aa6e747e2949109273f7eec3f1b7ac4876))
+
 ## [1.4.0-beta.1](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.3.0...v1.4.0-beta.1) (2025-11-26)
 
 ### ✨ Features
