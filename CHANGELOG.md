@@ -1,3 +1,9 @@
+## [1.4.0-beta.3](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.2...v1.4.0-beta.3) (2025-11-26)
+
+### ✨ Features
+
+* add hot reloading for global.css changes ([c215ae6](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/c215ae68b71741b1909460df0d22606dbfd5c0f1)), closes [#ff0000](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/issues/ff0000)
+
 ## [1.4.0-beta.2](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.1...v1.4.0-beta.2) (2025-11-26)
 
 ### ✨ Features
