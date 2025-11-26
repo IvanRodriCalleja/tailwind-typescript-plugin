@@ -70,8 +70,7 @@ describe('Duplicate Class Detection', () => {
 		});
 
 		it('should detect multiple duplicate classes', () => {
-			const sourceCode =
-				'<div className="flex flex items-center items-center p-4">Hello</div>';
+			const sourceCode = '<div className="flex flex items-center items-center p-4">Hello</div>';
 			const sourceFile = ts.createSourceFile(
 				'test.tsx',
 				sourceCode,
@@ -172,8 +171,7 @@ describe('Duplicate Class Detection', () => {
 
 	describe('utility function calls', () => {
 		it('should detect duplicates in clsx arguments', () => {
-			const sourceCode =
-				"<div className={clsx('flex', 'flex', 'items-center')}>Hello</div>";
+			const sourceCode = "<div className={clsx('flex', 'flex', 'items-center')}>Hello</div>";
 			const sourceFile = ts.createSourceFile(
 				'test.tsx',
 				sourceCode,
@@ -449,8 +447,7 @@ describe('Duplicate Class Detection', () => {
 	describe('arrays with conditionals', () => {
 		it('should flag duplicate when array contains conditional with same class', () => {
 			// Case: ['flex', isActive && 'flex']
-			const sourceCode =
-				"<div className={clsx(['flex', isActive && 'flex'])}>Hello</div>";
+			const sourceCode = "<div className={clsx(['flex', isActive && 'flex'])}>Hello</div>";
 			const sourceFile = ts.createSourceFile(
 				'test.tsx',
 				sourceCode,
@@ -467,8 +464,7 @@ describe('Duplicate Class Detection', () => {
 
 		it('should NOT flag when array conditional has different class', () => {
 			// Case: ['flex', isActive && 'items-center']
-			const sourceCode =
-				"<div className={clsx(['flex', isActive && 'items-center'])}>Hello</div>";
+			const sourceCode = "<div className={clsx(['flex', isActive && 'items-center'])}>Hello</div>";
 			const sourceFile = ts.createSourceFile(
 				'test.tsx',
 				sourceCode,

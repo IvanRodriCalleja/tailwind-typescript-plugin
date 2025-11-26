@@ -189,10 +189,7 @@ export class ExpressionExtractor extends BaseExtractor {
 						const computedExpr = name.expression;
 						// Handle identifier in computed property (variable reference)
 						if (context.typescript.isIdentifier(computedExpr)) {
-							const extracted = this.variableExtractor.extractFromIdentifier(
-								computedExpr,
-								context
-							);
+							const extracted = this.variableExtractor.extractFromIdentifier(computedExpr, context);
 							classNames.push(...addBranchId(extracted));
 						} else {
 							classNames.push(

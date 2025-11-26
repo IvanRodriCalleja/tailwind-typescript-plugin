@@ -343,18 +343,24 @@ export class CvaExtractor extends BaseExtractor {
 			for (const element of node.elements) {
 				if (context.typescript.isStringLiteral(element)) {
 					const extracted = this.extractFromStringLiteral(element, context);
-					classNames.push(...(attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted));
+					classNames.push(
+						...(attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted)
+					);
 				} else if (context.typescript.isIdentifier(element)) {
 					// Handle variable references in arrays
 					const extracted = this.variableExtractor.extractFromIdentifier(element, context);
-					classNames.push(...(attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted));
+					classNames.push(
+						...(attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted)
+					);
 				} else if (context.typescript.isExpression(element as ts.Expression)) {
 					// Handle complex expressions in arrays (ternary, binary, etc.)
 					const extracted = this.expressionExtractor.extractFromExpression(
 						element as ts.Expression,
 						context
 					);
-					classNames.push(...(attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted));
+					classNames.push(
+						...(attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted)
+					);
 				}
 			}
 			return classNames;
