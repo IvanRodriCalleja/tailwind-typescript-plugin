@@ -2,6 +2,7 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { IDiagnosticService } from '../core/interfaces';
 import { ClassNameInfo } from '../core/types';
+import { ConflictInfo } from '../infrastructure/TailwindConflictDetector';
 
 /**
  * Diagnostic code for Tailwind plugin errors (invalid class)
@@ -19,6 +20,12 @@ export const TAILWIND_DUPLICATE_CODE = 90002;
  * Used when a class appears in all branches of a ternary but not at root level
  */
 export const TAILWIND_EXTRACTABLE_CLASS_CODE = 90003;
+
+/**
+ * Diagnostic code for conflicting class warnings
+ * Used when classes that affect the same CSS property are used together
+ */
+export const TAILWIND_CONFLICT_CODE = 90004;
 
 /**
  * Service responsible for creating TypeScript diagnostics
@@ -111,6 +118,41 @@ export class DiagnosticService implements IDiagnosticService {
 	): ts.Diagnostic[] {
 		return classInfos.map(classInfo =>
 			this.createExtractableClassDiagnostic(classInfo, sourceFile)
+		);
+	}
+
+	/**
+	 * Create a warning diagnostic for conflicting class
+	 */
+	createConflictDiagnostic(conflictInfo: ConflictInfo, sourceFile: ts.SourceFile): ts.Diagnostic {
+		const conflictingClassList = conflictInfo.conflictsWith.join(', ');
+		let messageText = `Class "${conflictInfo.classInfo.className}" conflicts with "${conflictingClassList}". Both affect the ${conflictInfo.cssProperty} property.`;
+
+		// Add context for variable references
+		if (conflictInfo.classInfo.variableUsage) {
+			messageText += ` This value comes from variable "${conflictInfo.classInfo.variableUsage.variableName}" used on line ${conflictInfo.classInfo.variableUsage.usageLine}`;
+		}
+
+		return {
+			file: sourceFile,
+			start: conflictInfo.classInfo.absoluteStart,
+			length: conflictInfo.classInfo.length,
+			messageText,
+			category: ts.DiagnosticCategory.Warning,
+			code: TAILWIND_CONFLICT_CODE,
+			source: 'tw-plugin'
+		};
+	}
+
+	/**
+	 * Create multiple conflict warning diagnostics
+	 */
+	createConflictDiagnostics(
+		conflictInfos: ConflictInfo[],
+		sourceFile: ts.SourceFile
+	): ts.Diagnostic[] {
+		return conflictInfos.map(conflictInfo =>
+			this.createConflictDiagnostic(conflictInfo, sourceFile)
 		);
 	}
 }

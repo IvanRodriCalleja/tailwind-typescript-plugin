@@ -31,6 +31,14 @@ export interface ClassNameInfo {
 	 * Used to distinguish true duplicates from classes repeated in mutually exclusive branches.
 	 */
 	conditionalBranchId?: string;
+	/**
+	 * Indicates if this class comes from a variant context in tv() or cva().
+	 * - undefined or false: Class is from base/root (always applied)
+	 * - true: Class is from a variant (only applied when variant is selected)
+	 * Used to avoid flagging conflicts between base and variant classes,
+	 * since variants are intentionally designed to override base styles.
+	 */
+	isVariant?: boolean;
 }
 
 /**

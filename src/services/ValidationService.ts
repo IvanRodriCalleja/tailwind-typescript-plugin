@@ -2,6 +2,7 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { IClassNameValidator } from '../core/interfaces';
 import { ClassNameInfo } from '../core/types';
+import { TailwindConflictDetector } from '../infrastructure/TailwindConflictDetector';
 import { Logger } from '../utils/Logger';
 import { ClassNameExtractionService } from './ClassNameExtractionService';
 import { DiagnosticService } from './DiagnosticService';
@@ -11,12 +12,16 @@ import { DiagnosticService } from './DiagnosticService';
  * Orchestrates the validation workflow
  */
 export class ValidationService {
+	private readonly conflictDetector: TailwindConflictDetector;
+
 	constructor(
 		private readonly extractionService: ClassNameExtractionService,
 		private readonly diagnosticService: DiagnosticService,
 		private readonly validator: IClassNameValidator,
 		private readonly logger: Logger
-	) {}
+	) {
+		this.conflictDetector = new TailwindConflictDetector();
+	}
 
 	/**
 	 * Validate a source file and return diagnostics
@@ -59,12 +64,19 @@ export class ValidationService {
 		// Detect duplicate classes (only for valid classes, to avoid double-reporting)
 		const { trueDuplicates, extractableClasses } = this.findDuplicateClasses(classNames);
 
+		// Detect conflicting classes (only for valid, non-duplicate classes)
+		const conflicts = this.conflictDetector.findConflicts(classNames);
+
 		// PERFORMANCE: Only log if enabled
 		if (this.logger.isEnabled()) {
-			const totalIssues = invalidClasses.length + trueDuplicates.length + extractableClasses.length;
+			const totalIssues =
+				invalidClasses.length +
+				trueDuplicates.length +
+				extractableClasses.length +
+				conflicts.length;
 			if (totalIssues > 0) {
 				this.logger.log(
-					`[ValidationService] Returning ${invalidClasses.length} invalid + ${trueDuplicates.length} duplicate + ${extractableClasses.length} extractable diagnostics`
+					`[ValidationService] Returning ${invalidClasses.length} invalid + ${trueDuplicates.length} duplicate + ${extractableClasses.length} extractable + ${conflicts.length} conflict diagnostics`
 				);
 			} else {
 				this.logger.log(`[ValidationService] No issues found`);
@@ -87,6 +99,10 @@ export class ValidationService {
 			diagnostics.push(
 				...this.diagnosticService.createExtractableClassDiagnostics(extractableClasses, sourceFile)
 			);
+		}
+
+		if (conflicts.length > 0) {
+			diagnostics.push(...this.diagnosticService.createConflictDiagnostics(conflicts, sourceFile));
 		}
 
 		return diagnostics;

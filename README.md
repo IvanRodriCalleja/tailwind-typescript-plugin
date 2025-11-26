@@ -33,6 +33,7 @@ Ever written `className="flex itms-center"` instead of `"flex items-center"`? Th
 
 - **Real-time validation**: Get instant feedback on invalid Tailwind classes while you code
 - **Duplicate class detection**: Warns when the same class appears multiple times in the same `className` attribute
+- **Conflicting class detection**: Warns when Tailwind utilities that affect the same CSS property are used together (e.g., `text-left text-center`)
 - **Editor integration**: Works with any editor that supports TypeScript Language Service (VS Code, WebStorm, etc.)
 - **Supports Tailwind variants**: Validates responsive (`md:`, `lg:`), state (`hover:`, `focus:`), and other variants
 - **Arbitrary values**: Correctly handles Tailwind arbitrary values like `h-[50vh]` or `bg-[#ff0000]`
@@ -387,6 +388,163 @@ const conditionalOneBranch = isActive ? 'flex bg-blue-500' : 'bg-gray-500';
 // No warning - 'flex' only appears in the true branch of the variable
 ```
 
+**Conflicting class detection**:
+
+The plugin detects when you use multiple Tailwind utilities that affect the same CSS property. This catches common mistakes where conflicting styles cancel each other out.
+
+```tsx
+// ⚠️ Warning: Text alignment conflict (both affect text-align)
+<div className="text-left text-center">Conflicting alignment</div>
+// Warning: Class "text-left" conflicts with "text-center". Both affect the text-align property.
+// Warning: Class "text-center" conflicts with "text-left". Both affect the text-align property.
+
+// ⚠️ Warning: Display conflict (both affect display)
+<div className="flex block">Conflicting display</div>
+// Warning: Class "flex" conflicts with "block". Both affect the display property.
+// Warning: Class "block" conflicts with "flex". Both affect the display property.
+
+// ⚠️ Warning: Position conflict
+<div className="absolute relative">Conflicting position</div>
+// Warning: Class "absolute" conflicts with "relative". Both affect the position property.
+
+// ⚠️ Warning: Flex direction conflict
+<div className="flex-row flex-col">Conflicting direction</div>
+// Warning: Class "flex-row" conflicts with "flex-col". Both affect the flex-direction property.
+
+// ⚠️ Warning: Justify content conflict
+<div className="justify-start justify-center">Conflicting justify</div>
+// Warning: Class "justify-start" conflicts with "justify-center". Both affect the justify-content property.
+
+// ⚠️ Warning: Align items conflict
+<div className="items-start items-center">Conflicting alignment</div>
+// Warning: Class "items-start" conflicts with "items-center". Both affect the align-items property.
+
+// ✅ Valid: Different utilities (no conflict)
+<div className="flex items-center justify-between">No conflict</div>
+
+// ✅ Valid: Same class in different elements
+<div className="text-left">
+  <span className="text-center">Different elements</span>
+</div>
+```
+
+**Responsive and state variants**:
+
+The plugin correctly handles responsive and state variants - conflicts are only flagged when the same variant prefix is used:
+
+```tsx
+// ⚠️ Warning: Same variant prefix = conflict
+<div className="md:text-left md:text-center">Conflict at md breakpoint</div>
+// Warning: Both classes affect text-align at the md: breakpoint
+
+// ✅ Valid: Different breakpoints = no conflict
+<div className="sm:text-left md:text-center lg:text-right">No conflict</div>
+// Each breakpoint has its own text-align value
+
+// ⚠️ Warning: Same state variant = conflict
+<div className="hover:flex hover:block">Conflict on hover</div>
+// Warning: Both classes affect display on hover
+
+// ✅ Valid: Different state variants = no conflict
+<div className="hover:flex focus:block">No conflict</div>
+// Different states trigger different display values
+```
+
+**Ternary conditional expressions**:
+
+The plugin intelligently handles ternary expressions - conflicts are NOT flagged between mutually exclusive branches:
+
+```tsx
+// ✅ Valid: Different ternary branches = no conflict
+<div className={clsx(isActive ? 'text-left' : 'text-center')}>No conflict</div>
+// Only one branch executes at runtime
+
+// ⚠️ Warning: Root conflicts with branch
+<div className={clsx('text-left', isActive ? 'text-center' : 'bg-gray-500')}>Conflict</div>
+// Warning: 'text-left' at root conflicts with 'text-center' in true branch
+
+// ⚠️ Warning: Conflict within same branch
+<div className={clsx(isActive ? 'text-left text-center' : 'bg-gray-500')}>Conflict</div>
+// Warning: Conflict within the true branch
+```
+
+**Conflicts in utility functions**:
+
+```tsx
+// ⚠️ Warning: Conflicts detected in clsx/cn arguments
+<div className={clsx('flex', 'block', 'items-center')}>Conflict</div>
+// Warning: Class "flex" conflicts with "block". Both affect the display property.
+
+<div className={cn('text-left', 'text-right')}>Conflict</div>
+// Warning: Both classes affect text-align
+```
+
+**Conflicts in tv() and cva()**:
+
+The plugin detects conflicts within `tv()` and `cva()` base properties, but intelligently skips conflicts between base and variants since variants are designed to override base styles:
+
+```tsx
+import { tv } from 'tailwind-variants';
+import { cva } from 'class-variance-authority';
+
+// ⚠️ Warning: Conflict in tv() base
+const button = tv({
+  base: 'flex block items-center'
+  // Warning: "flex" conflicts with "block"
+});
+
+// ✅ Valid: Base vs variant = NO conflict (intentional override)
+const button2 = tv({
+  base: 'text-left items-center',
+  variants: {
+    align: {
+      center: 'text-center'  // This is designed to override base
+    }
+  }
+});
+// No warning - variants intentionally override base styles
+
+// ⚠️ Warning: Conflict in cva() base
+const card = cva(['flex', 'grid', 'items-center']);
+// Warning: "flex" conflicts with "grid"
+
+// ✅ Valid: Base vs variant = NO conflict
+const card2 = cva(['justify-start'], {
+  variants: {
+    centered: {
+      true: ['justify-center']  // Designed to override
+    }
+  }
+});
+// No warning - variant overrides base
+
+// ✅ Valid: Different tv()/cva() calls = no conflict
+const buttonA = tv({ base: 'text-left' });
+const buttonB = tv({ base: 'text-center' });
+// No warning - each call has its own scope
+```
+
+**Detected conflict groups**:
+
+The plugin detects conflicts in these CSS property groups:
+
+| CSS Property | Conflicting Classes |
+|--------------|---------------------|
+| `text-align` | `text-left`, `text-center`, `text-right`, `text-justify`, `text-start`, `text-end` |
+| `display` | `block`, `inline-block`, `inline`, `flex`, `inline-flex`, `grid`, `inline-grid`, `hidden`, `table`, `contents`, `flow-root`, `list-item` |
+| `position` | `static`, `relative`, `absolute`, `fixed`, `sticky` |
+| `flex-direction` | `flex-row`, `flex-row-reverse`, `flex-col`, `flex-col-reverse` |
+| `justify-content` | `justify-start`, `justify-end`, `justify-center`, `justify-between`, `justify-around`, `justify-evenly`, `justify-stretch`, `justify-normal` |
+| `align-items` | `items-start`, `items-end`, `items-center`, `items-baseline`, `items-stretch` |
+| `visibility` | `visible`, `invisible`, `collapse` |
+| `overflow` | `overflow-auto`, `overflow-hidden`, `overflow-clip`, `overflow-visible`, `overflow-scroll` |
+| `font-style` | `italic`, `not-italic` |
+| `text-transform` | `uppercase`, `lowercase`, `capitalize`, `normal-case` |
+| `whitespace` | `whitespace-normal`, `whitespace-nowrap`, `whitespace-pre`, `whitespace-pre-line`, `whitespace-pre-wrap`, `whitespace-break-spaces` |
+| `text-wrap` | `text-wrap`, `text-nowrap`, `text-balance`, `text-pretty` |
+| `cursor` | `cursor-auto`, `cursor-default`, `cursor-pointer`, `cursor-wait`, `cursor-text`, `cursor-move`, `cursor-help`, `cursor-not-allowed`, `cursor-none`, `cursor-context-menu`, `cursor-progress`, `cursor-cell`, `cursor-crosshair`, `cursor-vertical-text`, `cursor-alias`, `cursor-copy`, `cursor-no-drop`, `cursor-grab`, `cursor-grabbing`, `cursor-all-scroll`, `cursor-col-resize`, `cursor-row-resize`, `cursor-n-resize`, `cursor-e-resize`, `cursor-s-resize`, `cursor-w-resize`, `cursor-ne-resize`, `cursor-nw-resize`, `cursor-se-resize`, `cursor-sw-resize`, `cursor-ew-resize`, `cursor-ns-resize`, `cursor-nesw-resize`, `cursor-nwse-resize`, `cursor-zoom-in`, `cursor-zoom-out` |
+| And more... | `flex-wrap`, `align-content`, `align-self`, `justify-items`, `justify-self`, `float`, `clear`, `box-sizing`, `isolation`, `object-fit`, `pointer-events`, `resize`, `user-select`, `table-layout`, `border-collapse`, `caption-side` |
+
 **tailwind-variants validation**:
 ```tsx
 import { tv } from 'tailwind-variants';
@@ -711,6 +869,15 @@ const card2 = tv({ base: 'flex justify-center' });
   Example: `cva(['flex', 'flex'])` → Warning: Duplicate class "flex"
   - Duplicates detected across base array/string, variants, and compoundVariants
   - Same class in different cva() calls is NOT a duplicate (scoped per call)
+
+- [X] **Conflicting Classes** → [`conflicting-classes.tsx`](./example/src/conflicting-classes.tsx)
+  Detects conflicting Tailwind utilities that affect the same CSS property
+  Example: `className="text-left text-center"` → Warning on both classes
+  - Detects conflicts in 50+ CSS property groups (display, position, text-align, flex-direction, etc.)
+  - Handles responsive/state variants: `md:text-left md:text-center` = conflict, `sm:text-left md:text-center` = no conflict
+  - Smart ternary handling: mutually exclusive branches don't conflict
+  - Works with clsx, cn, tv(), cva() and other utility functions
+  - tv()/cva() base vs variant: NO conflict (variants are designed to override base)
 
 ## How It Works
 

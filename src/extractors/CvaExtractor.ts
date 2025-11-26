@@ -265,7 +265,9 @@ export class CvaExtractor extends BaseExtractor {
 						continue;
 					}
 
-					classNames.push(...this.extractFromValue(value, context, attributeId));
+					// Mark all classes from variants with isVariant: true
+					const extracted = this.extractFromValue(value, context, attributeId);
+					classNames.push(...extracted.map(c => ({ ...c, isVariant: true })));
 				}
 			}
 		}
@@ -302,7 +304,9 @@ export class CvaExtractor extends BaseExtractor {
 
 				const propName = this.getPropertyName(prop, context);
 				if (propName === 'class' || propName === 'className') {
-					classNames.push(...this.extractFromValue(prop.initializer, context, attributeId));
+					// Mark all classes from compoundVariants with isVariant: true
+					const extracted = this.extractFromValue(prop.initializer, context, attributeId);
+					classNames.push(...extracted.map(c => ({ ...c, isVariant: true })));
 				}
 			}
 		}
