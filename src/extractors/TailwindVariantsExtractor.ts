@@ -189,16 +189,19 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 			switch (propertyName) {
 				case 'base':
 					// base: 'flex items-center' or base: ['flex', 'items-center']
+					// Base classes are NOT variants (isVariant: false/undefined)
 					classNames.push(...this.extractFromValue(property.initializer, context, attributeId));
 					break;
 
 				case 'variants':
 					// variants: { size: { sm: 'text-sm', lg: 'text-lg' } }
+					// Mark all variant classes with isVariant: true
 					classNames.push(...this.extractFromVariants(property.initializer, context, attributeId));
 					break;
 
 				case 'compoundVariants':
 					// compoundVariants: [{ size: 'sm', color: 'primary', class: 'font-bold' }]
+					// Mark all compound variant classes with isVariant: true
 					classNames.push(
 						...this.extractFromCompoundVariants(property.initializer, context, attributeId)
 					);
@@ -226,6 +229,7 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 	/**
 	 * Extract class names from the variants object
 	 * Structure: { variantName: { optionName: 'classes' } }
+	 * All classes from variants are marked with isVariant: true
 	 */
 	private extractFromVariants(
 		node: ts.Expression,
@@ -252,8 +256,9 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 						continue;
 					}
 
-					// Extract classes from the option value
-					classNames.push(...this.extractFromValue(optionProp.initializer, context, attributeId));
+					// Extract classes from the option value and mark as variant
+					const extracted = this.extractFromValue(optionProp.initializer, context, attributeId);
+					classNames.push(...extracted.map(c => ({ ...c, isVariant: true })));
 				}
 			}
 		}
@@ -264,6 +269,7 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 	/**
 	 * Extract class names from compoundVariants array
 	 * Structure: [{ condition: value, class: 'classes' or className: 'classes' }]
+	 * All classes from compoundVariants are marked with isVariant: true
 	 */
 	private extractFromCompoundVariants(
 		node: ts.Expression,
@@ -290,7 +296,9 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 
 				const propName = this.getPropertyName(prop, context);
 				if (propName === 'class' || propName === 'className') {
-					classNames.push(...this.extractFromValue(prop.initializer, context, attributeId));
+					// Extract classes and mark as variant
+					const extracted = this.extractFromValue(prop.initializer, context, attributeId);
+					classNames.push(...extracted.map(c => ({ ...c, isVariant: true })));
 				}
 			}
 		}
