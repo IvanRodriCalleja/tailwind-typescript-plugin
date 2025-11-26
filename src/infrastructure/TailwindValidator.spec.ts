@@ -293,6 +293,215 @@ describe('TailwindValidator', () => {
 			expect(wasBefore).toBe(true);
 			expect(isAfter).toBe(true);
 		});
+
+		it('should clear validation cache on reload', async () => {
+			// First, validate a class to populate the cache
+			expect(validator.isValidClass('flex')).toBe(true);
+			const statsBefore = validator.getCacheStats();
+			expect(statsBefore.size).toBeGreaterThan(0);
+
+			// Reload should clear the cache
+			await validator.reload();
+
+			// Cache should be cleared after reload
+			const statsAfter = validator.getCacheStats();
+			expect(statsAfter.size).toBe(0);
+		});
+
+		it('should recognize new classes after reload with updated CSS', async () => {
+			// Create a new validator with a CSS file we can modify
+			const reloadTempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tailwind-reload-'));
+			const reloadCssFile = path.join(reloadTempDir, 'reload-test.css');
+
+			// Start with basic Tailwind
+			fs.writeFileSync(reloadCssFile, '@import "tailwindcss";');
+
+			const reloadValidator = new TailwindValidator(reloadCssFile, new MockLogger());
+			await reloadValidator.initialize();
+
+			// Custom class should be invalid initially
+			expect(reloadValidator.isValidClass('custom-reload-class')).toBe(false);
+
+			// Update CSS to add custom utility
+			fs.writeFileSync(
+				reloadCssFile,
+				`@import "tailwindcss";
+
+@utility custom-reload-class {
+  display: flex;
+  align-items: center;
+}`
+			);
+
+			// Reload the validator
+			await reloadValidator.reload();
+
+			// Now the custom class should be valid
+			expect(reloadValidator.isValidClass('custom-reload-class')).toBe(true);
+
+			// Clean up
+			fs.rmSync(reloadTempDir, { recursive: true });
+		});
+
+		it('should recognize new theme colors after reload', async () => {
+			// Create a new validator with a CSS file we can modify
+			const reloadTempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tailwind-theme-reload-'));
+			const reloadCssFile = path.join(reloadTempDir, 'theme-reload-test.css');
+
+			// Start with basic Tailwind
+			fs.writeFileSync(reloadCssFile, '@import "tailwindcss";');
+
+			const reloadValidator = new TailwindValidator(reloadCssFile, new MockLogger());
+			await reloadValidator.initialize();
+
+			// Custom color should be invalid initially
+			expect(reloadValidator.isValidClass('bg-pepe')).toBe(false);
+			expect(reloadValidator.isValidClass('text-pepe')).toBe(false);
+
+			// Update CSS to add custom theme color (Tailwind v4 syntax)
+			fs.writeFileSync(
+				reloadCssFile,
+				`@import "tailwindcss";
+
+@theme {
+  --color-pepe: #ff0000;
+}`
+			);
+
+			// Reload the validator
+			await reloadValidator.reload();
+
+			// Now the custom color classes should be valid
+			expect(reloadValidator.isValidClass('bg-pepe')).toBe(true);
+			expect(reloadValidator.isValidClass('text-pepe')).toBe(true);
+			expect(reloadValidator.isValidClass('border-pepe')).toBe(true);
+
+			// Clean up
+			fs.rmSync(reloadTempDir, { recursive: true });
+		});
+
+		it('should handle multiple reloads correctly', async () => {
+			// Create a new validator with a CSS file we can modify
+			const reloadTempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tailwind-multi-reload-'));
+			const reloadCssFile = path.join(reloadTempDir, 'multi-reload-test.css');
+
+			// Start with basic Tailwind
+			fs.writeFileSync(reloadCssFile, '@import "tailwindcss";');
+
+			const reloadValidator = new TailwindValidator(reloadCssFile, new MockLogger());
+			await reloadValidator.initialize();
+
+			// First reload: add custom-class-1
+			fs.writeFileSync(
+				reloadCssFile,
+				`@import "tailwindcss";
+
+@utility custom-class-1 {
+  display: flex;
+}`
+			);
+			await reloadValidator.reload();
+			expect(reloadValidator.isValidClass('custom-class-1')).toBe(true);
+			expect(reloadValidator.isValidClass('custom-class-2')).toBe(false);
+
+			// Second reload: add custom-class-2, keep custom-class-1
+			fs.writeFileSync(
+				reloadCssFile,
+				`@import "tailwindcss";
+
+@utility custom-class-1 {
+  display: flex;
+}
+
+@utility custom-class-2 {
+  display: grid;
+}`
+			);
+			await reloadValidator.reload();
+			expect(reloadValidator.isValidClass('custom-class-1')).toBe(true);
+			expect(reloadValidator.isValidClass('custom-class-2')).toBe(true);
+
+			// Third reload: remove custom-class-1, keep custom-class-2
+			fs.writeFileSync(
+				reloadCssFile,
+				`@import "tailwindcss";
+
+@utility custom-class-2 {
+  display: grid;
+}`
+			);
+			await reloadValidator.reload();
+			expect(reloadValidator.isValidClass('custom-class-1')).toBe(false);
+			expect(reloadValidator.isValidClass('custom-class-2')).toBe(true);
+
+			// Clean up
+			fs.rmSync(reloadTempDir, { recursive: true });
+		});
+
+		it('should preserve standard Tailwind classes after reload', async () => {
+			// Create a new validator
+			const reloadTempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tailwind-preserve-'));
+			const reloadCssFile = path.join(reloadTempDir, 'preserve-test.css');
+
+			fs.writeFileSync(reloadCssFile, '@import "tailwindcss";');
+
+			const reloadValidator = new TailwindValidator(reloadCssFile, new MockLogger());
+			await reloadValidator.initialize();
+
+			// Standard classes should be valid
+			expect(reloadValidator.isValidClass('flex')).toBe(true);
+			expect(reloadValidator.isValidClass('items-center')).toBe(true);
+			expect(reloadValidator.isValidClass('bg-blue-500')).toBe(true);
+
+			// Reload
+			await reloadValidator.reload();
+
+			// Standard classes should still be valid
+			expect(reloadValidator.isValidClass('flex')).toBe(true);
+			expect(reloadValidator.isValidClass('items-center')).toBe(true);
+			expect(reloadValidator.isValidClass('bg-blue-500')).toBe(true);
+
+			// Clean up
+			fs.rmSync(reloadTempDir, { recursive: true });
+		});
+
+		it('should work with getInvalidClasses after reload', async () => {
+			// Create a new validator
+			const reloadTempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tailwind-invalid-reload-'));
+			const reloadCssFile = path.join(reloadTempDir, 'invalid-reload-test.css');
+
+			fs.writeFileSync(reloadCssFile, '@import "tailwindcss";');
+
+			const reloadValidator = new TailwindValidator(reloadCssFile, new MockLogger());
+			await reloadValidator.initialize();
+
+			// Before reload: custom-valid should be invalid
+			let invalidClasses = reloadValidator.getInvalidClasses([
+				'flex',
+				'custom-valid',
+				'items-center'
+			]);
+			expect(invalidClasses).toContain('custom-valid');
+
+			// Add custom utility
+			fs.writeFileSync(
+				reloadCssFile,
+				`@import "tailwindcss";
+
+@utility custom-valid {
+  display: block;
+}`
+			);
+			await reloadValidator.reload();
+
+			// After reload: custom-valid should be valid
+			invalidClasses = reloadValidator.getInvalidClasses(['flex', 'custom-valid', 'items-center']);
+			expect(invalidClasses).not.toContain('custom-valid');
+			expect(invalidClasses.length).toBe(0);
+
+			// Clean up
+			fs.rmSync(reloadTempDir, { recursive: true });
+		});
 	});
 
 	describe('getSimilarClasses', () => {

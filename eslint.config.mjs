@@ -53,7 +53,8 @@ export default defineConfig([
 				RequestInit: true,
 				browser: true,
 				chrome: true,
-				BigInt: true
+				BigInt: true,
+				NodeJS: true
 			},
 			parser: tsParser,
 			ecmaVersion: 2025,

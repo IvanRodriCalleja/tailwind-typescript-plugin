@@ -902,6 +902,34 @@ The plugin is designed for minimal performance impact:
 
 **Typical overhead**: <1ms per file for most files, ~2-3ms for files with many tv()/cva() calls
 
+## Hot Reloading
+
+The plugin automatically watches your global CSS file for changes. When you modify your Tailwind configuration or add custom classes in your CSS file, the plugin will:
+
+1. **Detect changes** - Watches the `globalCss` file specified in your `tsconfig.json`
+2. **Reload the design system** - Automatically re-parses your Tailwind configuration
+3. **Clear caches** - Invalidates all diagnostic caches
+4. **Refresh diagnostics** - Requests TypeScript to revalidate all open files
+
+This means you can add new custom classes or modify your Tailwind theme, and the plugin will immediately recognize them without restarting your editor or TypeScript server.
+
+```css
+/* global.css */
+@import "tailwindcss";
+
+/* Add a custom utility - plugin will recognize it after save */
+@utility custom-gradient {
+  background: linear-gradient(to right, #ff7e5f, #feb47b);
+}
+```
+
+```tsx
+// This will be valid immediately after saving global.css
+<div className="custom-gradient">Hot reloaded!</div>
+```
+
+**Note**: The file watcher uses debouncing (300ms) to avoid excessive reloads when making rapid changes.
+
 ## Development
 
 This is a monorepo using Yarn workspaces:
