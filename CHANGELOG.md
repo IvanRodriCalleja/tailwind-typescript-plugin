@@ -1,3 +1,18 @@
+## [1.4.0-beta.1](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.3.0...v1.4.0-beta.1) (2025-11-26)
+
+### ✨ Features
+
+* add duplicate class detection ([8ffcee9](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/8ffcee91120c4a8c69cb92e223253ead4a296101))
+
+### 📚 Documentation
+
+* add variable resolution feature documentation ([9461272](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/94612728d635aeb1319fd98a614f32119a0dd3f5))
+
+### 🔧 Chores
+
+* add release branch for semantic-release ([097e25a](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/097e25ab400aa7fbd8c5ddfadd32a21941175b6f))
+* configure semantic-release for beta prereleases ([b3f1513](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/b3f1513e788af1abd1e4c240c71f495ebe62a58f))
+
 ## [1.3.0](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.2.0...v1.3.0) (2025-11-25)
 
 ### ✨ Features
