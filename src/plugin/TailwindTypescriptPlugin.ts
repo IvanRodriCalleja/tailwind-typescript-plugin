@@ -358,6 +358,10 @@ export class TailwindTypescriptPlugin {
 				return prior;
 			}
 
+			// Import diagnostic codes
+			const TAILWIND_DIAGNOSTIC_CODE = 90001;
+			const TAILWIND_DUPLICATE_CODE = 90002;
+
 			// Create refactor info for each diagnostic
 			const refactors: ts.ApplicableRefactorInfo[] = [];
 
@@ -366,34 +370,47 @@ export class TailwindTypescriptPlugin {
 					continue;
 				}
 
-				const invalidClass = sourceFile.text.substring(
+				const className = sourceFile.text.substring(
 					diagnostic.start,
 					diagnostic.start + diagnostic.length
 				);
 
-				const actions: ts.RefactorActionInfo[] = [
-					{
-						name: `remove_${diagnostic.start}`,
-						description: `Remove invalid class '${invalidClass}'`,
-						kind: 'refactor.rewrite.tailwind.remove'
-					}
-				];
+				const actions: ts.RefactorActionInfo[] = [];
 
-				// Add suggestions
-				const suggestions = this.validator.getSimilarClasses(invalidClass, 3);
-				for (const suggestion of suggestions) {
+				// Handle duplicate class warnings
+				if (diagnostic.code === TAILWIND_DUPLICATE_CODE) {
 					actions.push({
-						name: `replace_${diagnostic.start}_${suggestion}`,
-						description: `Replace with '${suggestion}'`,
-						kind: 'refactor.rewrite.tailwind.replace'
+						name: `remove_duplicate_${diagnostic.start}`,
+						description: `Remove duplicate class '${className}'`,
+						kind: 'refactor.rewrite.tailwind.removeDuplicate'
 					});
 				}
+				// Handle invalid class errors
+				else if (diagnostic.code === TAILWIND_DIAGNOSTIC_CODE) {
+					actions.push({
+						name: `remove_${diagnostic.start}`,
+						description: `Remove invalid class '${className}'`,
+						kind: 'refactor.rewrite.tailwind.remove'
+					});
 
-				refactors.push({
-					name: 'tailwind-fix',
-					description: 'Tailwind CSS Quick Fix',
-					actions
-				});
+					// Add suggestions only for invalid classes
+					const suggestions = this.validator.getSimilarClasses(className, 3);
+					for (const suggestion of suggestions) {
+						actions.push({
+							name: `replace_${diagnostic.start}_${suggestion}`,
+							description: `Replace with '${suggestion}'`,
+							kind: 'refactor.rewrite.tailwind.replace'
+						});
+					}
+				}
+
+				if (actions.length > 0) {
+					refactors.push({
+						name: 'tailwind-fix',
+						description: 'Tailwind CSS Quick Fix',
+						actions
+					});
+				}
 			}
 
 			return [...prior, ...refactors];
@@ -435,7 +452,30 @@ export class TailwindTypescriptPlugin {
 			}
 
 			// Parse action name to get the operation
-			if (actionName.startsWith('remove_')) {
+			// Handle remove_duplicate_ action (for duplicate class warnings)
+			if (actionName.startsWith('remove_duplicate_')) {
+				const startPos = parseInt(actionName.replace('remove_duplicate_', ''), 10);
+				const allDiagnostics = this.diagnosticCache.get(fileName, sourceFile.getFullText()) || [];
+				const diagnostic = allDiagnostics.find(d => d.start === startPos);
+
+				if (diagnostic && diagnostic.length !== undefined) {
+					return {
+						edits: [
+							{
+								fileName,
+								textChanges: [
+									{
+										span: { start: startPos, length: diagnostic.length },
+										newText: ''
+									}
+								]
+							}
+						]
+					};
+				}
+			}
+			// Handle remove_ action (for invalid class errors)
+			else if (actionName.startsWith('remove_')) {
 				const startPos = parseInt(actionName.replace('remove_', ''), 10);
 				const allDiagnostics = this.diagnosticCache.get(fileName, sourceFile.getFullText()) || [];
 				const diagnostic = allDiagnostics.find(d => d.start === startPos);

@@ -3,7 +3,7 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import { TailwindValidator } from '../infrastructure/TailwindValidator';
 import { NoOpLogger } from '../utils/Logger';
 import { CodeActionService } from './CodeActionService';
-import { TAILWIND_DIAGNOSTIC_CODE } from './DiagnosticService';
+import { TAILWIND_DIAGNOSTIC_CODE, TAILWIND_DUPLICATE_CODE } from './DiagnosticService';
 
 describe('CodeActionService', () => {
 	let validator: TailwindValidator;
@@ -211,6 +211,85 @@ describe('CodeActionService', () => {
 			const removeActions = actions.filter(a => a.fixName === 'removeInvalidTailwindClass');
 			expect(removeActions.length).toBe(1);
 			expect(removeActions[0].description).toContain('invalid1');
+		});
+
+		it('should provide "Remove duplicate class" action for duplicate diagnostics', () => {
+			const sourceCode = '<div className="flex flex items-center">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position of second "flex" in the string
+			const classStart = 21;
+			const classLength = 4;
+
+			const diagnostics: ts.Diagnostic[] = [
+				{
+					file: sourceFile,
+					start: classStart,
+					length: classLength,
+					messageText: 'Duplicate class "flex"',
+					category: ts.DiagnosticCategory.Warning,
+					code: TAILWIND_DUPLICATE_CODE,
+					source: 'tw-plugin'
+				} as ts.Diagnostic
+			];
+
+			const actions = codeActionService.getCodeActions(
+				ts,
+				'test.tsx',
+				classStart,
+				classStart + classLength,
+				diagnostics,
+				sourceFile
+			);
+
+			// Should have 1 remove duplicate action
+			expect(actions.length).toBe(1);
+			expect(actions[0].fixName).toBe('removeDuplicateTailwindClass');
+			expect(actions[0].description).toBe("Remove duplicate class 'flex'");
+			expect(actions[0].changes[0].textChanges[0].newText).toBe('');
+			expect(actions[0].changes[0].textChanges[0].span.start).toBe(classStart);
+			expect(actions[0].changes[0].textChanges[0].span.length).toBe(classLength);
+		});
+
+		it('should have fixAll support for duplicate class removal', () => {
+			const sourceCode = '<div className="flex flex items-center items-center">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const diagnostics: ts.Diagnostic[] = [
+				{
+					file: sourceFile,
+					start: 21,
+					length: 4,
+					messageText: 'Duplicate class "flex"',
+					category: ts.DiagnosticCategory.Warning,
+					code: TAILWIND_DUPLICATE_CODE,
+					source: 'tw-plugin'
+				} as ts.Diagnostic
+			];
+
+			const actions = codeActionService.getCodeActions(
+				ts,
+				'test.tsx',
+				21,
+				25,
+				diagnostics,
+				sourceFile
+			);
+
+			expect(actions[0].fixId).toBe('removeDuplicateTailwindClass');
+			expect(actions[0].fixAllDescription).toBe('Remove all duplicate Tailwind classes');
 		});
 	});
 });

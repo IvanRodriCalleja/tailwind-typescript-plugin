@@ -1,7 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { TailwindValidator } from '../infrastructure/TailwindValidator';
-import { TAILWIND_DIAGNOSTIC_CODE } from './DiagnosticService';
+import { TAILWIND_DIAGNOSTIC_CODE, TAILWIND_DUPLICATE_CODE } from './DiagnosticService';
 
 /**
  * Service that provides code actions (quick fixes) for Tailwind CSS validation errors
@@ -9,6 +9,7 @@ import { TAILWIND_DIAGNOSTIC_CODE } from './DiagnosticService';
  * Supported quick fixes:
  * - "Remove invalid class" - Removes the invalid class from the className
  * - "Did you mean 'X'?" - Suggests similar valid classes as replacements
+ * - "Remove duplicate class" - Removes duplicate class occurrences
  */
 export class CodeActionService {
 	constructor(private readonly validator: TailwindValidator) {}
@@ -17,7 +18,7 @@ export class CodeActionService {
 	 * Get the supported code fix error codes
 	 */
 	getSupportedErrorCodes(): number[] {
-		return [TAILWIND_DIAGNOSTIC_CODE];
+		return [TAILWIND_DIAGNOSTIC_CODE, TAILWIND_DUPLICATE_CODE];
 	}
 
 	/**
@@ -48,10 +49,29 @@ export class CodeActionService {
 				continue;
 			}
 
-			const invalidClass = sourceFile.text.substring(
+			const className = sourceFile.text.substring(
 				diagnostic.start,
 				diagnostic.start + diagnostic.length
 			);
+
+			// Handle duplicate class warnings
+			if (diagnostic.code === TAILWIND_DUPLICATE_CODE) {
+				actions.push(
+					this.createRemoveDuplicateAction(
+						typescript,
+						fileName,
+						diagnostic.start,
+						diagnostic.length,
+						className
+					)
+				);
+				continue;
+			}
+
+			// Handle invalid class errors (only for TAILWIND_DIAGNOSTIC_CODE)
+			if (diagnostic.code !== TAILWIND_DIAGNOSTIC_CODE) {
+				continue;
+			}
 
 			// Add "Remove invalid class" action
 			actions.push(
@@ -60,12 +80,12 @@ export class CodeActionService {
 					fileName,
 					diagnostic.start,
 					diagnostic.length,
-					invalidClass
+					className
 				)
 			);
 
 			// Add "Did you mean 'X'?" suggestions
-			const suggestions = this.validator.getSimilarClasses(invalidClass, 3);
+			const suggestions = this.validator.getSimilarClasses(className, 3);
 			for (const suggestion of suggestions) {
 				actions.push(
 					this.createReplaceClassAction(
@@ -73,7 +93,7 @@ export class CodeActionService {
 						fileName,
 						diagnostic.start,
 						diagnostic.length,
-						invalidClass,
+						className,
 						suggestion
 					)
 				);
@@ -114,6 +134,35 @@ export class CodeActionService {
 			],
 			fixId: 'removeInvalidTailwindClass',
 			fixAllDescription: 'Remove all invalid Tailwind classes'
+		};
+	}
+
+	/**
+	 * Create a code action to remove a duplicate class
+	 */
+	private createRemoveDuplicateAction(
+		typescript: typeof ts,
+		fileName: string,
+		start: number,
+		length: number,
+		duplicateClass: string
+	): ts.CodeFixAction {
+		return {
+			fixName: 'removeDuplicateTailwindClass',
+			description: `Remove duplicate class '${duplicateClass}'`,
+			changes: [
+				{
+					fileName,
+					textChanges: [
+						{
+							span: { start, length },
+							newText: ''
+						}
+					]
+				}
+			],
+			fixId: 'removeDuplicateTailwindClass',
+			fixAllDescription: 'Remove all duplicate Tailwind classes'
 		};
 	}
 

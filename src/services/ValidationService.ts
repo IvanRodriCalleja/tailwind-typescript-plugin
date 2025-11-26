@@ -56,18 +56,40 @@ export class ValidationService {
 		// Filter invalid class names
 		const invalidClasses = this.filterInvalidClasses(classNames);
 
+		// Detect duplicate classes (only for valid classes, to avoid double-reporting)
+		const { trueDuplicates, extractableClasses } = this.findDuplicateClasses(classNames);
+
 		// PERFORMANCE: Only log if enabled
 		if (this.logger.isEnabled()) {
-			if (invalidClasses.length > 0) {
-				this.logger.log(`[ValidationService] Returning ${invalidClasses.length} diagnostics`);
+			const totalIssues = invalidClasses.length + trueDuplicates.length + extractableClasses.length;
+			if (totalIssues > 0) {
+				this.logger.log(
+					`[ValidationService] Returning ${invalidClasses.length} invalid + ${trueDuplicates.length} duplicate + ${extractableClasses.length} extractable diagnostics`
+				);
 			} else {
-				this.logger.log(`[ValidationService] No invalid classes found`);
+				this.logger.log(`[ValidationService] No issues found`);
 			}
 		}
 
-		return invalidClasses.length > 0
-			? this.diagnosticService.createDiagnostics(invalidClasses, sourceFile)
-			: [];
+		const diagnostics: ts.Diagnostic[] = [];
+
+		if (invalidClasses.length > 0) {
+			diagnostics.push(...this.diagnosticService.createDiagnostics(invalidClasses, sourceFile));
+		}
+
+		if (trueDuplicates.length > 0) {
+			diagnostics.push(
+				...this.diagnosticService.createDuplicateDiagnostics(trueDuplicates, sourceFile)
+			);
+		}
+
+		if (extractableClasses.length > 0) {
+			diagnostics.push(
+				...this.diagnosticService.createExtractableClassDiagnostics(extractableClasses, sourceFile)
+			);
+		}
+
+		return diagnostics;
 	}
 
 	/**
@@ -78,5 +100,106 @@ export class ValidationService {
 		// PERFORMANCE: Skip logging each class validation (hot path)
 		// This method is called for every class in every file
 		return classNames.filter(classInfo => !this.validator.isValidClass(classInfo.className));
+	}
+
+	/**
+	 * Result of duplicate detection with separate categories
+	 */
+	private findDuplicateClasses(classNames: ClassNameInfo[]): {
+		trueDuplicates: ClassNameInfo[];
+		extractableClasses: ClassNameInfo[];
+	} {
+		const trueDuplicates: ClassNameInfo[] = [];
+		const extractableClasses: ClassNameInfo[] = [];
+
+		// Group classes by attributeId
+		const byAttribute = new Map<string, ClassNameInfo[]>();
+
+		for (const classInfo of classNames) {
+			// Use attributeId if available, otherwise use a unique key per class
+			// (which means no duplicates can be detected for classes without attributeId)
+			const key = classInfo.attributeId || `${classInfo.absoluteStart}`;
+
+			if (!byAttribute.has(key)) {
+				byAttribute.set(key, []);
+			}
+			byAttribute.get(key)!.push(classInfo);
+		}
+
+		// For each attribute, find duplicates
+		for (const classes of byAttribute.values()) {
+			// Group by class name first
+			const byClassName = new Map<string, ClassNameInfo[]>();
+			for (const classInfo of classes) {
+				const className = classInfo.className;
+				if (!byClassName.has(className)) {
+					byClassName.set(className, []);
+				}
+				byClassName.get(className)!.push(classInfo);
+			}
+
+			// Analyze each class that appears multiple times
+			for (const [, occurrences] of byClassName) {
+				if (occurrences.length <= 1) {
+					continue;
+				}
+
+				// Separate root-level classes from branch classes
+				const rootClasses = occurrences.filter(c => !c.conditionalBranchId);
+				const branchClasses = occurrences.filter(c => c.conditionalBranchId);
+
+				// Case 1: Class at root level AND in branches = true duplicate
+				// Mark all branch occurrences as duplicates
+				if (rootClasses.length > 0 && branchClasses.length > 0) {
+					trueDuplicates.push(...branchClasses);
+				}
+
+				// Case 2: Multiple occurrences at root level = true duplicate
+				if (rootClasses.length > 1) {
+					// Skip the first, mark rest as duplicates
+					trueDuplicates.push(...rootClasses.slice(1));
+				}
+
+				// Case 3: Same class in different branches of same ternary
+				// Check if class appears in BOTH branches of any ternary
+				if (branchClasses.length > 0 && rootClasses.length === 0) {
+					// Group by ternary ID
+					const byTernary = new Map<string, { true: ClassNameInfo[]; false: ClassNameInfo[] }>();
+
+					for (const classInfo of branchClasses) {
+						const branchId = classInfo.conditionalBranchId!;
+						// Parse: "ternary:true:123" or "ternary:false:123"
+						const match = branchId.match(/^ternary:(true|false):(\d+)$/);
+						if (match) {
+							const [, branch, ternaryId] = match;
+							if (!byTernary.has(ternaryId)) {
+								byTernary.set(ternaryId, { true: [], false: [] });
+							}
+							byTernary.get(ternaryId)![branch as 'true' | 'false'].push(classInfo);
+						}
+					}
+
+					// Check each ternary
+					for (const [, branches] of byTernary) {
+						if (branches.true.length > 0 && branches.false.length > 0) {
+							// Class appears in BOTH branches - this is extractable (hint)
+							// Mark ALL occurrences in both branches as extractable suggestions
+							// so the user sees the hint on both sides of the ternary
+							extractableClasses.push(...branches.true, ...branches.false);
+						} else {
+							// Class only in one branch - check for duplicates within that branch
+							if (branches.true.length > 1) {
+								trueDuplicates.push(...branches.true.slice(1));
+							}
+							if (branches.false.length > 1) {
+								trueDuplicates.push(...branches.false.slice(1));
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return { trueDuplicates, extractableClasses };
 	}
 }

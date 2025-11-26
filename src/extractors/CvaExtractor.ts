@@ -159,15 +159,18 @@ export class CvaExtractor extends BaseExtractor {
 			return [];
 		}
 
+		// Generate unique attributeId for duplicate detection within this cva() call
+		const attributeId = `cva:${callExpression.getStart()}-${callExpression.getEnd()}`;
+
 		// First argument: base classes (array or string)
 		const baseArg = callExpression.arguments[0];
-		classNames.push(...this.extractFromValue(baseArg, context));
+		classNames.push(...this.extractFromValue(baseArg, context, attributeId));
 
 		// Second argument: config object (optional)
 		if (callExpression.arguments.length > 1) {
 			const configArg = callExpression.arguments[1];
 			if (context.typescript.isObjectLiteralExpression(configArg)) {
-				classNames.push(...this.extractFromCvaConfig(configArg, context));
+				classNames.push(...this.extractFromCvaConfig(configArg, context, attributeId));
 			}
 		}
 
@@ -179,7 +182,8 @@ export class CvaExtractor extends BaseExtractor {
 	 */
 	private extractFromCvaConfig(
 		config: ts.ObjectLiteralExpression,
-		context: ExtractionContext
+		context: ExtractionContext,
+		attributeId?: string
 	): ClassNameInfo[] {
 		const classNames: ClassNameInfo[] = [];
 
@@ -197,12 +201,14 @@ export class CvaExtractor extends BaseExtractor {
 			switch (propertyName) {
 				case 'variants':
 					// variants: { intent: { primary: [...], secondary: [...] } }
-					classNames.push(...this.extractFromVariants(property.initializer, context));
+					classNames.push(...this.extractFromVariants(property.initializer, context, attributeId));
 					break;
 
 				case 'compoundVariants':
 					// compoundVariants: [{ intent: 'primary', class: '...' }]
-					classNames.push(...this.extractFromCompoundVariants(property.initializer, context));
+					classNames.push(
+						...this.extractFromCompoundVariants(property.initializer, context, attributeId)
+					);
 					break;
 
 				case 'defaultVariants':
@@ -211,7 +217,7 @@ export class CvaExtractor extends BaseExtractor {
 
 				default:
 					// Other properties might contain classes, try to extract
-					classNames.push(...this.extractFromValue(property.initializer, context));
+					classNames.push(...this.extractFromValue(property.initializer, context, attributeId));
 					break;
 			}
 		}
@@ -223,7 +229,11 @@ export class CvaExtractor extends BaseExtractor {
 	 * Extract class names from the variants object
 	 * Structure: { variantName: { optionName: 'classes' | ['classes'] | null } }
 	 */
-	private extractFromVariants(node: ts.Expression, context: ExtractionContext): ClassNameInfo[] {
+	private extractFromVariants(
+		node: ts.Expression,
+		context: ExtractionContext,
+		attributeId?: string
+	): ClassNameInfo[] {
 		if (!context.typescript.isObjectLiteralExpression(node)) {
 			return [];
 		}
@@ -255,7 +265,7 @@ export class CvaExtractor extends BaseExtractor {
 						continue;
 					}
 
-					classNames.push(...this.extractFromValue(value, context));
+					classNames.push(...this.extractFromValue(value, context, attributeId));
 				}
 			}
 		}
@@ -269,7 +279,8 @@ export class CvaExtractor extends BaseExtractor {
 	 */
 	private extractFromCompoundVariants(
 		node: ts.Expression,
-		context: ExtractionContext
+		context: ExtractionContext,
+		attributeId?: string
 	): ClassNameInfo[] {
 		if (!context.typescript.isArrayLiteralExpression(node)) {
 			return [];
@@ -291,7 +302,7 @@ export class CvaExtractor extends BaseExtractor {
 
 				const propName = this.getPropertyName(prop, context);
 				if (propName === 'class' || propName === 'className') {
-					classNames.push(...this.extractFromValue(prop.initializer, context));
+					classNames.push(...this.extractFromValue(prop.initializer, context, attributeId));
 				}
 			}
 		}
@@ -303,20 +314,27 @@ export class CvaExtractor extends BaseExtractor {
 	 * Extract class names from any expression value
 	 * Handles: strings, arrays, template literals, variable references
 	 */
-	private extractFromValue(node: ts.Expression, context: ExtractionContext): ClassNameInfo[] {
+	private extractFromValue(
+		node: ts.Expression,
+		context: ExtractionContext,
+		attributeId?: string
+	): ClassNameInfo[] {
 		// String literal: 'flex items-center'
 		if (context.typescript.isStringLiteral(node)) {
-			return this.extractFromStringLiteral(node, context);
+			const extracted = this.extractFromStringLiteral(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// No-substitution template literal: `flex items-center`
 		if (context.typescript.isNoSubstitutionTemplateLiteral(node)) {
-			return this.extractFromStringLiteral(node, context);
+			const extracted = this.extractFromStringLiteral(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// Identifier (variable reference): base: myBaseClasses
 		if (context.typescript.isIdentifier(node)) {
-			return this.variableExtractor.extractFromIdentifier(node, context);
+			const extracted = this.variableExtractor.extractFromIdentifier(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// Array: ['flex', 'items-center', myVar]
@@ -324,15 +342,19 @@ export class CvaExtractor extends BaseExtractor {
 			const classNames: ClassNameInfo[] = [];
 			for (const element of node.elements) {
 				if (context.typescript.isStringLiteral(element)) {
-					classNames.push(...this.extractFromStringLiteral(element, context));
+					const extracted = this.extractFromStringLiteral(element, context);
+					classNames.push(...(attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted));
 				} else if (context.typescript.isIdentifier(element)) {
 					// Handle variable references in arrays
-					classNames.push(...this.variableExtractor.extractFromIdentifier(element, context));
+					const extracted = this.variableExtractor.extractFromIdentifier(element, context);
+					classNames.push(...(attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted));
 				} else if (context.typescript.isExpression(element as ts.Expression)) {
 					// Handle complex expressions in arrays (ternary, binary, etc.)
-					classNames.push(
-						...this.expressionExtractor.extractFromExpression(element as ts.Expression, context)
+					const extracted = this.expressionExtractor.extractFromExpression(
+						element as ts.Expression,
+						context
 					);
+					classNames.push(...(attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted));
 				}
 			}
 			return classNames;
@@ -357,7 +379,8 @@ export class CvaExtractor extends BaseExtractor {
 							absoluteStart: headStart + offset,
 							length: className.length,
 							line: lineNumber,
-							file: context.sourceFile.fileName
+							file: context.sourceFile.fileName,
+							attributeId
 						});
 					}
 					offset += className.length + 1;
@@ -378,7 +401,8 @@ export class CvaExtractor extends BaseExtractor {
 								absoluteStart: spanStart + offset,
 								length: className.length,
 								line: lineNumber,
-								file: context.sourceFile.fileName
+								file: context.sourceFile.fileName,
+								attributeId
 							});
 						}
 						offset += className.length + 1;
@@ -390,32 +414,38 @@ export class CvaExtractor extends BaseExtractor {
 
 		// Handle ternary expressions: condition ? 'class1' : 'class2'
 		if (context.typescript.isConditionalExpression(node)) {
-			return this.expressionExtractor.extractFromExpression(node, context);
+			const extracted = this.expressionExtractor.extractFromExpression(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// Handle binary expressions: condition && 'class-name'
 		if (context.typescript.isBinaryExpression(node)) {
-			return this.expressionExtractor.extractFromExpression(node, context);
+			const extracted = this.expressionExtractor.extractFromExpression(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// Handle parenthesized expressions: ('class-name')
 		if (context.typescript.isParenthesizedExpression(node)) {
-			return this.expressionExtractor.extractFromExpression(node, context);
+			const extracted = this.expressionExtractor.extractFromExpression(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// Handle type assertions: ('class-name' as string)
 		if (context.typescript.isAsExpression(node)) {
-			return this.expressionExtractor.extractFromExpression(node, context);
+			const extracted = this.expressionExtractor.extractFromExpression(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// Handle non-null assertions: expr!
 		if (context.typescript.isNonNullExpression(node)) {
-			return this.expressionExtractor.extractFromExpression(node, context);
+			const extracted = this.expressionExtractor.extractFromExpression(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// Handle type assertions with angle brackets: <string>'class-name'
 		if (context.typescript.isTypeAssertionExpression(node)) {
-			return this.expressionExtractor.extractFromExpression(node, context);
+			const extracted = this.expressionExtractor.extractFromExpression(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		return [];
@@ -530,6 +560,8 @@ export class CvaExtractor extends BaseExtractor {
 			return [];
 		}
 
+		// Generate unique attributeId for duplicate detection within this cva function call
+		const attributeId = `cva-call:${callExpression.getStart()}-${callExpression.getEnd()}`;
 		const classNames: ClassNameInfo[] = [];
 
 		// Look for 'class' or 'className' properties
@@ -541,7 +573,7 @@ export class CvaExtractor extends BaseExtractor {
 			const propName = this.getPropertyName(property, context);
 			if (propName === 'class' || propName === 'className') {
 				// Extract classes from the value
-				classNames.push(...this.extractFromValue(property.initializer, context));
+				classNames.push(...this.extractFromValue(property.initializer, context, attributeId));
 			}
 		}
 

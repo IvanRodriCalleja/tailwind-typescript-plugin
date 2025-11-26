@@ -63,8 +63,11 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 				return [];
 			}
 
+			// Generate unique attributeId for duplicate detection within this tv() call
+			const attributeId = `tv:${callExpression.getStart()}-${callExpression.getEnd()}`;
+
 			// Extract class names from the tv() configuration object
-			return this.extractFromTvConfig(configArg, context);
+			return this.extractFromTvConfig(configArg, context, attributeId);
 		}
 
 		// Check if this is a call to a function created by tv() (e.g., button({ class: '...' }))
@@ -167,7 +170,8 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 	 */
 	private extractFromTvConfig(
 		config: ts.ObjectLiteralExpression,
-		context: ExtractionContext
+		context: ExtractionContext,
+		attributeId?: string
 	): ClassNameInfo[] {
 		const classNames: ClassNameInfo[] = [];
 
@@ -185,22 +189,24 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 			switch (propertyName) {
 				case 'base':
 					// base: 'flex items-center' or base: ['flex', 'items-center']
-					classNames.push(...this.extractFromValue(property.initializer, context));
+					classNames.push(...this.extractFromValue(property.initializer, context, attributeId));
 					break;
 
 				case 'variants':
 					// variants: { size: { sm: 'text-sm', lg: 'text-lg' } }
-					classNames.push(...this.extractFromVariants(property.initializer, context));
+					classNames.push(...this.extractFromVariants(property.initializer, context, attributeId));
 					break;
 
 				case 'compoundVariants':
 					// compoundVariants: [{ size: 'sm', color: 'primary', class: 'font-bold' }]
-					classNames.push(...this.extractFromCompoundVariants(property.initializer, context));
+					classNames.push(
+						...this.extractFromCompoundVariants(property.initializer, context, attributeId)
+					);
 					break;
 
 				case 'slots':
 					// slots: { base: 'flex', item: 'p-2' }
-					classNames.push(...this.extractFromSlots(property.initializer, context));
+					classNames.push(...this.extractFromSlots(property.initializer, context, attributeId));
 					break;
 
 				case 'defaultVariants':
@@ -209,7 +215,7 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 
 				default:
 					// Other properties might contain classes, try to extract
-					classNames.push(...this.extractFromValue(property.initializer, context));
+					classNames.push(...this.extractFromValue(property.initializer, context, attributeId));
 					break;
 			}
 		}
@@ -221,7 +227,11 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 	 * Extract class names from the variants object
 	 * Structure: { variantName: { optionName: 'classes' } }
 	 */
-	private extractFromVariants(node: ts.Expression, context: ExtractionContext): ClassNameInfo[] {
+	private extractFromVariants(
+		node: ts.Expression,
+		context: ExtractionContext,
+		attributeId?: string
+	): ClassNameInfo[] {
 		if (!context.typescript.isObjectLiteralExpression(node)) {
 			return [];
 		}
@@ -243,7 +253,7 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 					}
 
 					// Extract classes from the option value
-					classNames.push(...this.extractFromValue(optionProp.initializer, context));
+					classNames.push(...this.extractFromValue(optionProp.initializer, context, attributeId));
 				}
 			}
 		}
@@ -257,7 +267,8 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 	 */
 	private extractFromCompoundVariants(
 		node: ts.Expression,
-		context: ExtractionContext
+		context: ExtractionContext,
+		attributeId?: string
 	): ClassNameInfo[] {
 		if (!context.typescript.isArrayLiteralExpression(node)) {
 			return [];
@@ -279,7 +290,7 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 
 				const propName = this.getPropertyName(prop, context);
 				if (propName === 'class' || propName === 'className') {
-					classNames.push(...this.extractFromValue(prop.initializer, context));
+					classNames.push(...this.extractFromValue(prop.initializer, context, attributeId));
 				}
 			}
 		}
@@ -291,7 +302,11 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 	 * Extract class names from slots object
 	 * Structure: { slotName: 'classes' } or { slotName: { base: 'classes', variants: {...} } }
 	 */
-	private extractFromSlots(node: ts.Expression, context: ExtractionContext): ClassNameInfo[] {
+	private extractFromSlots(
+		node: ts.Expression,
+		context: ExtractionContext,
+		attributeId?: string
+	): ClassNameInfo[] {
 		if (!context.typescript.isObjectLiteralExpression(node)) {
 			return [];
 		}
@@ -307,15 +322,16 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 
 			// If slot value is a string, extract classes
 			if (context.typescript.isStringLiteral(slotValue)) {
-				classNames.push(...this.extractFromStringLiteral(slotValue, context));
+				const extracted = this.extractFromStringLiteral(slotValue, context);
+				classNames.push(...(attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted));
 			}
 			// If slot value is an object with base/variants, recurse
 			else if (context.typescript.isObjectLiteralExpression(slotValue)) {
-				classNames.push(...this.extractFromTvConfig(slotValue, context));
+				classNames.push(...this.extractFromTvConfig(slotValue, context, attributeId));
 			}
 			// Handle arrays and other expressions
 			else {
-				classNames.push(...this.extractFromValue(slotValue, context));
+				classNames.push(...this.extractFromValue(slotValue, context, attributeId));
 			}
 		}
 
@@ -325,20 +341,27 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 	/**
 	 * Extract class names from any expression value
 	 */
-	private extractFromValue(node: ts.Expression, context: ExtractionContext): ClassNameInfo[] {
+	private extractFromValue(
+		node: ts.Expression,
+		context: ExtractionContext,
+		attributeId?: string
+	): ClassNameInfo[] {
 		// String literal: 'flex items-center'
 		if (context.typescript.isStringLiteral(node)) {
-			return this.extractFromStringLiteral(node, context);
+			const extracted = this.extractFromStringLiteral(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// No-substitution template literal: `flex items-center`
 		if (context.typescript.isNoSubstitutionTemplateLiteral(node)) {
-			return this.extractFromStringLiteral(node, context);
+			const extracted = this.extractFromStringLiteral(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// Identifier (variable reference): base: myBaseClasses
 		if (context.typescript.isIdentifier(node)) {
-			return this.variableExtractor.extractFromIdentifier(node, context);
+			const extracted = this.variableExtractor.extractFromIdentifier(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// Array: ['flex', 'items-center', myVar]
@@ -346,15 +369,19 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 			const classNames: ClassNameInfo[] = [];
 			for (const element of node.elements) {
 				if (context.typescript.isStringLiteral(element)) {
-					classNames.push(...this.extractFromStringLiteral(element, context));
+					const extracted = this.extractFromStringLiteral(element, context);
+					classNames.push(...(attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted));
 				} else if (context.typescript.isIdentifier(element)) {
 					// Handle variable references in arrays
-					classNames.push(...this.variableExtractor.extractFromIdentifier(element, context));
+					const extracted = this.variableExtractor.extractFromIdentifier(element, context);
+					classNames.push(...(attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted));
 				} else if (context.typescript.isExpression(element as ts.Expression)) {
 					// Handle complex expressions in arrays (ternary, binary, etc.)
-					classNames.push(
-						...this.expressionExtractor.extractFromExpression(element as ts.Expression, context)
+					const extracted = this.expressionExtractor.extractFromExpression(
+						element as ts.Expression,
+						context
 					);
+					classNames.push(...(attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted));
 				}
 			}
 			return classNames;
@@ -379,7 +406,8 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 							absoluteStart: headStart + offset,
 							length: className.length,
 							line: lineNumber,
-							file: context.sourceFile.fileName
+							file: context.sourceFile.fileName,
+							attributeId
 						});
 					}
 					offset += className.length + 1;
@@ -400,7 +428,8 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 								absoluteStart: spanStart + offset,
 								length: className.length,
 								line: lineNumber,
-								file: context.sourceFile.fileName
+								file: context.sourceFile.fileName,
+								attributeId
 							});
 						}
 						offset += className.length + 1;
@@ -412,32 +441,38 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 
 		// Handle ternary expressions: condition ? 'class1' : 'class2'
 		if (context.typescript.isConditionalExpression(node)) {
-			return this.expressionExtractor.extractFromExpression(node, context);
+			const extracted = this.expressionExtractor.extractFromExpression(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// Handle binary expressions: condition && 'class-name'
 		if (context.typescript.isBinaryExpression(node)) {
-			return this.expressionExtractor.extractFromExpression(node, context);
+			const extracted = this.expressionExtractor.extractFromExpression(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// Handle parenthesized expressions: ('class-name')
 		if (context.typescript.isParenthesizedExpression(node)) {
-			return this.expressionExtractor.extractFromExpression(node, context);
+			const extracted = this.expressionExtractor.extractFromExpression(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// Handle type assertions: ('class-name' as string)
 		if (context.typescript.isAsExpression(node)) {
-			return this.expressionExtractor.extractFromExpression(node, context);
+			const extracted = this.expressionExtractor.extractFromExpression(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// Handle non-null assertions: expr!
 		if (context.typescript.isNonNullExpression(node)) {
-			return this.expressionExtractor.extractFromExpression(node, context);
+			const extracted = this.expressionExtractor.extractFromExpression(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		// Handle type assertions with angle brackets: <string>'class-name'
 		if (context.typescript.isTypeAssertionExpression(node)) {
-			return this.expressionExtractor.extractFromExpression(node, context);
+			const extracted = this.expressionExtractor.extractFromExpression(node, context);
+			return attributeId ? extracted.map(c => ({ ...c, attributeId })) : extracted;
 		}
 
 		return [];
@@ -577,6 +612,8 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 			return [];
 		}
 
+		// Generate unique attributeId for duplicate detection within this tv function call
+		const attributeId = `tv-call:${callExpression.getStart()}-${callExpression.getEnd()}`;
 		const classNames: ClassNameInfo[] = [];
 
 		// Look for 'class' or 'className' properties
@@ -588,7 +625,7 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 			const propName = this.getPropertyName(property, context);
 			if (propName === 'class' || propName === 'className') {
 				// Extract classes from the value
-				classNames.push(...this.extractFromValue(property.initializer, context));
+				classNames.push(...this.extractFromValue(property.initializer, context, attributeId));
 			}
 		}
 

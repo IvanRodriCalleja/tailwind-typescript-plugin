@@ -82,11 +82,13 @@ export class VariableReferenceExtractor extends BaseExtractor {
 	/**
 	 * Extract class names from an initializer expression
 	 * Reports errors at the declaration position (where the string literal is)
+	 * @param conditionalBranchId - Identifies which conditional branch this expression is in
 	 */
 	private extractFromInitializer(
 		initializer: ts.Expression,
 		variableUsage: { variableName: string; usageLine: number },
-		context: ExtractionContext
+		context: ExtractionContext,
+		conditionalBranchId?: string
 	): ClassNameInfo[] {
 		const { typescript } = context;
 		const classNames: ClassNameInfo[] = [];
@@ -94,20 +96,44 @@ export class VariableReferenceExtractor extends BaseExtractor {
 		// Handle string literals: const foo = 'bg-blue-500'
 		if (typescript.isStringLiteral(initializer)) {
 			classNames.push(
-				...this.extractFromStringLiteralWithUsage(initializer, variableUsage, context)
+				...this.extractFromStringLiteralWithUsage(
+					initializer,
+					variableUsage,
+					context,
+					conditionalBranchId
+				)
 			);
 		}
 		// Handle no-substitution template literals: const foo = `bg-blue-500`
 		else if (typescript.isNoSubstitutionTemplateLiteral(initializer)) {
 			classNames.push(
-				...this.extractFromStringLiteralWithUsage(initializer, variableUsage, context)
+				...this.extractFromStringLiteralWithUsage(
+					initializer,
+					variableUsage,
+					context,
+					conditionalBranchId
+				)
 			);
 		}
 		// Handle conditional expressions: const foo = condition ? 'bg-blue-500' : 'bg-gray-500'
 		else if (typescript.isConditionalExpression(initializer)) {
-			classNames.push(...this.extractFromInitializer(initializer.whenTrue, variableUsage, context));
+			// Use the ternary's position as a unique identifier
+			const ternaryId = initializer.getStart();
 			classNames.push(
-				...this.extractFromInitializer(initializer.whenFalse, variableUsage, context)
+				...this.extractFromInitializer(
+					initializer.whenTrue,
+					variableUsage,
+					context,
+					`ternary:true:${ternaryId}`
+				)
+			);
+			classNames.push(
+				...this.extractFromInitializer(
+					initializer.whenFalse,
+					variableUsage,
+					context,
+					`ternary:false:${ternaryId}`
+				)
 			);
 		}
 		// Handle binary expressions: const foo = condition && 'bg-blue-500'
@@ -116,19 +142,36 @@ export class VariableReferenceExtractor extends BaseExtractor {
 				initializer.operatorToken.kind === typescript.SyntaxKind.AmpersandAmpersandToken ||
 				initializer.operatorToken.kind === typescript.SyntaxKind.BarBarToken
 			) {
-				classNames.push(...this.extractFromInitializer(initializer.right, variableUsage, context));
+				classNames.push(
+					...this.extractFromInitializer(
+						initializer.right,
+						variableUsage,
+						context,
+						conditionalBranchId
+					)
+				);
 			}
 		}
 		// Handle parenthesized expressions: const foo = ('bg-blue-500')
 		else if (typescript.isParenthesizedExpression(initializer)) {
 			classNames.push(
-				...this.extractFromInitializer(initializer.expression, variableUsage, context)
+				...this.extractFromInitializer(
+					initializer.expression,
+					variableUsage,
+					context,
+					conditionalBranchId
+				)
 			);
 		}
 		// Handle type assertions: const foo = 'bg-blue-500' as const
 		else if (typescript.isAsExpression(initializer)) {
 			classNames.push(
-				...this.extractFromInitializer(initializer.expression, variableUsage, context)
+				...this.extractFromInitializer(
+					initializer.expression,
+					variableUsage,
+					context,
+					conditionalBranchId
+				)
 			);
 		}
 		// Handle template expressions with interpolation - extract static parts only
@@ -139,7 +182,14 @@ export class VariableReferenceExtractor extends BaseExtractor {
 				const headStart = initializer.head.getStart() + 1; // +1 for opening backtick
 				const headLine = context.sourceFile.getLineAndCharacterOfPosition(headStart).line + 1;
 				classNames.push(
-					...this.extractClassNamesFromText(headText, headStart, headLine, variableUsage, context)
+					...this.extractClassNamesFromText(
+						headText,
+						headStart,
+						headLine,
+						variableUsage,
+						context,
+						conditionalBranchId
+					)
 				);
 			}
 			// Extract from template spans (parts between and after interpolations)
@@ -149,7 +199,14 @@ export class VariableReferenceExtractor extends BaseExtractor {
 					const spanStart = span.literal.getStart() + 1;
 					const spanLine = context.sourceFile.getLineAndCharacterOfPosition(spanStart).line + 1;
 					classNames.push(
-						...this.extractClassNamesFromText(spanText, spanStart, spanLine, variableUsage, context)
+						...this.extractClassNamesFromText(
+							spanText,
+							spanStart,
+							spanLine,
+							variableUsage,
+							context,
+							conditionalBranchId
+						)
 					);
 				}
 			}
@@ -165,7 +222,8 @@ export class VariableReferenceExtractor extends BaseExtractor {
 	private extractFromStringLiteralWithUsage(
 		literal: ts.StringLiteral | ts.NoSubstitutionTemplateLiteral,
 		variableUsage: { variableName: string; usageLine: number },
-		context: ExtractionContext
+		context: ExtractionContext,
+		conditionalBranchId?: string
 	): ClassNameInfo[] {
 		const classNames: ClassNameInfo[] = [];
 		const fullText = literal.text;
@@ -184,7 +242,8 @@ export class VariableReferenceExtractor extends BaseExtractor {
 					line:
 						context.sourceFile.getLineAndCharacterOfPosition(stringContentStart + offset).line + 1,
 					file: context.sourceFile.fileName,
-					variableUsage
+					variableUsage,
+					conditionalBranchId
 				});
 			}
 			offset += part.length;
@@ -201,7 +260,8 @@ export class VariableReferenceExtractor extends BaseExtractor {
 		startPosition: number,
 		line: number,
 		variableUsage: { variableName: string; usageLine: number },
-		context: ExtractionContext
+		context: ExtractionContext,
+		conditionalBranchId?: string
 	): ClassNameInfo[] {
 		const classNames: ClassNameInfo[] = [];
 		let offset = 0;
@@ -216,7 +276,8 @@ export class VariableReferenceExtractor extends BaseExtractor {
 					length: part.length,
 					line,
 					file: context.sourceFile.fileName,
-					variableUsage
+					variableUsage,
+					conditionalBranchId
 				});
 			}
 			offset += part.length;

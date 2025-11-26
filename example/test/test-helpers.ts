@@ -4,6 +4,10 @@ import path from 'path';
 
 import pluginFactory from '../../src/index';
 
+// Diagnostic codes from DiagnosticService
+const TAILWIND_DIAGNOSTIC_CODE = 90001;
+const TAILWIND_DUPLICATE_CODE = 90002;
+
 export interface ElementExpectation {
 	elementId: number;
 	description?: string;
@@ -392,15 +396,22 @@ export function createTestAssertion(
 		testCase.functionName
 	);
 
-	if (testCase.shouldBeValid) {
-		// Valid cases should have NO tw-plugin errors
-		expect(functionDiagnostics).toHaveLength(0);
-	} else {
-		// Invalid cases should have at least one tw-plugin error
-		expect(functionDiagnostics.length).toBeGreaterThan(0);
+	// Filter to only invalid class errors (not duplicate warnings)
+	// Duplicate warnings (code 90002) are tested separately in duplicate-classes.spec.tsx
+	const invalidClassDiagnostics = functionDiagnostics.filter(
+		d => d.code === TAILWIND_DIAGNOSTIC_CODE
+	);
 
-		// Extract all error texts from diagnostics
-		const errorTexts = functionDiagnostics.map(d => getTextAtDiagnostic(d, sourceCode));
+	if (testCase.shouldBeValid) {
+		// Valid cases should have NO tw-plugin invalid class errors
+		// Note: We don't check for duplicate warnings here as they're not "invalid" classes
+		expect(invalidClassDiagnostics).toHaveLength(0);
+	} else {
+		// Invalid cases should have at least one tw-plugin invalid class error
+		expect(invalidClassDiagnostics.length).toBeGreaterThan(0);
+
+		// Extract all error texts from invalid class diagnostics only
+		const errorTexts = invalidClassDiagnostics.map(d => getTextAtDiagnostic(d, sourceCode));
 
 		// Check if we have element-level expectations
 		if (testCase.elementExpectations.length > 0) {
@@ -452,8 +463,8 @@ export function createTestAssertion(
 			});
 		}
 
-		// Verify each diagnostic
-		functionDiagnostics.forEach(diagnostic => {
+		// Verify each invalid class diagnostic (not duplicate warnings)
+		invalidClassDiagnostics.forEach(diagnostic => {
 			// 1. Verify the error message format
 			expect(typeof diagnostic.messageText).toBe('string');
 			if (typeof diagnostic.messageText === 'string') {
