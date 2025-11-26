@@ -18,7 +18,14 @@ export interface ConflictInfo {
  */
 const CONFLICT_GROUPS: Record<string, string[]> = {
 	// Text alignment
-	'text-align': ['text-left', 'text-center', 'text-right', 'text-justify', 'text-start', 'text-end'],
+	'text-align': [
+		'text-left',
+		'text-center',
+		'text-right',
+		'text-justify',
+		'text-start',
+		'text-end'
+	],
 
 	// Display
 	display: [
@@ -149,10 +156,22 @@ const CONFLICT_GROUPS: Record<string, string[]> = {
 	clear: ['clear-start', 'clear-end', 'clear-left', 'clear-right', 'clear-both', 'clear-none'],
 
 	// Object fit
-	'object-fit': ['object-contain', 'object-cover', 'object-fill', 'object-none', 'object-scale-down'],
+	'object-fit': [
+		'object-contain',
+		'object-cover',
+		'object-fill',
+		'object-none',
+		'object-scale-down'
+	],
 
 	// Overflow
-	overflow: ['overflow-auto', 'overflow-hidden', 'overflow-clip', 'overflow-visible', 'overflow-scroll'],
+	overflow: [
+		'overflow-auto',
+		'overflow-hidden',
+		'overflow-clip',
+		'overflow-visible',
+		'overflow-scroll'
+	],
 	'overflow-x': [
 		'overflow-x-auto',
 		'overflow-x-hidden',
@@ -294,7 +313,13 @@ const CONFLICT_GROUPS: Record<string, string[]> = {
 	],
 
 	// Outline style
-	'outline-style': ['outline-none', 'outline', 'outline-dashed', 'outline-dotted', 'outline-double'],
+	'outline-style': [
+		'outline-none',
+		'outline',
+		'outline-dashed',
+		'outline-dotted',
+		'outline-double'
+	],
 
 	// Font style
 	'font-style': ['italic', 'not-italic'],
@@ -375,7 +400,12 @@ const CONFLICT_GROUPS: Record<string, string[]> = {
 	'pointer-events': ['pointer-events-none', 'pointer-events-auto'],
 
 	// Will change
-	'will-change': ['will-change-auto', 'will-change-scroll', 'will-change-contents', 'will-change-transform'],
+	'will-change': [
+		'will-change-auto',
+		'will-change-scroll',
+		'will-change-contents',
+		'will-change-transform'
+	],
 
 	// Appearance
 	appearance: ['appearance-none', 'appearance-auto'],
@@ -641,7 +671,9 @@ export class TailwindConflictDetector {
 			const group = key.split(':')[0];
 
 			// Get unique base class names in this conflict (without prefix)
-			const uniqueBaseClassNames = [...new Set(groupClasses.map(c => this.extractBaseClass(c.className)))];
+			const uniqueBaseClassNames = [
+				...new Set(groupClasses.map(c => this.extractBaseClass(c.className)))
+			];
 			if (uniqueBaseClassNames.length <= 1) continue; // Same class repeated, not a conflict (handled by duplicate detection)
 
 			// Mark ALL classes in the conflict group as conflicting

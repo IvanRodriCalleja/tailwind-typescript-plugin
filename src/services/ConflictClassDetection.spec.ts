@@ -207,7 +207,9 @@ describe('Conflicting Class Detection', () => {
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
-			expect(conflicts.every(c => (c.messageText as string).includes('justify-content'))).toBe(true);
+			expect(conflicts.every(c => (c.messageText as string).includes('justify-content'))).toBe(
+				true
+			);
 		});
 	});
 
@@ -305,8 +307,7 @@ describe('Conflicting Class Detection', () => {
 	describe('ternary conditional expressions', () => {
 		it('should NOT flag conflicts in different ternary branches', () => {
 			// text-left in true branch, text-center in false branch = no conflict (mutually exclusive)
-			const sourceCode =
-				"<div className={isActive ? 'text-left' : 'text-center'}>Hello</div>";
+			const sourceCode = "<div className={isActive ? 'text-left' : 'text-center'}>Hello</div>";
 			const sourceFile = ts.createSourceFile(
 				'test.tsx',
 				sourceCode,
@@ -360,8 +361,7 @@ describe('Conflicting Class Detection', () => {
 
 	describe('utility function calls', () => {
 		it('should detect conflicts in clsx arguments (both flagged)', () => {
-			const sourceCode =
-				"<div className={clsx('flex', 'block', 'items-center')}>Hello</div>";
+			const sourceCode = "<div className={clsx('flex', 'block', 'items-center')}>Hello</div>";
 			const sourceFile = ts.createSourceFile(
 				'test.tsx',
 				sourceCode,
@@ -377,8 +377,7 @@ describe('Conflicting Class Detection', () => {
 		});
 
 		it('should detect conflicts in cn function (both flagged)', () => {
-			const sourceCode =
-				"<div className={cn('text-left text-right')}>Hello</div>";
+			const sourceCode = "<div className={cn('text-left text-right')}>Hello</div>";
 			const sourceFile = ts.createSourceFile(
 				'test.tsx',
 				sourceCode,
@@ -522,9 +521,15 @@ describe('Conflicting Class Detection', () => {
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
 			// One should say flex conflicts with grid, other says grid conflicts with flex
-			expect(conflicts.some(c => (c.messageText as string).includes('"flex" conflicts with "grid"'))).toBe(true);
-			expect(conflicts.some(c => (c.messageText as string).includes('"grid" conflicts with "flex"'))).toBe(true);
-			expect(conflicts.every(c => (c.messageText as string).includes('display property'))).toBe(true);
+			expect(
+				conflicts.some(c => (c.messageText as string).includes('"flex" conflicts with "grid"'))
+			).toBe(true);
+			expect(
+				conflicts.some(c => (c.messageText as string).includes('"grid" conflicts with "flex"'))
+			).toBe(true);
+			expect(conflicts.every(c => (c.messageText as string).includes('display property'))).toBe(
+				true
+			);
 		});
 
 		it('should have source set to tw-plugin', () => {

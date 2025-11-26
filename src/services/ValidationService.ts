@@ -70,7 +70,10 @@ export class ValidationService {
 		// PERFORMANCE: Only log if enabled
 		if (this.logger.isEnabled()) {
 			const totalIssues =
-				invalidClasses.length + trueDuplicates.length + extractableClasses.length + conflicts.length;
+				invalidClasses.length +
+				trueDuplicates.length +
+				extractableClasses.length +
+				conflicts.length;
 			if (totalIssues > 0) {
 				this.logger.log(
 					`[ValidationService] Returning ${invalidClasses.length} invalid + ${trueDuplicates.length} duplicate + ${extractableClasses.length} extractable + ${conflicts.length} conflict diagnostics`
@@ -99,9 +102,7 @@ export class ValidationService {
 		}
 
 		if (conflicts.length > 0) {
-			diagnostics.push(
-				...this.diagnosticService.createConflictDiagnostics(conflicts, sourceFile)
-			);
+			diagnostics.push(...this.diagnosticService.createConflictDiagnostics(conflicts, sourceFile));
 		}
 
 		return diagnostics;
