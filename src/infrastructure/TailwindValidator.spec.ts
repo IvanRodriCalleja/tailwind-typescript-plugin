@@ -476,7 +476,11 @@ describe('TailwindValidator', () => {
 			await reloadValidator.initialize();
 
 			// Before reload: custom-valid should be invalid
-			let invalidClasses = reloadValidator.getInvalidClasses(['flex', 'custom-valid', 'items-center']);
+			let invalidClasses = reloadValidator.getInvalidClasses([
+				'flex',
+				'custom-valid',
+				'items-center'
+			]);
 			expect(invalidClasses).toContain('custom-valid');
 
 			// Add custom utility

@@ -168,6 +168,7 @@ export class TailwindTypescriptPlugin {
 				// Notify TypeScript that the project has changed to trigger re-validation
 				try {
 					// Use 'any' to access internal APIs that aren't in the public type definitions
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					const project = info.project as any;
 
 					// Mark project as dirty - this is the most reliable way to trigger updates
@@ -184,10 +185,14 @@ export class TailwindTypescriptPlugin {
 
 					// Access the project service to trigger diagnostic refresh
 					// This is the internal API that actually notifies the editor
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					const projectService = (project as any).projectService;
 					if (projectService) {
 						// This method triggers the editor to re-request diagnostics
-						if (typeof projectService.delayUpdateProjectGraphAndEnsureProjectStructureForOpenFiles === 'function') {
+						if (
+							typeof projectService.delayUpdateProjectGraphAndEnsureProjectStructureForOpenFiles ===
+							'function'
+						) {
 							projectService.delayUpdateProjectGraphAndEnsureProjectStructureForOpenFiles();
 							this.logger.log('[CSSWatcher] Triggered delayed project update');
 						}
@@ -200,7 +205,9 @@ export class TailwindTypescriptPlugin {
 					}
 
 					// Try refreshDiagnostics if available (may work in some TS versions)
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					if (project && typeof (project as any).refreshDiagnostics === 'function') {
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 						(project as any).refreshDiagnostics();
 						this.logger.log('[CSSWatcher] Called refreshDiagnostics');
 					}
