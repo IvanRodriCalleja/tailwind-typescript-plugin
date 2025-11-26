@@ -17,6 +17,20 @@ export interface ClassNameInfo {
 		variableName: string;
 		usageLine: number;
 	};
+	/**
+	 * Unique identifier for the className attribute/context this class belongs to.
+	 * Used for duplicate detection - duplicates are only flagged within the same attribute.
+	 * Format: "start:end" of the parent attribute node.
+	 */
+	attributeId?: string;
+	/**
+	 * Identifies which conditional branch this class belongs to.
+	 * - undefined or 'root': Class is at root level (always applied)
+	 * - 'ternary:true:N': Class is in the true branch of ternary N
+	 * - 'ternary:false:N': Class is in the false branch of ternary N
+	 * Used to distinguish true duplicates from classes repeated in mutually exclusive branches.
+	 */
+	conditionalBranchId?: string;
 }
 
 /**

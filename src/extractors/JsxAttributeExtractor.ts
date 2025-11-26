@@ -62,6 +62,9 @@ export class JsxAttributeExtractor extends BaseExtractor {
 				continue;
 			}
 
+			// Generate unique attributeId for duplicate detection
+			const attributeId = `${attr.getStart()}-${attr.getEnd()}`;
+
 			// FAST PATH: String literal (most common case ~70%)
 			// Inline this hot path to avoid function call overhead
 			if (context.typescript.isStringLiteral(initializer)) {
@@ -87,7 +90,8 @@ export class JsxAttributeExtractor extends BaseExtractor {
 							line:
 								context.sourceFile.getLineAndCharacterOfPosition(stringContentStart + offset).line +
 								1,
-							file: context.sourceFile.fileName
+							file: context.sourceFile.fileName,
+							attributeId
 						});
 					}
 					offset += part.length;
@@ -103,17 +107,23 @@ export class JsxAttributeExtractor extends BaseExtractor {
 					continue;
 				}
 
+				// Helper to add attributeId to extracted classes
+				const addAttributeId = (classes: ClassNameInfo[]): ClassNameInfo[] =>
+					classes.map(c => ({ ...c, attributeId }));
+
 				// OPTIMIZATION: Check type before delegating to extractor
 				if (context.typescript.isStringLiteral(expression)) {
-					classNames.push(...this.expressionExtractor.extract(expression, context));
+					classNames.push(...addAttributeId(this.expressionExtractor.extract(expression, context)));
 				} else if (
 					context.typescript.isTemplateExpression(expression) ||
 					context.typescript.isNoSubstitutionTemplateLiteral(expression)
 				) {
-					classNames.push(...this.templateExtractor.extract(expression, context));
+					classNames.push(...addAttributeId(this.templateExtractor.extract(expression, context)));
 				} else if (context.typescript.isCallExpression(expression)) {
 					if (this.shouldValidateFunctionCall(expression, context.utilityFunctions)) {
-						classNames.push(...this.expressionExtractor.extract(expression, context));
+						classNames.push(
+							...addAttributeId(this.expressionExtractor.extract(expression, context))
+						);
 					}
 				} else if (
 					context.typescript.isBinaryExpression(expression) ||
@@ -123,20 +133,22 @@ export class JsxAttributeExtractor extends BaseExtractor {
 					context.typescript.isNonNullExpression(expression) ||
 					context.typescript.isTypeAssertionExpression(expression)
 				) {
-					classNames.push(...this.expressionExtractor.extract(expression, context));
+					classNames.push(...addAttributeId(this.expressionExtractor.extract(expression, context)));
 				}
 				// Handle identifier references: className={dynamicClass}
 				// This resolves the variable to its declared value for validation
 				else if (context.typescript.isIdentifier(expression)) {
-					classNames.push(...this.expressionExtractor.extractFromIdentifier(expression, context));
+					classNames.push(
+						...addAttributeId(this.expressionExtractor.extractFromIdentifier(expression, context))
+					);
 				}
 				// Handle array literal expressions: className={['flex', 'items-center']}
 				else if (context.typescript.isArrayLiteralExpression(expression)) {
-					classNames.push(...this.expressionExtractor.extract(expression, context));
+					classNames.push(...addAttributeId(this.expressionExtractor.extract(expression, context)));
 				}
 				// Handle object literal expressions: className={{ flex: true }}
 				else if (context.typescript.isObjectLiteralExpression(expression)) {
-					classNames.push(...this.expressionExtractor.extract(expression, context));
+					classNames.push(...addAttributeId(this.expressionExtractor.extract(expression, context)));
 				}
 			}
 		}

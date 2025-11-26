@@ -32,6 +32,7 @@ Ever written `className="flex itms-center"` instead of `"flex items-center"`? Th
 ## Features
 
 - **Real-time validation**: Get instant feedback on invalid Tailwind classes while you code
+- **Duplicate class detection**: Warns when the same class appears multiple times in the same `className` attribute
 - **Editor integration**: Works with any editor that supports TypeScript Language Service (VS Code, WebStorm, etc.)
 - **Supports Tailwind variants**: Validates responsive (`md:`, `lg:`), state (`hover:`, `focus:`), and other variants
 - **Arbitrary values**: Correctly handles Tailwind arbitrary values like `h-[50vh]` or `bg-[#ff0000]`
@@ -298,6 +299,94 @@ const badClass = 'invalid-array-class';
 // Error: The class "not-in-config" is not a valid Tailwind class
 ```
 
+**Duplicate class detection**:
+
+The plugin detects duplicate classes within the same `className` attribute and shows warnings. This helps keep your class lists clean and avoids redundancy.
+
+```tsx
+// ⚠️ Warning: Duplicate class
+<div className="flex flex items-center">Duplicate</div>
+// Warning: Duplicate class "flex"
+
+// ⚠️ Warning: Multiple duplicates
+<div className="flex items-center flex items-center p-4">Multiple</div>
+// Warning: Duplicate class "flex"
+// Warning: Duplicate class "items-center"
+
+// ⚠️ Warning: Duplicates in utility functions
+<div className={clsx('flex', 'flex', 'items-center')}>In clsx</div>
+// Warning: Duplicate class "flex"
+
+// ⚠️ Warning: Duplicates across arguments
+<div className={cn('flex bg-blue-500', 'items-center bg-blue-500')}>Across args</div>
+// Warning: Duplicate class "bg-blue-500"
+
+// ⚠️ Warning: Duplicates in arrays
+<div className={cn(['flex', 'flex', 'items-center'])}>In array</div>
+// Warning: Duplicate class "flex"
+
+// ✅ Valid: Same class in DIFFERENT elements (not duplicates)
+<div className="flex items-center">
+  <span className="flex justify-center">Different elements</span>
+</div>
+```
+
+**Ternary expressions with duplicates**:
+
+The plugin intelligently handles ternary (conditional) expressions:
+
+```tsx
+// ⚠️ Warning: Class at ROOT and in ternary branches = true duplicate
+<div className={clsx('flex', isActive ? 'flex bg-blue-500' : 'flex bg-gray-500')}>
+  Duplicate
+</div>
+// Warning: Duplicate class "flex" (on both branch occurrences)
+// The root 'flex' is always applied, so the branch 'flex' classes are redundant
+
+// ⚠️ Warning: Class repeated in BOTH branches (refactoring suggestion)
+<div className={clsx('mt-4', isActive ? 'flex bg-blue-500' : 'flex bg-gray-500')}>
+  Consider extracting
+</div>
+// Warning: Class "flex" is repeated in both branches. Consider moving it outside the conditional.
+// This is not an error - only one branch executes at runtime - but it's a DRY improvement
+
+// ✅ Valid: Class in only ONE branch
+<div className={clsx('mt-4', isActive ? 'flex bg-blue-500' : 'bg-gray-500')}>
+  Valid
+</div>
+// No warning - 'flex' only appears in the true branch
+
+// ⚠️ Warning: Duplicate WITHIN the same branch
+<div className={clsx('mt-4', isActive ? 'flex flex bg-blue-500' : 'bg-gray-500')}>
+  Duplicate in branch
+</div>
+// Warning: Duplicate class "flex" (appears twice in the true branch)
+```
+
+**Variables with conditional content**:
+
+The plugin resolves variables and detects duplicates even when variables contain ternary expressions:
+
+```tsx
+// Variable with ternary content
+const dynamicClasses = isActive ? 'flex bg-blue-500' : 'flex bg-gray-500';
+
+// ⚠️ Warning: Root 'flex' + variable's ternary with 'flex' = duplicate
+<div className={clsx('flex', dynamicClasses)}>Duplicate</div>
+// Warning: Duplicate class "flex" (on both branch occurrences in the variable)
+
+// ⚠️ Warning: Variable ternary with 'flex' in both branches (extractable)
+<div className={clsx('mt-4', dynamicClasses)}>Consider extracting</div>
+// Warning: Class "flex" is repeated in both branches. Consider moving it outside the conditional.
+
+// Variable with ternary in only one branch
+const conditionalOneBranch = isActive ? 'flex bg-blue-500' : 'bg-gray-500';
+
+// ✅ Valid: Variable ternary with class in only ONE branch
+<div className={clsx('mt-4', conditionalOneBranch)}>Valid</div>
+// No warning - 'flex' only appears in the true branch of the variable
+```
+
 **tailwind-variants validation**:
 ```tsx
 import { tv } from 'tailwind-variants';
@@ -417,6 +506,60 @@ const invalidVariant = cva(['font-semibold'], {
 <button className={button({ intent: 'primary', class: 'invalid-override-class' })}>
   // Error: The class "invalid-override-class" is not a valid Tailwind class
 </button>
+```
+
+**Duplicate detection in tv() and cva()**:
+
+The plugin detects duplicate classes within a single `tv()` or `cva()` call. Classes are scoped per call, so the same class in different calls is NOT a duplicate.
+
+```tsx
+import { tv } from 'tailwind-variants';
+import { cva } from 'class-variance-authority';
+
+// ⚠️ Warning: Duplicate in tv() base
+const button = tv({
+  base: 'flex flex items-center'
+  // Warning: Duplicate class "flex"
+});
+
+// ⚠️ Warning: Duplicate across tv() base and variants
+const button2 = tv({
+  base: 'flex items-center',
+  variants: {
+    size: {
+      sm: 'flex text-sm'
+      // Warning: Duplicate class "flex" (already in base)
+    }
+  }
+});
+
+// ⚠️ Warning: Duplicate in tv() slots
+const card = tv({
+  slots: {
+    base: 'flex items-center',
+    icon: 'flex mr-2'
+    // Warning: Duplicate class "flex" (all slots share scope)
+  }
+});
+
+// ⚠️ Warning: Duplicate in cva() base array
+const button3 = cva(['flex', 'flex', 'items-center']);
+// Warning: Duplicate class "flex"
+
+// ⚠️ Warning: Duplicate across cva() base and variants
+const button4 = cva(['flex', 'items-center'], {
+  variants: {
+    intent: {
+      primary: ['flex', 'bg-blue-500']
+      // Warning: Duplicate class "flex" (already in base)
+    }
+  }
+});
+
+// ✅ Valid: Same class in DIFFERENT tv()/cva() calls
+const button5 = tv({ base: 'flex items-center' });
+const card2 = tv({ base: 'flex justify-center' });
+// No warning - each call has its own scope
 ```
 
 ## Implemented features
@@ -540,6 +683,34 @@ const invalidVariant = cva(['font-semibold'], {
 - [X] **CVA Variable** → [`cva-variable.tsx`](./example/src/cva-variable.tsx)
   Validates variables in class-variance-authority cva() definitions
   Example: `const baseClasses = 'invalid-class'; const button = cva(baseClasses)`
+
+- [X] **Duplicate Classes** → [`duplicate-classes.tsx`](./example/src/duplicate-classes.tsx)
+  Detects duplicate classes within the same className attribute
+  Example: `className="flex flex items-center"` shows warning on second `flex`
+
+- [X] **Duplicate Classes in Ternary** → [`duplicate-classes.tsx`](./example/src/duplicate-classes.tsx)
+  Smart detection of duplicates in ternary expressions:
+  - Root + branch duplicate: `clsx('flex', isActive ? 'flex' : 'flex')` → Warning (true duplicate)
+  - Both branches same class: `clsx('mt-4', isActive ? 'flex' : 'flex')` → Warning (consider extracting)
+  - Single branch only: `clsx('mt-4', isActive ? 'flex' : '')` → No warning (valid pattern)
+
+- [X] **Duplicate Classes in Variables with Conditionals** → [`duplicate-classes.tsx`](./example/src/duplicate-classes.tsx)
+  Resolves variables containing ternary expressions and detects duplicates:
+  - `const x = isActive ? 'flex' : 'flex'; clsx('flex', x)` → Warning (root + variable duplicate)
+  - `const x = isActive ? 'flex' : 'flex'; clsx('mt-4', x)` → Warning (consider extracting from variable)
+  - `const x = isActive ? 'flex' : ''; clsx('mt-4', x)` → No warning (single branch)
+
+- [X] **TV Duplicate Classes** → [`tv-duplicate-classes.tsx`](./example/src/tv-duplicate-classes.tsx)
+  Detects duplicate classes within a single tv() definition (base, variants, compoundVariants, slots)
+  Example: `tv({ base: 'flex flex' })` → Warning: Duplicate class "flex"
+  - Duplicates detected across base, variants, compoundVariants, and slots
+  - Same class in different tv() calls is NOT a duplicate (scoped per call)
+
+- [X] **CVA Duplicate Classes** → [`cva-duplicate-classes.tsx`](./example/src/cva-duplicate-classes.tsx)
+  Detects duplicate classes within a single cva() definition (base, variants, compoundVariants)
+  Example: `cva(['flex', 'flex'])` → Warning: Duplicate class "flex"
+  - Duplicates detected across base array/string, variants, and compoundVariants
+  - Same class in different cva() calls is NOT a duplicate (scoped per call)
 
 ## How It Works
 
