@@ -19,6 +19,8 @@ export class TailwindTypescriptPlugin {
 	private diagnosticCache!: FileDiagnosticCache;
 	private codeActionService!: CodeActionService;
 	private initializationPromise: Promise<void> | null = null;
+	private cssFileWatcher: fs.FSWatcher | null = null;
+	private cssFilePath: string | null = null;
 
 	constructor(private readonly typescript: typeof ts) {}
 
@@ -62,6 +64,7 @@ export class TailwindTypescriptPlugin {
 			return;
 		}
 
+		this.cssFilePath = absoluteCssPath;
 		this.logger.log(`CSS file found, initializing Tailwind validator...`);
 		this.validator = new TailwindValidator(absoluteCssPath, this.logger);
 
@@ -92,9 +95,121 @@ export class TailwindTypescriptPlugin {
 			.initialize()
 			.then(() => {
 				this.logger.log('Tailwind validator initialized');
+				// Set up file watcher after successful initialization
+				this.setupCssFileWatcher(info);
 			})
 			.catch(error => {
 				this.logger.log(`Failed to initialize Tailwind validator: ${error}`);
+			});
+	}
+
+	/**
+	 * Set up file watcher for CSS file changes
+	 * When the CSS file changes, reload the design system and clear caches
+	 */
+	private setupCssFileWatcher(info: ts.server.PluginCreateInfo): void {
+		if (!this.cssFilePath) {
+			return;
+		}
+
+		// Clean up any existing watcher
+		if (this.cssFileWatcher) {
+			this.cssFileWatcher.close();
+			this.cssFileWatcher = null;
+		}
+
+		this.logger.log(`[CSSWatcher] Setting up file watcher for: ${this.cssFilePath}`);
+
+		// Debounce timer to avoid multiple reloads for rapid changes
+		let debounceTimer: NodeJS.Timeout | null = null;
+
+		try {
+			this.cssFileWatcher = fs.watch(this.cssFilePath, (eventType, filename) => {
+				if (eventType === 'change') {
+					// Debounce: wait 300ms after last change before reloading
+					if (debounceTimer) {
+						clearTimeout(debounceTimer);
+					}
+
+					debounceTimer = setTimeout(() => {
+						this.logger.log(`[CSSWatcher] CSS file changed: ${filename}`);
+						this.reloadDesignSystem(info);
+					}, 300);
+				}
+			});
+
+			this.cssFileWatcher.on('error', error => {
+				this.logger.log(`[CSSWatcher] Watcher error: ${error}`);
+			});
+
+			this.logger.log('[CSSWatcher] File watcher set up successfully');
+		} catch (error) {
+			this.logger.log(`[CSSWatcher] Failed to set up file watcher: ${error}`);
+		}
+	}
+
+	/**
+	 * Reload the design system when CSS file changes
+	 * Clears all caches and re-initializes the validator
+	 */
+	private reloadDesignSystem(info: ts.server.PluginCreateInfo): void {
+		this.logger.log('[CSSWatcher] Reloading design system...');
+
+		// Clear the diagnostic cache - all files need revalidation
+		this.diagnosticCache.clear();
+		this.logger.log('[CSSWatcher] Diagnostic cache cleared');
+
+		// Reload the validator (this clears its internal cache too)
+		this.validator
+			.reload()
+			.then(() => {
+				this.logger.log('[CSSWatcher] Design system reloaded successfully');
+
+				// Notify TypeScript that the project has changed to trigger re-validation
+				try {
+					// Use 'any' to access internal APIs that aren't in the public type definitions
+					const project = info.project as any;
+
+					// Mark project as dirty - this is the most reliable way to trigger updates
+					if (project && typeof project.markAsDirty === 'function') {
+						project.markAsDirty();
+						this.logger.log('[CSSWatcher] Marked project as dirty');
+					}
+
+					// Update the project graph to reflect changes
+					if (project && typeof project.updateGraph === 'function') {
+						project.updateGraph();
+						this.logger.log('[CSSWatcher] Updated project graph');
+					}
+
+					// Access the project service to trigger diagnostic refresh
+					// This is the internal API that actually notifies the editor
+					const projectService = (project as any).projectService;
+					if (projectService) {
+						// This method triggers the editor to re-request diagnostics
+						if (typeof projectService.delayUpdateProjectGraphAndEnsureProjectStructureForOpenFiles === 'function') {
+							projectService.delayUpdateProjectGraphAndEnsureProjectStructureForOpenFiles();
+							this.logger.log('[CSSWatcher] Triggered delayed project update');
+						}
+
+						// Send custom event to trigger diagnostic refresh in some editors
+						if (typeof projectService.sendProjectsUpdatedInBackgroundEvent === 'function') {
+							projectService.sendProjectsUpdatedInBackgroundEvent();
+							this.logger.log('[CSSWatcher] Sent projects updated event');
+						}
+					}
+
+					// Try refreshDiagnostics if available (may work in some TS versions)
+					if (project && typeof (project as any).refreshDiagnostics === 'function') {
+						(project as any).refreshDiagnostics();
+						this.logger.log('[CSSWatcher] Called refreshDiagnostics');
+					}
+				} catch (error) {
+					this.logger.log(`[CSSWatcher] Error notifying project of changes: ${error}`);
+				}
+			})
+			.catch(error => {
+				this.logger.log(`[CSSWatcher] Failed to reload design system: ${error}`);
 			});
 	}
 
