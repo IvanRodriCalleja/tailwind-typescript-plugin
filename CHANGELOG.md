@@ -1,3 +1,9 @@
+## [1.4.0-beta.5](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.4...v1.4.0-beta.5) (2025-11-27)
+
+### ♻️ Code Refactoring
+
+* split test cases into folder structure for better organization ([fbe6774](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/fbe67742147857fb7c01e6e925142ba26d9fe7bf))
+
 ## [1.4.0-beta.4](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.3...v1.4.0-beta.4) (2025-11-27)
 
 ### ✨ Features
