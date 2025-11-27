@@ -1,0 +1,17 @@
+// Simulate dynamic values that might come from props or state
+const isActive = true;
+
+/**
+ * ✅ Valid: Binary with Tailwind variants
+ * @validClasses [flex, hover:bg-blue-500, md:text-lg]
+ */
+export function BinaryWithVariants() {
+	return (
+		<div className={clsx('flex', isActive && 'hover:bg-blue-500 md:text-lg')}>
+			Binary with variants
+		</div>
+	);
+}
+
+// Mock function declarations
+declare function clsx(...args: unknown[]): string;

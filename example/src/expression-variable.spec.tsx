@@ -2,35 +2,30 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import path from 'path';
 
 import {
-	TestCase,
-	parseTestFile,
-	runPluginOnFile,
-	createTestAssertion
+	FolderTestCase,
+	PluginInstance,
+	createTestAssertion,
+	parseTestFolder,
+	runPluginOnFolder
 } from '../test/test-helpers';
 
-/**
- * E2E Tests for Variable Reference Validation.
- *
- * Variable references are validated by resolving to their declaration.
- * Errors point to the actual class name string in the variable declaration,
- * with a message indicating where the variable is used as className.
- *
- * This uses the standard test assertion helper since errors now point to
- * the string literal positions (not the variable usage positions).
- */
 describe('E2E Tests - Expression Variable Reference', () => {
-	const testFile = path.join(__dirname, 'expression-variable.tsx');
-	const testCases = parseTestFile(testFile);
-	let diagnostics: ts.Diagnostic[];
-	let sourceCode: string;
+	const testFolder = path.join(__dirname, 'expression-variable');
+	const testCases = parseTestFolder(testFolder);
+	let fileResults: Map<string, { diagnostics: ts.Diagnostic[]; sourceCode: string }>;
+	let plugins: PluginInstance[];
 
 	beforeAll(async () => {
-		const result = await runPluginOnFile(testFile);
-		diagnostics = result.diagnostics;
-		sourceCode = result.sourceCode;
+		const result = await runPluginOnFolder(testFolder);
+		fileResults = result.results;
+		plugins = result.plugins;
 	});
 
-	it('should parse test cases from comments', () => {
+	afterAll(() => {
+		plugins.forEach(plugin => plugin.dispose());
+	});
+
+	it('should parse test cases from folder', () => {
 		expect(testCases.length).toBeGreaterThan(0);
 		const validCases = testCases.filter(tc => tc.shouldBeValid);
 		const invalidCases = testCases.filter(tc => !tc.shouldBeValid);
@@ -38,11 +33,14 @@ describe('E2E Tests - Expression Variable Reference', () => {
 		expect(invalidCases.length).toBeGreaterThan(0);
 	});
 
-	// Generate tests for each test case using the standard helper
-	testCases.forEach((testCase: TestCase) => {
+	testCases.forEach((testCase: FolderTestCase) => {
 		const prefix = testCase.shouldBeValid ? '✅' : '❌';
-		it(`${prefix} ${testCase.functionName}: ${testCase.comment}`, () => {
-			createTestAssertion(testCase, diagnostics, sourceCode, expect);
+		const fileName = path.basename(testCase.filePath, '.tsx');
+
+		it(`${prefix} [${fileName}] ${testCase.functionName}: ${testCase.comment}`, () => {
+			const result = fileResults.get(testCase.filePath);
+			expect(result).toBeDefined();
+			createTestAssertion(testCase, result!.diagnostics, result!.sourceCode, expect);
 		});
 	});
 });

@@ -2,134 +2,51 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import path from 'path';
 
 import {
-	getDiagnosticsForFunction,
-	getTextAtDiagnostic,
+	FolderTestCase,
 	PluginInstance,
-	runPluginOnFile
+	createDuplicateTestAssertion,
+	parseTestFolder,
+	runPluginOnFolder
 } from '../test/test-helpers';
 
-// Diagnostic codes from DiagnosticService
-const TAILWIND_DUPLICATE_CODE = 90002;
-
 describe('E2E Tests - TV Duplicate Class Detection', () => {
-	const testFile = path.join(__dirname, 'tv-duplicate-classes.tsx');
-	let diagnostics: ts.Diagnostic[];
-	let sourceCode: string;
-	let plugin: PluginInstance;
+	const testFolder = path.join(__dirname, 'tv-duplicate-classes');
+	const testCases = parseTestFolder(testFolder);
+	let fileResults: Map<string, { diagnostics: ts.Diagnostic[]; sourceCode: string }>;
+	let plugins: PluginInstance[];
 
 	beforeAll(async () => {
-		const result = await runPluginOnFile(testFile);
-		diagnostics = result.diagnostics;
-		sourceCode = result.sourceCode;
-		plugin = result.plugin;
+		const result = await runPluginOnFolder(testFolder);
+		fileResults = result.results;
+		plugins = result.plugins;
 	});
 
 	afterAll(() => {
-		// Clean up plugin to close file watchers
-		plugin.dispose();
+		// Clean up plugins to close file watchers
+		plugins.forEach(plugin => plugin.dispose());
 	});
 
-	// Helper to get duplicate warnings for a function
-	function getDuplicateWarnings(functionName: string): ts.Diagnostic[] {
-		return getDiagnosticsForFunction(diagnostics, sourceCode, functionName).filter(
-			d => d.code === TAILWIND_DUPLICATE_CODE
-		);
-	}
-
-	describe('Duplicates within base', () => {
-		it('should detect duplicate in tv() base string', () => {
-			const warnings = getDuplicateWarnings('TvDuplicateInBase');
-			expect(warnings.length).toBe(2);
-			expect(getTextAtDiagnostic(warnings[0], sourceCode)).toBe('flex');
-			expect(getTextAtDiagnostic(warnings[1], sourceCode)).toBe('flex');
-			expect(warnings[0].category).toBe(ts.DiagnosticCategory.Warning);
-		});
-
-		it('should detect duplicate in tv() base array', () => {
-			const warnings = getDuplicateWarnings('TvDuplicateInBaseArray');
-			expect(warnings.length).toBe(2);
-			expect(getTextAtDiagnostic(warnings[0], sourceCode)).toBe('flex');
-			expect(getTextAtDiagnostic(warnings[1], sourceCode)).toBe('flex');
-		});
+	it('should parse test cases from folder', () => {
+		expect(testCases.length).toBeGreaterThan(0);
+		// Count cases with duplicates and valid cases
+		const duplicateCases = testCases.filter(tc => tc.expectedDuplicateClasses.length > 0);
+		const validCases = testCases.filter(tc => tc.shouldBeValid);
+		expect(duplicateCases.length).toBeGreaterThan(0);
+		expect(validCases.length).toBeGreaterThan(0);
 	});
 
-	describe('Duplicates across base and variants', () => {
-		it('should detect duplicate across base and variant', () => {
-			const warnings = getDuplicateWarnings('TvDuplicateBaseAndVariant');
-			expect(warnings.length).toBe(2);
-			const texts = warnings.map(w => getTextAtDiagnostic(w, sourceCode));
-			expect(texts.every(t => t === 'flex')).toBe(true);
-		});
+	// Generate a test for each test case automatically
+	testCases.forEach((testCase: FolderTestCase) => {
+		const hasDuplicates = testCase.expectedDuplicateClasses.length > 0;
+		let prefix = '✅';
+		if (hasDuplicates) prefix = '⚠️';
 
-		it('should detect multiple duplicates across base and variants', () => {
-			const warnings = getDuplicateWarnings('TvMultipleDuplicatesAcrossVariants');
-			expect(warnings.length).toBe(4);
-			const texts = warnings.map(w => getTextAtDiagnostic(w, sourceCode));
-			expect(texts.filter(t => t === 'flex').length).toBe(2);
-			expect(texts.filter(t => t === 'items-center').length).toBe(2);
-		});
-	});
+		const fileName = path.basename(testCase.filePath, '.tsx');
 
-	describe('Duplicates in compoundVariants', () => {
-		it('should detect duplicate in compoundVariant class', () => {
-			const warnings = getDuplicateWarnings('TvDuplicateInCompoundVariant');
-			expect(warnings.length).toBe(2);
-			expect(getTextAtDiagnostic(warnings[0], sourceCode)).toBe('flex');
-			expect(getTextAtDiagnostic(warnings[1], sourceCode)).toBe('flex');
-		});
-
-		it('should detect duplicate in compoundVariant className', () => {
-			const warnings = getDuplicateWarnings('TvDuplicateInCompoundVariantClassName');
-			expect(warnings.length).toBe(2);
-			expect(getTextAtDiagnostic(warnings[0], sourceCode)).toBe('p-4');
-			expect(getTextAtDiagnostic(warnings[1], sourceCode)).toBe('p-4');
-		});
-	});
-
-	describe('Duplicates in slots', () => {
-		it('should detect duplicate within same slot', () => {
-			const warnings = getDuplicateWarnings('TvDuplicateWithinSlot');
-			expect(warnings.length).toBe(2);
-			expect(getTextAtDiagnostic(warnings[0], sourceCode)).toBe('flex');
-			expect(getTextAtDiagnostic(warnings[1], sourceCode)).toBe('flex');
-		});
-
-		it('should detect duplicate across slots', () => {
-			const warnings = getDuplicateWarnings('TvDuplicateAcrossSlots');
-			expect(warnings.length).toBe(2);
-			expect(getTextAtDiagnostic(warnings[0], sourceCode)).toBe('flex');
-			expect(getTextAtDiagnostic(warnings[1], sourceCode)).toBe('flex');
-		});
-	});
-
-	describe('No duplicates (valid cases)', () => {
-		it('should not flag same class in different tv() calls', () => {
-			const warnings = getDuplicateWarnings('TvNoDuplicateDifferentCalls');
-			expect(warnings.length).toBe(0);
-		});
-
-		it('should not flag unique classes', () => {
-			const warnings = getDuplicateWarnings('TvNoDuplicates');
-			expect(warnings.length).toBe(0);
-		});
-
-		it('should not flag similar but different classes', () => {
-			const warnings = getDuplicateWarnings('TvSimilarButDifferent');
-			expect(warnings.length).toBe(0);
-		});
-	});
-
-	describe('Diagnostic format', () => {
-		it('should have correct message format', () => {
-			const warnings = getDuplicateWarnings('TvDuplicateInBase');
-			expect(warnings.length).toBe(2);
-			expect(typeof warnings[0].messageText).toBe('string');
-			expect(warnings[0].messageText).toBe('Duplicate class "flex"');
-		});
-
-		it('should have source set to tw-plugin', () => {
-			const warnings = getDuplicateWarnings('TvDuplicateInBase');
-			expect(warnings[0].source).toBe('tw-plugin');
+		it(`${prefix} [${fileName}] ${testCase.functionName}: ${testCase.comment}`, () => {
+			const result = fileResults.get(testCase.filePath);
+			expect(result).toBeDefined();
+			createDuplicateTestAssertion(testCase, result!.diagnostics, result!.sourceCode, expect);
 		});
 	});
 });

@@ -2,22 +2,27 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import path from 'path';
 
 import {
-	TestCase,
+	FolderTestCase,
+	PluginInstance,
 	createTestAssertion,
-	parseTestFile,
-	runPluginOnFile
+	parseTestFolder,
+	runPluginOnFolder
 } from '../test/test-helpers';
 
 describe('E2E Tests - JSX Expression String Literal', () => {
-	const testFile = path.join(__dirname, 'expression-static.tsx');
-	const testCases = parseTestFile(testFile);
-	let diagnostics: ts.Diagnostic[];
-	let sourceCode: string;
+	const testFolder = path.join(__dirname, 'expression-static');
+	const testCases = parseTestFolder(testFolder);
+	let folderResults: Map<string, { diagnostics: ts.Diagnostic[]; sourceCode: string }>;
+	let plugins: PluginInstance[];
 
 	beforeAll(async () => {
-		const result = await runPluginOnFile(testFile);
-		diagnostics = result.diagnostics;
-		sourceCode = result.sourceCode;
+		const result = await runPluginOnFolder(testFolder);
+		folderResults = result.results;
+		plugins = result.plugins;
+	});
+
+	afterAll(() => {
+		plugins.forEach(plugin => plugin.dispose());
 	});
 
 	it('should parse test cases from comments', () => {
@@ -29,10 +34,14 @@ describe('E2E Tests - JSX Expression String Literal', () => {
 	});
 
 	// Generate a test for each test case
-	testCases.forEach((testCase: TestCase) => {
+	testCases.forEach((testCase: FolderTestCase) => {
 		const prefix = testCase.shouldBeValid ? '✅' : '❌';
 		it(`${prefix} ${testCase.functionName}: ${testCase.comment}`, () => {
-			createTestAssertion(testCase, diagnostics, sourceCode, expect);
+			const result = folderResults.get(testCase.filePath);
+			expect(result).toBeDefined();
+			if (result) {
+				createTestAssertion(testCase, result.diagnostics, result.sourceCode, expect);
+			}
 		});
 	});
 });

@@ -2,27 +2,31 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import path from 'path';
 
 import {
-	TestCase,
+	FolderTestCase,
+	PluginInstance,
 	createTestAssertion,
-	parseTestFile,
-	runPluginOnFile
+	parseTestFolder,
+	runPluginOnFolder
 } from '../test/test-helpers';
 
 describe('E2E Tests - Tailwind Variants Class Property Override', () => {
-	const testFile = path.join(__dirname, 'tv-class-override.tsx');
-	const testCases = parseTestFile(testFile);
-	let diagnostics: ts.Diagnostic[];
-	let sourceCode: string;
+	const testFolder = path.join(__dirname, 'tv-class-override');
+	const testCases = parseTestFolder(testFolder);
+	let fileResults: Map<string, { diagnostics: ts.Diagnostic[]; sourceCode: string }>;
+	let plugins: PluginInstance[];
 
 	beforeAll(async () => {
-		// Don't pass utility functions - let the type checker determine
-		// that myCustomBuilder and buildStyles are not tv-created functions
-		const result = await runPluginOnFile(testFile);
-		diagnostics = result.diagnostics;
-		sourceCode = result.sourceCode;
+		const result = await runPluginOnFolder(testFolder);
+		fileResults = result.results;
+		plugins = result.plugins;
 	});
 
-	it('should parse test cases from comments', () => {
+	afterAll(() => {
+		// Clean up plugins to close file watchers
+		plugins.forEach(plugin => plugin.dispose());
+	});
+
+	it('should parse test cases from folder', () => {
 		expect(testCases.length).toBeGreaterThan(0);
 		const validCases = testCases.filter(tc => tc.shouldBeValid);
 		const invalidCases = testCases.filter(tc => !tc.shouldBeValid);
@@ -31,10 +35,14 @@ describe('E2E Tests - Tailwind Variants Class Property Override', () => {
 	});
 
 	// Generate a test for each test case
-	testCases.forEach((testCase: TestCase) => {
+	testCases.forEach((testCase: FolderTestCase) => {
 		const prefix = testCase.shouldBeValid ? '✅' : '❌';
-		it(`${prefix} ${testCase.functionName}: ${testCase.comment}`, () => {
-			createTestAssertion(testCase, diagnostics, sourceCode, expect);
+		const fileName = path.basename(testCase.filePath, '.tsx');
+
+		it(`${prefix} [${fileName}] ${testCase.functionName}: ${testCase.comment}`, () => {
+			const result = fileResults.get(testCase.filePath);
+			expect(result).toBeDefined();
+			createTestAssertion(testCase, result!.diagnostics, result!.sourceCode, expect);
 		});
 	});
 });
