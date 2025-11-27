@@ -545,13 +545,8 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 				: null;
 
 		if (functionName && context.utilityFunctions.includes(functionName)) {
-			// Debug: log when skipping utility function
-			// console.log(`[TV] Skipping utility function: ${functionName}`);
 			return false;
 		}
-
-		// Debug: log function being checked
-		// console.log(`[TV] Checking if ${functionName} is tv-created, utility functions:`, context.utilityFunctions);
 
 		// Get the symbol for the called function
 		const symbol = context.typeChecker.getSymbolAtLocation(expr);

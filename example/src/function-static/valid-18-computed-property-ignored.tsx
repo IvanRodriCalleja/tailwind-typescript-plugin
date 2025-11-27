@@ -1,0 +1,10 @@
+/**
+ * ✅ Valid: Computed property (should be ignored, not validated)
+ */
+export function ComputedPropertyIgnored() {
+	const key = 'cn';
+	const functions = { cn: cn };
+	return <div className={functions[key]('flex', 'items-center')}>Computed property</div>;
+}
+
+declare function cn(...args: string[]): string;

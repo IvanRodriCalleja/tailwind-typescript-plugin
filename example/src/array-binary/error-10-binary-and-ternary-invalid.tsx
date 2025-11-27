@@ -1,0 +1,24 @@
+// Simulate dynamic values that might come from props or state
+const isError = true;
+const isActive = true;
+
+/**
+ * ❌ Invalid: Array with binary and ternary with invalid
+ * @invalidClasses [invalid-error, invalid-active]
+ * @validClasses [flex, bg-gray-500]
+ */
+export function ArrayBinaryAndTernaryInvalid() {
+	return (
+		<div
+			className={cn([
+				'flex',
+				isError && 'invalid-error',
+				isActive ? 'invalid-active' : 'bg-gray-500'
+			])}>
+			Binary and ternary with invalid
+		</div>
+	);
+}
+
+// Mock function declarations
+declare function cn(...args: (string | string[] | boolean | null | undefined)[]): string;

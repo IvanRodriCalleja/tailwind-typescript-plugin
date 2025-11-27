@@ -2,25 +2,33 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import path from 'path';
 
 import {
-	TestCase,
+	FolderTestCase,
+	PluginInstance,
 	createTestAssertion,
-	parseTestFile,
-	runPluginOnFile
+	parseTestFolder,
+	runPluginOnFolder
 } from '../test/test-helpers';
 
 describe('E2E Tests - Function Calls with Ternary Expressions', () => {
-	const testFile = path.join(__dirname, 'function-ternary.tsx');
-	const testCases = parseTestFile(testFile);
-	let diagnostics: ts.Diagnostic[];
-	let sourceCode: string;
+	const testFolder = path.join(__dirname, 'function-ternary');
+	const testCases = parseTestFolder(testFolder);
+	let fileResults: Map<string, { diagnostics: ts.Diagnostic[]; sourceCode: string }>;
+	let plugins: PluginInstance[];
 
 	beforeAll(async () => {
-		const result = await runPluginOnFile(testFile);
-		diagnostics = result.diagnostics;
-		sourceCode = result.sourceCode;
+		const result = await runPluginOnFolder(testFolder, {
+			utilityFunctions: ['clsx', 'cn', 'classNames']
+		});
+		fileResults = result.results;
+		plugins = result.plugins;
 	});
 
-	it('should parse test cases from comments', () => {
+	afterAll(() => {
+		// Clean up plugins to close file watchers
+		plugins.forEach(plugin => plugin.dispose());
+	});
+
+	it('should parse test cases from folder', () => {
 		expect(testCases.length).toBeGreaterThan(0);
 		const validCases = testCases.filter(tc => tc.shouldBeValid);
 		const invalidCases = testCases.filter(tc => !tc.shouldBeValid);
@@ -28,10 +36,15 @@ describe('E2E Tests - Function Calls with Ternary Expressions', () => {
 		expect(invalidCases.length).toBeGreaterThan(0);
 	});
 
-	testCases.forEach((testCase: TestCase) => {
+	// Generate a test for each test case automatically
+	testCases.forEach((testCase: FolderTestCase) => {
 		const prefix = testCase.shouldBeValid ? '✅' : '❌';
-		it(`${prefix} ${testCase.functionName}: ${testCase.comment}`, () => {
-			createTestAssertion(testCase, diagnostics, sourceCode, expect);
+		const fileName = path.basename(testCase.filePath, '.tsx');
+
+		it(`${prefix} [${fileName}] ${testCase.functionName}: ${testCase.comment}`, () => {
+			const result = fileResults.get(testCase.filePath);
+			expect(result).toBeDefined();
+			createTestAssertion(testCase, result!.diagnostics, result!.sourceCode, expect);
 		});
 	});
 });

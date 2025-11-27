@@ -1,0 +1,15 @@
+// Simulate dynamic values that might come from props or state
+const isActive = true;
+
+/**
+ * ❌ Invalid: Ternary with multiple classes, one invalid in true branch
+ * @invalidClasses [invalid-class]
+ * @validClasses [bg-blue-500, font-bold, bg-gray-500]
+ */
+export function DirectTernaryMultipleClasses() {
+	return (
+		<div className={isActive ? 'bg-blue-500 invalid-class font-bold' : 'bg-gray-500'}>
+			Multiple classes with invalid
+		</div>
+	);
+}

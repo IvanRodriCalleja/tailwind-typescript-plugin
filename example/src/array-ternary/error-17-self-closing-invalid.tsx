@@ -1,0 +1,15 @@
+/**
+ * ❌ Invalid: Self-closing with invalid ternary in array
+ * @invalidClasses [invalid-style]
+ * @validClasses [rounded-lg]
+ */
+
+const isActive = true;
+
+export function ArrayTernarySelfClosingInvalid() {
+	return (
+		<img className={cn([isActive ? 'invalid-style' : 'rounded-lg'])} src="test.jpg" alt="test" />
+	);
+}
+
+declare function cn(...args: unknown[]): string;

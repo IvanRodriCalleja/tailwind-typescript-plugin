@@ -8,6 +8,7 @@ import pluginFactory from '../../src/index';
 const TAILWIND_DIAGNOSTIC_CODE = 90001;
 const TAILWIND_DUPLICATE_CODE = 90002;
 const TAILWIND_EXTRACTABLE_CLASS_CODE = 90003;
+const TAILWIND_CONFLICT_CODE = 90004;
 
 export interface ElementExpectation {
 	elementId: number;
@@ -25,6 +26,7 @@ export interface TestCase {
 	expectedValidClasses: string[]; // For simple cases, which should NOT be flagged
 	expectedDuplicateClasses: string[]; // Classes that should be flagged as duplicates
 	expectedExtractableClasses: string[]; // Classes that should be flagged as extractable (hints)
+	expectedConflictClasses: string[]; // Classes that should be flagged as conflicting
 	elementExpectations: ElementExpectation[]; // For complex multi-element cases
 	utilityFunctions?: string[]; // Optional custom utility functions to test
 }
@@ -64,6 +66,7 @@ export function parseTestFile(filePath: string): TestCase[] {
 			let expectedValidClasses: string[] = [];
 			let expectedDuplicateClasses: string[] = [];
 			let expectedExtractableClasses: string[] = [];
+			let expectedConflictClasses: string[] = [];
 			let utilityFunctions: string[] | undefined = undefined;
 			const elementExpectations: ElementExpectation[] = [];
 			const elementMap: Map<number, Partial<ElementExpectation>> = new Map();
@@ -159,6 +162,12 @@ export function parseTestFile(filePath: string): TestCase[] {
 				if (extractableMatch) {
 					expectedExtractableClasses = extractableMatch[1].split(',').map(c => c.trim());
 				}
+
+				// Extract @conflictClasses [class1, class2]
+				const conflictMatch = jsdocLine.match(/^\s*\*\s*@conflictClasses\s*\[([^\]]+)\]/);
+				if (conflictMatch) {
+					expectedConflictClasses = conflictMatch[1].split(',').map(c => c.trim());
+				}
 			}
 
 			// Convert element map to array
@@ -188,6 +197,7 @@ export function parseTestFile(filePath: string): TestCase[] {
 							expectedValidClasses: expectedValidClasses,
 							expectedDuplicateClasses: expectedDuplicateClasses,
 							expectedExtractableClasses: expectedExtractableClasses,
+							expectedConflictClasses: expectedConflictClasses,
 							elementExpectations: elementExpectations,
 							utilityFunctions: utilityFunctions
 						});
@@ -729,5 +739,108 @@ export function createDuplicateTestAssertion(
 	extractableDiagnostics.forEach(diagnostic => {
 		expect(diagnostic.category).toBe(ts.DiagnosticCategory.Warning);
 		expect(typeof diagnostic.messageText === 'string').toBe(true);
+	});
+}
+
+/**
+ * Generate test assertions for conflicting class detection
+ */
+export function createConflictTestAssertion(
+	testCase: TestCase,
+	diagnostics: ts.Diagnostic[],
+	sourceCode: string,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	expect: any
+): void {
+	const functionDiagnostics = getDiagnosticsForFunction(
+		diagnostics,
+		sourceCode,
+		testCase.functionName
+	);
+
+	// Filter to conflict warnings
+	const conflictDiagnostics = functionDiagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
+	const conflictTexts = conflictDiagnostics.map(d => getTextAtDiagnostic(d, sourceCode));
+
+	// Filter to duplicate warnings (for combined cases)
+	const duplicateDiagnostics = functionDiagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
+	const duplicateTexts = duplicateDiagnostics.map(d => getTextAtDiagnostic(d, sourceCode));
+
+	// Filter to invalid class errors (for combined cases)
+	const invalidDiagnostics = functionDiagnostics.filter(d => d.code === TAILWIND_DIAGNOSTIC_CODE);
+	const invalidTexts = invalidDiagnostics.map(d => getTextAtDiagnostic(d, sourceCode));
+
+	// Check expected conflict classes
+	if (testCase.expectedConflictClasses.length > 0) {
+		// Count expected occurrences of each class
+		const expectedCounts = new Map<string, number>();
+		testCase.expectedConflictClasses.forEach(cls => {
+			expectedCounts.set(cls, (expectedCounts.get(cls) || 0) + 1);
+		});
+
+		// Count actual occurrences
+		const actualCounts = new Map<string, number>();
+		conflictTexts.forEach(cls => {
+			actualCounts.set(cls, (actualCounts.get(cls) || 0) + 1);
+		});
+
+		// Verify each expected class appears the correct number of times
+		expectedCounts.forEach((expectedCount, cls) => {
+			const actualCount = actualCounts.get(cls) || 0;
+			expect(actualCount).toBe(expectedCount);
+		});
+
+		// Verify no unexpected conflicts
+		conflictTexts.forEach(text => {
+			expect(testCase.expectedConflictClasses).toContain(text);
+		});
+	} else if (
+		testCase.expectedDuplicateClasses.length === 0 &&
+		testCase.expectedInvalidClasses.length === 0
+	) {
+		// No conflicts expected (valid case) - but only check if no other issues expected
+		expect(conflictDiagnostics.length).toBe(0);
+	}
+
+	// Check expected duplicate classes (for combined cases)
+	if (testCase.expectedDuplicateClasses.length > 0) {
+		const expectedDupCounts = new Map<string, number>();
+		testCase.expectedDuplicateClasses.forEach(cls => {
+			expectedDupCounts.set(cls, (expectedDupCounts.get(cls) || 0) + 1);
+		});
+
+		const actualDupCounts = new Map<string, number>();
+		duplicateTexts.forEach(cls => {
+			actualDupCounts.set(cls, (actualDupCounts.get(cls) || 0) + 1);
+		});
+
+		expectedDupCounts.forEach((expectedCount, cls) => {
+			const actualCount = actualDupCounts.get(cls) || 0;
+			expect(actualCount).toBe(expectedCount);
+		});
+
+		duplicateTexts.forEach(text => {
+			expect(testCase.expectedDuplicateClasses).toContain(text);
+		});
+	}
+
+	// Check expected invalid classes (for combined cases)
+	if (testCase.expectedInvalidClasses.length > 0) {
+		testCase.expectedInvalidClasses.forEach(cls => {
+			expect(invalidTexts).toContain(cls);
+		});
+
+		invalidTexts.forEach(text => {
+			expect(testCase.expectedInvalidClasses).toContain(text);
+		});
+	}
+
+	// Verify diagnostic format for conflicts
+	conflictDiagnostics.forEach(diagnostic => {
+		expect(diagnostic.category).toBe(ts.DiagnosticCategory.Warning);
+		expect(typeof diagnostic.messageText).toBe('string');
+		if (typeof diagnostic.messageText === 'string') {
+			expect(diagnostic.messageText).toContain('conflicts');
+		}
 	});
 }
