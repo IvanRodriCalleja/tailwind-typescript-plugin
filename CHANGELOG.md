@@ -1,3 +1,13 @@
+## [1.4.0-beta.4](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.3...v1.4.0-beta.4) (2025-11-27)
+
+### ✨ Features
+
+* warn on all duplicate class occurrences ([d01d878](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/d01d87844da17e15d5608ddddb1e3fdc033c8d38))
+
+### 🐛 Bug Fixes
+
+* dispose plugin in benchmark to close file watchers ([9efdc6a](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/9efdc6a8e24de4dd3000c44fc075bb765ddba1bb))
+
 ## [1.4.0-beta.3](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.2...v1.4.0-beta.3) (2025-11-26)
 
 ### ✨ Features

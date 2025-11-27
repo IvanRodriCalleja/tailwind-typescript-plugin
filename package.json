@@ -1,6 +1,6 @@
 {
   "name": "tailwind-typescript-plugin",
-  "version": "1.4.0-beta.3",
+  "version": "1.4.0-beta.4",
   "description": "TypeScript Language Service plugin that validates Tailwind CSS class names in JSX/TSX files. Catches typos and invalid classes in real-time with support for tailwind-variants and class-variance-authority.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
