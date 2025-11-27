@@ -62,9 +62,9 @@ describe('Duplicate Class Detection', () => {
 
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
-			// Should have 1 duplicate diagnostic for the second "flex"
-			expect(diagnostics.length).toBe(1);
-			expect(diagnostics[0].code).toBe(TAILWIND_DUPLICATE_CODE);
+			// Should have 2 duplicate diagnostics (both "flex" occurrences)
+			expect(diagnostics.length).toBe(2);
+			expect(diagnostics.every(d => d.code === TAILWIND_DUPLICATE_CODE)).toBe(true);
 			expect(diagnostics[0].category).toBe(ts.DiagnosticCategory.Warning);
 			expect(diagnostics[0].messageText).toContain('Duplicate class "flex"');
 		});
@@ -81,8 +81,8 @@ describe('Duplicate Class Detection', () => {
 
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
-			// Should have 2 duplicate diagnostics
-			expect(diagnostics.length).toBe(2);
+			// Should have 4 duplicate diagnostics (2 for flex, 2 for items-center)
+			expect(diagnostics.length).toBe(4);
 			expect(diagnostics.every(d => d.code === TAILWIND_DUPLICATE_CODE)).toBe(true);
 		});
 
@@ -106,7 +106,7 @@ describe('Duplicate Class Detection', () => {
 			expect(diagnostics.length).toBe(0);
 		});
 
-		it('should flag only second and subsequent occurrences', () => {
+		it('should flag all duplicate occurrences', () => {
 			const sourceCode = '<div className="flex flex flex items-center">Hello</div>';
 			const sourceFile = ts.createSourceFile(
 				'test.tsx',
@@ -118,20 +118,9 @@ describe('Duplicate Class Detection', () => {
 
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
-			// Should have 2 duplicate diagnostics (for 2nd and 3rd "flex")
-			expect(diagnostics.length).toBe(2);
-
-			// Find positions of all "flex" occurrences
-			const flexPositions: number[] = [];
-			let pos = sourceCode.indexOf('flex');
-			while (pos !== -1) {
-				flexPositions.push(pos);
-				pos = sourceCode.indexOf('flex', pos + 1);
-			}
-
-			// Diagnostics should NOT point to the first "flex"
-			const firstFlexPosition = flexPositions[0];
-			expect(diagnostics.every(d => d.start !== firstFlexPosition)).toBe(true);
+			// Should have 3 duplicate diagnostics (for all "flex" occurrences)
+			expect(diagnostics.length).toBe(3);
+			expect(diagnostics.every(d => d.code === TAILWIND_DUPLICATE_CODE)).toBe(true);
 		});
 	});
 
@@ -148,8 +137,8 @@ describe('Duplicate Class Detection', () => {
 
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
-			expect(diagnostics.length).toBe(1);
-			expect(diagnostics[0].code).toBe(TAILWIND_DUPLICATE_CODE);
+			expect(diagnostics.length).toBe(2);
+			expect(diagnostics.every(d => d.code === TAILWIND_DUPLICATE_CODE)).toBe(true);
 		});
 
 		it('should detect duplicates in template literals', () => {
@@ -164,8 +153,8 @@ describe('Duplicate Class Detection', () => {
 
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
-			expect(diagnostics.length).toBe(1);
-			expect(diagnostics[0].code).toBe(TAILWIND_DUPLICATE_CODE);
+			expect(diagnostics.length).toBe(2);
+			expect(diagnostics.every(d => d.code === TAILWIND_DUPLICATE_CODE)).toBe(true);
 		});
 	});
 
@@ -182,8 +171,8 @@ describe('Duplicate Class Detection', () => {
 
 			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
 
-			expect(diagnostics.length).toBe(1);
-			expect(diagnostics[0].code).toBe(TAILWIND_DUPLICATE_CODE);
+			expect(diagnostics.length).toBe(2);
+			expect(diagnostics.every(d => d.code === TAILWIND_DUPLICATE_CODE)).toBe(true);
 		});
 
 		it('should detect duplicates in cn function arguments', () => {
@@ -198,8 +187,8 @@ describe('Duplicate Class Detection', () => {
 
 			const diagnostics = validationService.validateFile(ts, sourceFile, ['cn']);
 
-			expect(diagnostics.length).toBe(1);
-			expect(diagnostics[0].code).toBe(TAILWIND_DUPLICATE_CODE);
+			expect(diagnostics.length).toBe(2);
+			expect(diagnostics.every(d => d.code === TAILWIND_DUPLICATE_CODE)).toBe(true);
 		});
 	});
 
@@ -284,9 +273,9 @@ describe('Duplicate Class Detection', () => {
 
 			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
 
-			// Should have 2 duplicate warnings (one for each branch's 'flex')
+			// Should have 3 duplicate warnings (root 'flex' + both branch 'flex')
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
-			expect(duplicates.length).toBe(2);
+			expect(duplicates.length).toBe(3);
 			expect(duplicates.every(d => d.category === ts.DiagnosticCategory.Warning)).toBe(true);
 		});
 
@@ -334,7 +323,7 @@ describe('Duplicate Class Detection', () => {
 
 		it('should flag duplicate within same ternary branch', () => {
 			// Case: clsx('mt-4', isActive ? 'flex flex bg-blue-500' : 'bg-gray-500')
-			// 'flex' twice in true branch = true duplicate
+			// 'flex' twice in true branch = true duplicate (both flagged)
 			const sourceCode =
 				"<div className={clsx('mt-4', isActive ? 'flex flex bg-blue-500' : 'bg-gray-500')}>Hello</div>";
 			const sourceFile = ts.createSourceFile(
@@ -348,8 +337,8 @@ describe('Duplicate Class Detection', () => {
 			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
-			expect(duplicates.length).toBe(1);
-			expect(duplicates[0].category).toBe(ts.DiagnosticCategory.Warning);
+			expect(duplicates.length).toBe(2);
+			expect(duplicates.every(d => d.category === ts.DiagnosticCategory.Warning)).toBe(true);
 		});
 
 		it('should handle simple ternary without utility function', () => {
@@ -409,9 +398,9 @@ describe('Duplicate Class Detection', () => {
 
 			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
 
-			// Should warn - if isError is true, 'flex' would be duplicated
+			// Should warn - both root 'flex' and branch 'flex' are flagged
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
-			expect(duplicates.length).toBe(1);
+			expect(duplicates.length).toBe(2);
 		});
 
 		it('should NOT flag class only in binary && branch (no root duplicate)', () => {
@@ -433,17 +422,6 @@ describe('Duplicate Class Detection', () => {
 		});
 	});
 
-	describe('variables with conditional content', () => {
-		it.skip('should flag duplicate when variable contains ternary with same class as root', () => {
-			// NOTE: This test requires a TypeChecker which is not available in unit tests.
-			// Variable resolution is tested via e2e tests in example/src/duplicate-classes.tsx
-			//
-			// Case: const dynamicClasses = isActive ? 'flex bg-blue-500' : 'flex bg-gray-500';
-			//       clsx('flex', dynamicClasses)
-			// Should detect that 'flex' is in root AND in both branches of the variable
-		});
-	});
-
 	describe('arrays with conditionals', () => {
 		it('should flag duplicate when array contains conditional with same class', () => {
 			// Case: ['flex', isActive && 'flex']
@@ -459,7 +437,7 @@ describe('Duplicate Class Detection', () => {
 			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
-			expect(duplicates.length).toBe(1);
+			expect(duplicates.length).toBe(2);
 		});
 
 		it('should NOT flag when array conditional has different class', () => {
@@ -498,8 +476,8 @@ describe('Duplicate Class Detection', () => {
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
-			expect(duplicates.length).toBe(1);
-			expect(duplicates[0].messageText).toContain('flex');
+			expect(duplicates.length).toBe(2);
+			expect(duplicates.every(d => (d.messageText as string).includes('flex'))).toBe(true);
 		});
 
 		it('should detect duplicates across tv() base and variants', () => {
@@ -525,8 +503,8 @@ describe('Duplicate Class Detection', () => {
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
-			expect(duplicates.length).toBe(1);
-			expect(duplicates[0].messageText).toContain('flex');
+			expect(duplicates.length).toBe(2);
+			expect(duplicates.every(d => (d.messageText as string).includes('flex'))).toBe(true);
 		});
 
 		it('should detect duplicates in tv() compoundVariants', () => {
@@ -550,8 +528,8 @@ describe('Duplicate Class Detection', () => {
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
-			expect(duplicates.length).toBe(1);
-			expect(duplicates[0].messageText).toContain('flex');
+			expect(duplicates.length).toBe(2);
+			expect(duplicates.every(d => (d.messageText as string).includes('flex'))).toBe(true);
 		});
 
 		it('should NOT flag duplicates between different tv() calls', () => {
@@ -599,8 +577,8 @@ describe('Duplicate Class Detection', () => {
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
-			expect(duplicates.length).toBe(1);
-			expect(duplicates[0].messageText).toContain('flex');
+			expect(duplicates.length).toBe(2);
+			expect(duplicates.every(d => (d.messageText as string).includes('flex'))).toBe(true);
 		});
 	});
 
@@ -621,8 +599,8 @@ describe('Duplicate Class Detection', () => {
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
-			expect(duplicates.length).toBe(1);
-			expect(duplicates[0].messageText).toContain('flex');
+			expect(duplicates.length).toBe(2);
+			expect(duplicates.every(d => (d.messageText as string).includes('flex'))).toBe(true);
 		});
 
 		it('should detect duplicates across cva() base and variants', () => {
@@ -647,8 +625,8 @@ describe('Duplicate Class Detection', () => {
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
-			expect(duplicates.length).toBe(1);
-			expect(duplicates[0].messageText).toContain('flex');
+			expect(duplicates.length).toBe(2);
+			expect(duplicates.every(d => (d.messageText as string).includes('flex'))).toBe(true);
 		});
 
 		it('should detect duplicates in cva() compoundVariants', () => {
@@ -671,8 +649,8 @@ describe('Duplicate Class Detection', () => {
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
-			expect(duplicates.length).toBe(1);
-			expect(duplicates[0].messageText).toContain('flex');
+			expect(duplicates.length).toBe(2);
+			expect(duplicates.every(d => (d.messageText as string).includes('flex'))).toBe(true);
 		});
 
 		it('should NOT flag duplicates between different cva() calls', () => {
@@ -711,8 +689,8 @@ describe('Duplicate Class Detection', () => {
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
-			expect(duplicates.length).toBe(1);
-			expect(duplicates[0].messageText).toContain('flex');
+			expect(duplicates.length).toBe(2);
+			expect(duplicates.every(d => (d.messageText as string).includes('flex'))).toBe(true);
 		});
 	});
 });

@@ -1,7 +1,12 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 import path from 'path';
 
-import { getDiagnosticsForFunction, getTextAtDiagnostic, runPluginOnFile } from '../test/test-helpers';
+import {
+	getDiagnosticsForFunction,
+	getTextAtDiagnostic,
+	PluginInstance,
+	runPluginOnFile
+} from '../test/test-helpers';
 
 // Diagnostic codes from DiagnosticService
 const TAILWIND_DUPLICATE_CODE = 90002;
@@ -10,11 +15,18 @@ describe('E2E Tests - TV Duplicate Class Detection', () => {
 	const testFile = path.join(__dirname, 'tv-duplicate-classes.tsx');
 	let diagnostics: ts.Diagnostic[];
 	let sourceCode: string;
+	let plugin: PluginInstance;
 
 	beforeAll(async () => {
 		const result = await runPluginOnFile(testFile);
 		diagnostics = result.diagnostics;
 		sourceCode = result.sourceCode;
+		plugin = result.plugin;
+	});
+
+	afterAll(() => {
+		// Clean up plugin to close file watchers
+		plugin.dispose();
 	});
 
 	// Helper to get duplicate warnings for a function
@@ -27,59 +39,66 @@ describe('E2E Tests - TV Duplicate Class Detection', () => {
 	describe('Duplicates within base', () => {
 		it('should detect duplicate in tv() base string', () => {
 			const warnings = getDuplicateWarnings('TvDuplicateInBase');
-			expect(warnings.length).toBe(1);
+			expect(warnings.length).toBe(2);
 			expect(getTextAtDiagnostic(warnings[0], sourceCode)).toBe('flex');
+			expect(getTextAtDiagnostic(warnings[1], sourceCode)).toBe('flex');
 			expect(warnings[0].category).toBe(ts.DiagnosticCategory.Warning);
 		});
 
 		it('should detect duplicate in tv() base array', () => {
 			const warnings = getDuplicateWarnings('TvDuplicateInBaseArray');
-			expect(warnings.length).toBe(1);
+			expect(warnings.length).toBe(2);
 			expect(getTextAtDiagnostic(warnings[0], sourceCode)).toBe('flex');
+			expect(getTextAtDiagnostic(warnings[1], sourceCode)).toBe('flex');
 		});
 	});
 
 	describe('Duplicates across base and variants', () => {
 		it('should detect duplicate across base and variant', () => {
 			const warnings = getDuplicateWarnings('TvDuplicateBaseAndVariant');
-			expect(warnings.length).toBe(1);
-			expect(getTextAtDiagnostic(warnings[0], sourceCode)).toBe('flex');
+			expect(warnings.length).toBe(2);
+			const texts = warnings.map(w => getTextAtDiagnostic(w, sourceCode));
+			expect(texts.every(t => t === 'flex')).toBe(true);
 		});
 
 		it('should detect multiple duplicates across base and variants', () => {
 			const warnings = getDuplicateWarnings('TvMultipleDuplicatesAcrossVariants');
-			expect(warnings.length).toBe(2);
+			expect(warnings.length).toBe(4);
 			const texts = warnings.map(w => getTextAtDiagnostic(w, sourceCode));
-			expect(texts).toContain('flex');
-			expect(texts).toContain('items-center');
+			expect(texts.filter(t => t === 'flex').length).toBe(2);
+			expect(texts.filter(t => t === 'items-center').length).toBe(2);
 		});
 	});
 
 	describe('Duplicates in compoundVariants', () => {
 		it('should detect duplicate in compoundVariant class', () => {
 			const warnings = getDuplicateWarnings('TvDuplicateInCompoundVariant');
-			expect(warnings.length).toBe(1);
+			expect(warnings.length).toBe(2);
 			expect(getTextAtDiagnostic(warnings[0], sourceCode)).toBe('flex');
+			expect(getTextAtDiagnostic(warnings[1], sourceCode)).toBe('flex');
 		});
 
 		it('should detect duplicate in compoundVariant className', () => {
 			const warnings = getDuplicateWarnings('TvDuplicateInCompoundVariantClassName');
-			expect(warnings.length).toBe(1);
+			expect(warnings.length).toBe(2);
 			expect(getTextAtDiagnostic(warnings[0], sourceCode)).toBe('p-4');
+			expect(getTextAtDiagnostic(warnings[1], sourceCode)).toBe('p-4');
 		});
 	});
 
 	describe('Duplicates in slots', () => {
 		it('should detect duplicate within same slot', () => {
 			const warnings = getDuplicateWarnings('TvDuplicateWithinSlot');
-			expect(warnings.length).toBe(1);
+			expect(warnings.length).toBe(2);
 			expect(getTextAtDiagnostic(warnings[0], sourceCode)).toBe('flex');
+			expect(getTextAtDiagnostic(warnings[1], sourceCode)).toBe('flex');
 		});
 
 		it('should detect duplicate across slots', () => {
 			const warnings = getDuplicateWarnings('TvDuplicateAcrossSlots');
-			expect(warnings.length).toBe(1);
+			expect(warnings.length).toBe(2);
 			expect(getTextAtDiagnostic(warnings[0], sourceCode)).toBe('flex');
+			expect(getTextAtDiagnostic(warnings[1], sourceCode)).toBe('flex');
 		});
 	});
 
@@ -103,7 +122,7 @@ describe('E2E Tests - TV Duplicate Class Detection', () => {
 	describe('Diagnostic format', () => {
 		it('should have correct message format', () => {
 			const warnings = getDuplicateWarnings('TvDuplicateInBase');
-			expect(warnings.length).toBe(1);
+			expect(warnings.length).toBe(2);
 			expect(typeof warnings[0].messageText).toBe('string');
 			expect(warnings[0].messageText).toBe('Duplicate class "flex"');
 		});

@@ -158,6 +158,9 @@ async function benchmarkFile(
 		// Measure memory after benchmarking
 		const memAfter = process.memoryUsage();
 
+		// Dispose plugin to close file watchers
+		plugin.dispose();
+
 		// Calculate statistics
 		const average = times.reduce((a, b) => a + b, 0) / times.length;
 		const sorted = [...times].sort((a, b) => a - b);

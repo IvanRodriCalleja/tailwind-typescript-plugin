@@ -2,7 +2,7 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { IClassNameValidator } from '../core/interfaces';
 import { ClassNameInfo } from '../core/types';
-import { TailwindConflictDetector } from '../infrastructure/TailwindConflictDetector';
+import { ICssProvider, TailwindConflictDetector } from '../infrastructure/TailwindConflictDetector';
 import { Logger } from '../utils/Logger';
 import { ClassNameExtractionService } from './ClassNameExtractionService';
 import { DiagnosticService } from './DiagnosticService';
@@ -18,9 +18,13 @@ export class ValidationService {
 		private readonly extractionService: ClassNameExtractionService,
 		private readonly diagnosticService: DiagnosticService,
 		private readonly validator: IClassNameValidator,
-		private readonly logger: Logger
+		private readonly logger: Logger,
+		cssProvider?: ICssProvider
 	) {
 		this.conflictDetector = new TailwindConflictDetector();
+		if (cssProvider) {
+			this.conflictDetector.setCssProvider(cssProvider);
+		}
 	}
 
 	/**
@@ -165,15 +169,15 @@ export class ValidationService {
 				const branchClasses = occurrences.filter(c => c.conditionalBranchId);
 
 				// Case 1: Class at root level AND in branches = true duplicate
-				// Mark all branch occurrences as duplicates
+				// Mark ALL occurrences as duplicates (both root and branch)
 				if (rootClasses.length > 0 && branchClasses.length > 0) {
-					trueDuplicates.push(...branchClasses);
+					trueDuplicates.push(...rootClasses, ...branchClasses);
 				}
 
 				// Case 2: Multiple occurrences at root level = true duplicate
 				if (rootClasses.length > 1) {
-					// Skip the first, mark rest as duplicates
-					trueDuplicates.push(...rootClasses.slice(1));
+					// Mark ALL occurrences as duplicates
+					trueDuplicates.push(...rootClasses);
 				}
 
 				// Case 3: Same class in different branches of same ternary
@@ -205,10 +209,10 @@ export class ValidationService {
 						} else {
 							// Class only in one branch - check for duplicates within that branch
 							if (branches.true.length > 1) {
-								trueDuplicates.push(...branches.true.slice(1));
+								trueDuplicates.push(...branches.true);
 							}
 							if (branches.false.length > 1) {
-								trueDuplicates.push(...branches.false.slice(1));
+								trueDuplicates.push(...branches.false);
 							}
 						}
 					}

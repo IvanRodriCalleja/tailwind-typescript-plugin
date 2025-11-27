@@ -78,7 +78,8 @@ export class TailwindTypescriptPlugin {
 			extractionService,
 			diagnosticService,
 			this.validator,
-			this.logger
+			this.logger,
+			this.validator // Pass as CSS provider for conflict detection
 		);
 
 		// Initialize code action service for quick fixes
@@ -644,4 +645,15 @@ export class TailwindTypescriptPlugin {
 
 			return undefined;
 		};
+
+	/**
+	 * Clean up resources when the plugin is disposed
+	 * This closes file watchers and other resources that would otherwise keep the process alive
+	 */
+	dispose(): void {
+		if (this.cssFileWatcher) {
+			this.cssFileWatcher.close();
+			this.cssFileWatcher = null;
+		}
+	}
 }

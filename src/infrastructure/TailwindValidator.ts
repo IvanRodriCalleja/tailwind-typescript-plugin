@@ -329,4 +329,24 @@ export class TailwindValidator implements IClassNameValidator {
 		}
 		return Array.from(this.classSet);
 	}
+
+	/**
+	 * Get the generated CSS for a list of class names.
+	 * Uses Tailwind's candidatesToCss to generate the actual CSS output.
+	 * Returns an array of CSS strings (or null for invalid classes) in the same order as input.
+	 */
+	getCssForClasses(classNames: string[]): (string | null)[] {
+		if (!this.designSystem) {
+			return classNames.map(() => null);
+		}
+
+		try {
+			return this.designSystem.candidatesToCss(classNames);
+		} catch (err) {
+			if (this.logger.isEnabled()) {
+				this.logger.log(`[TailwindValidator] Failed to get CSS for classes: ${err}`);
+			}
+			return classNames.map(() => null);
+		}
+	}
 }
