@@ -1,47 +1,47 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
+import fs from 'fs';
+import path from 'path';
 
-import { IClassNameValidator } from '../core/interfaces';
+import { TailwindValidator } from '../infrastructure/TailwindValidator';
 import { NoOpLogger } from '../utils/Logger';
 import { ClassNameExtractionService } from './ClassNameExtractionService';
 import { DiagnosticService, TAILWIND_CONFLICT_CODE } from './DiagnosticService';
 import { ValidationService } from './ValidationService';
 
-// Mock validator that considers all classes valid (for testing conflicts only)
-class MockValidator implements IClassNameValidator {
-	isInitialized(): boolean {
-		return true;
-	}
-
-	isValidClass(): boolean {
-		return true;
-	}
-
-	getInvalidClasses(): string[] {
-		return [];
-	}
-
-	setAllowedClasses(): void {
-		// No-op for testing
-	}
-}
-
 describe('Conflicting Class Detection', () => {
 	let validationService: ValidationService;
 	let diagnosticService: DiagnosticService;
 	let extractionService: ClassNameExtractionService;
-	let mockValidator: MockValidator;
+	let validator: TailwindValidator;
 	let logger: NoOpLogger;
+	const testCssFile = path.join(__dirname, '../../test-conflict-global.css');
+
+	beforeAll(async () => {
+		// Create a simple CSS file for testing
+		fs.writeFileSync(testCssFile, '@import "tailwindcss";');
+
+		// Initialize the real validator
+		logger = new NoOpLogger();
+		validator = new TailwindValidator(testCssFile, logger);
+		await validator.initialize();
+	});
+
+	afterAll(() => {
+		// Clean up test CSS file
+		if (fs.existsSync(testCssFile)) {
+			fs.unlinkSync(testCssFile);
+		}
+	});
 
 	beforeEach(() => {
 		diagnosticService = new DiagnosticService();
 		extractionService = new ClassNameExtractionService();
-		mockValidator = new MockValidator();
-		logger = new NoOpLogger();
 		validationService = new ValidationService(
 			extractionService,
 			diagnosticService,
-			mockValidator,
-			logger
+			validator,
+			logger,
+			validator // Pass as CSS provider for conflict detection
 		);
 	});
 

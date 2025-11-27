@@ -842,19 +842,19 @@ const card2 = tv({ base: 'flex justify-center' });
   Validates variables in class-variance-authority cva() definitions
   Example: `const baseClasses = 'invalid-class'; const button = cva(baseClasses)`
 
-- [X] **Duplicate Classes** → [`duplicate-classes.tsx`](./example/src/duplicate-classes.tsx)
+- [X] **Duplicate Classes** → [`duplicate-classes/`](./example/src/duplicate-classes/)
   Detects duplicate classes within the same className attribute
-  Example: `className="flex flex items-center"` shows warning on second `flex`
+  Example: `className="flex flex items-center"` shows warning on both `flex` occurrences
 
-- [X] **Duplicate Classes in Ternary** → [`duplicate-classes.tsx`](./example/src/duplicate-classes.tsx)
+- [X] **Duplicate Classes in Ternary** → [`duplicate-classes/`](./example/src/duplicate-classes/)
   Smart detection of duplicates in ternary expressions:
-  - Root + branch duplicate: `clsx('flex', isActive ? 'flex' : 'flex')` → Warning (true duplicate)
+  - Root + branch duplicate: `clsx('flex', isActive ? 'flex' : 'flex')` → Warning on all occurrences
   - Both branches same class: `clsx('mt-4', isActive ? 'flex' : 'flex')` → Warning (consider extracting)
   - Single branch only: `clsx('mt-4', isActive ? 'flex' : '')` → No warning (valid pattern)
 
-- [X] **Duplicate Classes in Variables with Conditionals** → [`duplicate-classes.tsx`](./example/src/duplicate-classes.tsx)
+- [X] **Duplicate Classes in Variables with Conditionals** → [`duplicate-classes/`](./example/src/duplicate-classes/)
   Resolves variables containing ternary expressions and detects duplicates:
-  - `const x = isActive ? 'flex' : 'flex'; clsx('flex', x)` → Warning (root + variable duplicate)
+  - `const x = isActive ? 'flex' : 'flex'; clsx('flex', x)` → Warning on all occurrences
   - `const x = isActive ? 'flex' : 'flex'; clsx('mt-4', x)` → Warning (consider extracting from variable)
   - `const x = isActive ? 'flex' : ''; clsx('mt-4', x)` → No warning (single branch)
 

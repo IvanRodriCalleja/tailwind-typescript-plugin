@@ -7,6 +7,7 @@ import pluginFactory from '../../src/index';
 // Diagnostic codes from DiagnosticService
 const TAILWIND_DIAGNOSTIC_CODE = 90001;
 const TAILWIND_DUPLICATE_CODE = 90002;
+const TAILWIND_EXTRACTABLE_CLASS_CODE = 90003;
 
 export interface ElementExpectation {
 	elementId: number;
@@ -22,6 +23,8 @@ export interface TestCase {
 	comment: string;
 	expectedInvalidClasses: string[]; // For simple cases, which classes should be flagged
 	expectedValidClasses: string[]; // For simple cases, which should NOT be flagged
+	expectedDuplicateClasses: string[]; // Classes that should be flagged as duplicates
+	expectedExtractableClasses: string[]; // Classes that should be flagged as extractable (hints)
 	elementExpectations: ElementExpectation[]; // For complex multi-element cases
 	utilityFunctions?: string[]; // Optional custom utility functions to test
 }
@@ -33,6 +36,8 @@ export interface TestCase {
  *  * ✅ Valid: Description
  *  * @invalidClasses [class1, class2]  // optional, for invalid cases
  *  * @validClasses [class3, class4]    // optional, for mixed cases
+ *  * @duplicateClasses [class5, class6]  // optional, for duplicate detection
+ *  * @extractableClasses [class7, class8]  // optional, for extractable hints
  *  *
  *  * OR for multi-element cases:
  *  * @element {1} Description
@@ -57,6 +62,8 @@ export function parseTestFile(filePath: string): TestCase[] {
 			let comment = '';
 			let expectedInvalidClasses: string[] = [];
 			let expectedValidClasses: string[] = [];
+			let expectedDuplicateClasses: string[] = [];
+			let expectedExtractableClasses: string[] = [];
 			let utilityFunctions: string[] | undefined = undefined;
 			const elementExpectations: ElementExpectation[] = [];
 			const elementMap: Map<number, Partial<ElementExpectation>> = new Map();
@@ -70,10 +77,13 @@ export function parseTestFile(filePath: string): TestCase[] {
 					break;
 				}
 
-				// Extract the status line (✅ or ❌)
-				const statusMatch = jsdocLine.match(/^\s*\*\s*(✅|❌)\s*(.+)/);
+				// Extract the status line (✅, ❌, ⚠️, or 💡)
+				const statusMatch = jsdocLine.match(/^\s*\*\s*(✅|❌|⚠️|💡)\s*(.+)/);
 				if (statusMatch && isValid === null) {
-					isValid = statusMatch[1] === '✅';
+					// ✅ = valid, ❌ = invalid, ⚠️ = duplicate warning, 💡 = extractable hint
+					// For duplicate/extractable cases, we still mark them as "valid" in terms of class validity
+					// but they have duplicate/extractable annotations
+					isValid = statusMatch[1] === '✅' || statusMatch[1] === '⚠️' || statusMatch[1] === '💡';
 					comment = statusMatch[2].trim();
 				}
 
@@ -137,6 +147,18 @@ export function parseTestFile(filePath: string): TestCase[] {
 				if (utilityFunctionsMatch) {
 					utilityFunctions = utilityFunctionsMatch[1].split(',').map(fn => fn.trim());
 				}
+
+				// Extract @duplicateClasses [class1, class2]
+				const duplicateMatch = jsdocLine.match(/^\s*\*\s*@duplicateClasses\s*\[([^\]]+)\]/);
+				if (duplicateMatch) {
+					expectedDuplicateClasses = duplicateMatch[1].split(',').map(c => c.trim());
+				}
+
+				// Extract @extractableClasses [class1, class2]
+				const extractableMatch = jsdocLine.match(/^\s*\*\s*@extractableClasses\s*\[([^\]]+)\]/);
+				if (extractableMatch) {
+					expectedExtractableClasses = extractableMatch[1].split(',').map(c => c.trim());
+				}
 			}
 
 			// Convert element map to array
@@ -164,6 +186,8 @@ export function parseTestFile(filePath: string): TestCase[] {
 							comment: comment,
 							expectedInvalidClasses: expectedInvalidClasses,
 							expectedValidClasses: expectedValidClasses,
+							expectedDuplicateClasses: expectedDuplicateClasses,
+							expectedExtractableClasses: expectedExtractableClasses,
 							elementExpectations: elementExpectations,
 							utilityFunctions: utilityFunctions
 						});
@@ -178,6 +202,66 @@ export function parseTestFile(filePath: string): TestCase[] {
 }
 
 /**
+ * Extended test case with file path for folder-based tests
+ */
+export interface FolderTestCase extends TestCase {
+	filePath: string;
+}
+
+/**
+ * Parse all test files in a folder and extract test cases from JSDoc-style comments.
+ * Each .tsx file in the folder is parsed for test cases.
+ */
+export function parseTestFolder(folderPath: string): FolderTestCase[] {
+	const files = fs.readdirSync(folderPath).filter(f => f.endsWith('.tsx'));
+	const allTestCases: FolderTestCase[] = [];
+
+	for (const file of files) {
+		const filePath = path.join(folderPath, file);
+		const testCases = parseTestFile(filePath);
+
+		// Add file path to each test case
+		for (const testCase of testCases) {
+			allTestCases.push({
+				...testCase,
+				filePath
+			});
+		}
+	}
+
+	return allTestCases;
+}
+
+/**
+ * Result of running the plugin on a folder
+ */
+export interface FolderPluginResult {
+	results: Map<string, { diagnostics: ts.Diagnostic[]; sourceCode: string }>;
+	plugins: PluginInstance[];
+}
+
+/**
+ * Run plugin on all files in a folder and return combined diagnostics
+ */
+export async function runPluginOnFolder(
+	folderPath: string,
+	options?: RunPluginOptions | string[]
+): Promise<FolderPluginResult> {
+	const files = fs.readdirSync(folderPath).filter(f => f.endsWith('.tsx'));
+	const results = new Map<string, { diagnostics: ts.Diagnostic[]; sourceCode: string }>();
+	const plugins: PluginInstance[] = [];
+
+	for (const file of files) {
+		const filePath = path.join(folderPath, file);
+		const result = await runPluginOnFile(filePath, options);
+		results.set(filePath, { diagnostics: result.diagnostics, sourceCode: result.sourceCode });
+		plugins.push(result.plugin);
+	}
+
+	return { results, plugins };
+}
+
+/**
  * Options for running the plugin on a file
  */
 export interface RunPluginOptions {
@@ -186,34 +270,44 @@ export interface RunPluginOptions {
 }
 
 /**
+ * Plugin instance interface for cleanup
+ */
+export interface PluginInstance {
+	dispose(): void;
+}
+
+/**
+ * Result of running the plugin on a file
+ */
+export interface RunPluginResult {
+	diagnostics: ts.Diagnostic[];
+	sourceCode: string;
+	plugin: PluginInstance;
+}
+
+/**
  * Create a test environment and run plugin diagnostics
  */
 export async function runPluginOnFile(
 	testFilePath: string,
 	options?: RunPluginOptions | string[]
-): Promise<{ diagnostics: ts.Diagnostic[]; sourceCode: string }> {
+): Promise<RunPluginResult> {
 	// Support legacy signature where second param is utilityFunctions array
 	const opts: RunPluginOptions =
 		Array.isArray(options) ? { utilityFunctions: options } : options || {};
 	const tempDir = path.dirname(testFilePath);
-	const cssFile = path.join(tempDir, 'global.css');
 
-	// Create TypeScript config
-	const tsconfig = path.join(tempDir, 'tsconfig.json');
-	if (!fs.existsSync(tsconfig)) {
-		fs.writeFileSync(
-			tsconfig,
-			JSON.stringify({
-				compilerOptions: {
-					jsx: 'react',
-					target: 'es2015',
-					module: 'commonjs'
-				}
-			})
-		);
+	// Look for global.css in the current directory or parent directories
+	let cssFile = path.join(tempDir, 'global.css');
+	if (!fs.existsSync(cssFile)) {
+		// Try parent directory
+		const parentCss = path.join(tempDir, '..', 'global.css');
+		if (fs.existsSync(parentCss)) {
+			cssFile = parentCss;
+		}
 	}
 
-	// Create TypeScript project
+	// Find TypeScript config - use ts.findConfigFile which searches parent directories
 	const configPath = ts.findConfigFile(tempDir, ts.sys.fileExists, 'tsconfig.json');
 	const configFile = ts.readConfigFile(configPath!, ts.sys.readFile);
 	const parsedConfig = ts.parseJsonConfigFileContent(configFile.config, ts.sys, tempDir);
@@ -273,11 +367,13 @@ export async function runPluginOnFile(
 	const diagnostics = proxy.getSemanticDiagnostics(testFilePath);
 	const sourceCode = fs.readFileSync(testFilePath, 'utf-8');
 
-	return { diagnostics, sourceCode };
+	return { diagnostics, sourceCode, plugin };
 }
 
 /**
- * Get diagnostics for a specific function in the source code
+ * Get diagnostics for a specific function in the source code.
+ * Also looks for a test scope delimiter comment (// @test-scope-start) above the function
+ * to include variables and other code in the test scope.
  */
 export function getDiagnosticsForFunction(
 	diagnostics: ts.Diagnostic[],
@@ -290,14 +386,55 @@ export function getDiagnosticsForFunction(
 		return [];
 	}
 
-	const functionStart = functionStartMatch.index!;
+	const functionDeclStart = functionStartMatch.index!;
 
-	// Find the closing brace of the function (simplified - assumes proper formatting)
+	// Look backwards for a test scope delimiter or JSDoc comment to find the real start
+	// The test scope starts at either:
+	// 1. A "// @test-scope-start" comment
+	// 2. The JSDoc comment (/**) if no scope delimiter is found
+	let testScopeStart = functionDeclStart;
+
+	// Search backwards from the function declaration
+	const beforeFunction = sourceCode.substring(0, functionDeclStart);
+	const lines = beforeFunction.split('\n');
+
+	// Find the JSDoc comment that belongs to this function (searching backwards)
+	let foundJsDoc = false;
+
+	for (let i = lines.length - 1; i >= 0; i--) {
+		const line = lines[i];
+		const trimmedLine = line.trim();
+
+		// Check for scope delimiter
+		if (trimmedLine === '// @test-scope-start') {
+			// Calculate the position of this line
+			testScopeStart = lines.slice(0, i).join('\n').length + (i > 0 ? 1 : 0);
+			break;
+		}
+
+		// Check for start of JSDoc (/**)
+		if (trimmedLine.startsWith('/**') && !foundJsDoc) {
+			// Calculate the position of this line
+			testScopeStart = lines.slice(0, i).join('\n').length + (i > 0 ? 1 : 0);
+			foundJsDoc = true;
+			// Don't break - keep looking for scope delimiter
+		}
+
+		// If we hit another function declaration or a section comment, stop
+		if (
+			trimmedLine.startsWith('export function') ||
+			trimmedLine.startsWith('// ====')
+		) {
+			break;
+		}
+	}
+
+	// Find the closing brace of the function
 	let braceCount = 0;
-	let functionEnd = functionStart;
+	let functionEnd = functionDeclStart;
 	let foundFirstBrace = false;
 
-	for (let i = functionStart; i < sourceCode.length; i++) {
+	for (let i = functionDeclStart; i < sourceCode.length; i++) {
 		if (sourceCode[i] === '{') {
 			braceCount++;
 			foundFirstBrace = true;
@@ -310,12 +447,12 @@ export function getDiagnosticsForFunction(
 		}
 	}
 
-	// Filter diagnostics that are within this function's range
+	// Filter diagnostics that are within this test scope range
 	return diagnostics.filter(
 		d =>
 			(d as { source?: string }).source === 'tw-plugin' &&
 			d.start !== undefined &&
-			d.start >= functionStart &&
+			d.start >= testScopeStart &&
 			d.start <= functionEnd
 	);
 }
@@ -493,4 +630,104 @@ export function createTestAssertion(
 			expect(errorText).not.toContain('}');
 		});
 	}
+}
+
+/**
+ * Generate test assertions for duplicate class detection
+ */
+export function createDuplicateTestAssertion(
+	testCase: TestCase,
+	diagnostics: ts.Diagnostic[],
+	sourceCode: string,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	expect: any
+): void {
+	const functionDiagnostics = getDiagnosticsForFunction(
+		diagnostics,
+		sourceCode,
+		testCase.functionName
+	);
+
+	// Filter to duplicate warnings
+	const duplicateDiagnostics = functionDiagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
+	const duplicateTexts = duplicateDiagnostics.map(d => getTextAtDiagnostic(d, sourceCode));
+
+	// Filter to extractable hints
+	const extractableDiagnostics = functionDiagnostics.filter(
+		d => d.code === TAILWIND_EXTRACTABLE_CLASS_CODE
+	);
+	const extractableTexts = extractableDiagnostics.map(d => getTextAtDiagnostic(d, sourceCode));
+
+	// Check expected duplicate classes
+	if (testCase.expectedDuplicateClasses.length > 0) {
+		// Count expected occurrences of each class
+		const expectedCounts = new Map<string, number>();
+		testCase.expectedDuplicateClasses.forEach(cls => {
+			expectedCounts.set(cls, (expectedCounts.get(cls) || 0) + 1);
+		});
+
+		// Count actual occurrences
+		const actualCounts = new Map<string, number>();
+		duplicateTexts.forEach(cls => {
+			actualCounts.set(cls, (actualCounts.get(cls) || 0) + 1);
+		});
+
+		// Verify each expected class appears the correct number of times
+		expectedCounts.forEach((expectedCount, cls) => {
+			const actualCount = actualCounts.get(cls) || 0;
+			expect(actualCount).toBe(expectedCount);
+		});
+
+		// Verify no unexpected duplicates
+		duplicateTexts.forEach(text => {
+			expect(testCase.expectedDuplicateClasses).toContain(text);
+		});
+	} else if (testCase.expectedExtractableClasses.length === 0) {
+		// No duplicates expected and no extractables expected
+		expect(duplicateDiagnostics.length).toBe(0);
+	}
+
+	// Check expected extractable classes
+	if (testCase.expectedExtractableClasses.length > 0) {
+		// Count expected occurrences of each class
+		const expectedCounts = new Map<string, number>();
+		testCase.expectedExtractableClasses.forEach(cls => {
+			expectedCounts.set(cls, (expectedCounts.get(cls) || 0) + 1);
+		});
+
+		// Count actual occurrences
+		const actualCounts = new Map<string, number>();
+		extractableTexts.forEach(cls => {
+			actualCounts.set(cls, (actualCounts.get(cls) || 0) + 1);
+		});
+
+		// Verify each expected class appears the correct number of times
+		expectedCounts.forEach((expectedCount, cls) => {
+			const actualCount = actualCounts.get(cls) || 0;
+			expect(actualCount).toBe(expectedCount);
+		});
+
+		// Verify no unexpected extractables
+		extractableTexts.forEach(text => {
+			expect(testCase.expectedExtractableClasses).toContain(text);
+		});
+	} else if (testCase.expectedDuplicateClasses.length === 0) {
+		// No extractables expected and no duplicates expected
+		expect(extractableDiagnostics.length).toBe(0);
+	}
+
+	// Verify diagnostic format for duplicates
+	duplicateDiagnostics.forEach(diagnostic => {
+		expect(diagnostic.category).toBe(ts.DiagnosticCategory.Warning);
+		expect(typeof diagnostic.messageText).toBe('string');
+		if (typeof diagnostic.messageText === 'string') {
+			expect(diagnostic.messageText).toContain('Duplicate class');
+		}
+	});
+
+	// Verify diagnostic format for extractables
+	extractableDiagnostics.forEach(diagnostic => {
+		expect(diagnostic.category).toBe(ts.DiagnosticCategory.Warning);
+		expect(typeof diagnostic.messageText === 'string').toBe(true);
+	});
 }

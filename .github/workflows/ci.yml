@@ -64,6 +64,15 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Build plugin for E2E tests
+        run: npm run build
+
+      - name: Install example dependencies
+        run: cd example && npm ci
+
+      - name: Run E2E tests
+        run: cd example && npm test
+
   build:
     name: Build
     runs-on: ubuntu-latest

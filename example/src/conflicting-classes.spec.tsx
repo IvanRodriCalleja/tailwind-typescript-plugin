@@ -1,7 +1,12 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 import path from 'path';
 
-import { getDiagnosticsForFunction, getTextAtDiagnostic, runPluginOnFile } from '../test/test-helpers';
+import {
+	getDiagnosticsForFunction,
+	getTextAtDiagnostic,
+	PluginInstance,
+	runPluginOnFile
+} from '../test/test-helpers';
 
 // Diagnostic codes from DiagnosticService
 const TAILWIND_DIAGNOSTIC_CODE = 90001;
@@ -12,11 +17,18 @@ describe('E2E Tests - Conflicting Class Detection', () => {
 	const testFile = path.join(__dirname, 'conflicting-classes.tsx');
 	let diagnostics: ts.Diagnostic[];
 	let sourceCode: string;
+	let plugin: PluginInstance;
 
 	beforeAll(async () => {
 		const result = await runPluginOnFile(testFile, { utilityFunctions: ['clsx', 'cn'] });
 		diagnostics = result.diagnostics;
 		sourceCode = result.sourceCode;
+		plugin = result.plugin;
+	});
+
+	afterAll(() => {
+		// Clean up plugin to close file watchers
+		plugin.dispose();
 	});
 
 	// Helper to get conflict warnings for a function
@@ -285,7 +297,7 @@ describe('E2E Tests - Conflicting Class Detection', () => {
 			const conflicts = getConflictWarnings('DuplicateNotConflict');
 			const duplicates = getDuplicateWarnings('DuplicateNotConflict');
 			expect(conflicts.length).toBe(0);
-			expect(duplicates.length).toBe(1);
+			expect(duplicates.length).toBe(2);
 		});
 	});
 
@@ -407,10 +419,10 @@ describe('E2E Tests - Conflicting Class Detection', () => {
 			const duplicates = getDuplicateWarnings('DuplicateAndConflict');
 			// 2 conflicts (flex vs block) + the duplicate flex also conflicts with block
 			expect(conflicts.length).toBeGreaterThanOrEqual(2);
-			expect(duplicates.length).toBe(1);
+			expect(duplicates.length).toBe(2);
 			const conflictTexts = conflicts.map(c => getTextAtDiagnostic(c, sourceCode));
 			expect(conflictTexts).toContain('block');
-			expect(getTextAtDiagnostic(duplicates[0], sourceCode)).toBe('flex');
+			expect(duplicates.every(d => getTextAtDiagnostic(d, sourceCode) === 'flex')).toBe(true);
 		});
 	});
 });
