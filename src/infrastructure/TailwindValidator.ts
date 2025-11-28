@@ -38,6 +38,7 @@ export class TailwindValidator implements IClassNameValidator {
 	private logger: Logger;
 	private validationCache: PerformanceCache<string, boolean>;
 	private allowedClasses: Set<string> = new Set();
+	private allowedPatterns: Array<{ pattern: string; type: 'prefix' | 'suffix' | 'contains' }> = [];
 
 	constructor(cssFilePath: string, logger: Logger) {
 		this.cssFilePath = cssFilePath;
@@ -118,14 +119,65 @@ export class TailwindValidator implements IClassNameValidator {
 
 	/**
 	 * Set custom allowed classes from configuration
+	 * Supports exact matches and wildcard patterns:
+	 * - "custom-*" matches anything starting with "custom-"
+	 * - "*-icon" matches anything ending with "-icon"
+	 * - "*-component-*" matches anything containing "-component-"
 	 */
 	setAllowedClasses(allowedClasses: string[]): void {
-		this.allowedClasses = new Set(allowedClasses);
+		const exactClasses: string[] = [];
+		const patterns: Array<{ pattern: string; type: 'prefix' | 'suffix' | 'contains' }> = [];
+
+		for (const entry of allowedClasses) {
+			const startsWithWildcard = entry.startsWith('*');
+			const endsWithWildcard = entry.endsWith('*');
+
+			if (startsWithWildcard && endsWithWildcard && entry.length > 2) {
+				// *something* -> contains match
+				patterns.push({ pattern: entry.slice(1, -1), type: 'contains' });
+			} else if (endsWithWildcard && entry.length > 1) {
+				// something* -> prefix match
+				patterns.push({ pattern: entry.slice(0, -1), type: 'prefix' });
+			} else if (startsWithWildcard && entry.length > 1) {
+				// *something -> suffix match
+				patterns.push({ pattern: entry.slice(1), type: 'suffix' });
+			} else {
+				// Exact match (including lone "*" which we treat as exact)
+				exactClasses.push(entry);
+			}
+		}
+
+		this.allowedClasses = new Set(exactClasses);
+		this.allowedPatterns = patterns;
+
 		// Clear cache when allowed classes change
 		this.validationCache.clear();
-		if (allowedClasses.length > 0) {
-			this.logger.log(`[TailwindValidator] Set ${allowedClasses.length} custom allowed classes`);
+
+		if (exactClasses.length > 0 || patterns.length > 0) {
+			this.logger.log(
+				`[TailwindValidator] Set ${exactClasses.length} exact allowed classes and ${patterns.length} patterns`
+			);
 		}
+	}
+
+	/**
+	 * Check if a class name matches any allowed pattern
+	 */
+	private matchesAllowedPattern(className: string): boolean {
+		for (const { pattern, type } of this.allowedPatterns) {
+			switch (type) {
+				case 'prefix':
+					if (className.startsWith(pattern)) return true;
+					break;
+				case 'suffix':
+					if (className.endsWith(pattern)) return true;
+					break;
+				case 'contains':
+					if (className.includes(pattern)) return true;
+					break;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -146,8 +198,14 @@ export class TailwindValidator implements IClassNameValidator {
 			return cached;
 		}
 
-		// PERFORMANCE: Check custom allowed classes (fast path)
+		// PERFORMANCE: Check custom allowed classes (fast path - exact match)
 		if (this.allowedClasses.has(className)) {
+			this.validationCache.set(className, true);
+			return true;
+		}
+
+		// Check allowed patterns (slightly slower path)
+		if (this.allowedPatterns.length > 0 && this.matchesAllowedPattern(className)) {
 			this.validationCache.set(className, true);
 			return true;
 		}
@@ -198,8 +256,14 @@ export class TailwindValidator implements IClassNameValidator {
 				continue;
 			}
 
-			// Check allowed classes
+			// Check allowed classes (exact match)
 			if (this.allowedClasses.has(className)) {
+				this.validationCache.set(className, true);
+				continue;
+			}
+
+			// Check allowed patterns
+			if (this.allowedPatterns.length > 0 && this.matchesAllowedPattern(className)) {
 				this.validationCache.set(className, true);
 				continue;
 			}

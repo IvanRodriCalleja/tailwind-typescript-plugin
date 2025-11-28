@@ -283,6 +283,55 @@ describe('TailwindValidator', () => {
 			expect(validator.isValidClass('flex')).toBe(true);
 			expect(validator.isValidClass('custom-class')).toBe(false);
 		});
+
+		it('should support prefix wildcard patterns (custom-*)', () => {
+			validator.setAllowedClasses(['custom-*']);
+			expect(validator.isValidClass('custom-button')).toBe(true);
+			expect(validator.isValidClass('custom-card')).toBe(true);
+			expect(validator.isValidClass('custom-')).toBe(true);
+			expect(validator.isValidClass('mycustom-button')).toBe(false);
+			expect(validator.isValidClass('not-matching')).toBe(false);
+		});
+
+		it('should support suffix wildcard patterns (*-icon)', () => {
+			validator.setAllowedClasses(['*-icon']);
+			expect(validator.isValidClass('arrow-icon')).toBe(true);
+			expect(validator.isValidClass('close-icon')).toBe(true);
+			expect(validator.isValidClass('-icon')).toBe(true);
+			expect(validator.isValidClass('arrow-icons')).toBe(false);
+			expect(validator.isValidClass('icon-arrow')).toBe(false);
+		});
+
+		it('should support contains wildcard patterns (*-component-*)', () => {
+			validator.setAllowedClasses(['*-component-*']);
+			expect(validator.isValidClass('app-component-header')).toBe(true);
+			expect(validator.isValidClass('main-component-footer')).toBe(true);
+			expect(validator.isValidClass('-component-')).toBe(true);
+			expect(validator.isValidClass('component-header')).toBe(false);
+			expect(validator.isValidClass('app-component')).toBe(false);
+		});
+
+		it('should support mixed exact and pattern classes', () => {
+			validator.setAllowedClasses(['exact-match', 'custom-*', '*-icon']);
+			expect(validator.isValidClass('exact-match')).toBe(true);
+			expect(validator.isValidClass('custom-button')).toBe(true);
+			expect(validator.isValidClass('arrow-icon')).toBe(true);
+			expect(validator.isValidClass('exact-match-extra')).toBe(false);
+			expect(validator.isValidClass('unknown')).toBe(false);
+		});
+
+		it('should treat lone * as exact match', () => {
+			validator.setAllowedClasses(['*']);
+			expect(validator.isValidClass('*')).toBe(true);
+			expect(validator.isValidClass('anything')).toBe(false);
+		});
+
+		it('should work with getInvalidClasses and patterns', () => {
+			validator.setAllowedClasses(['custom-*', '*-icon']);
+			const classes = ['custom-btn', 'arrow-icon', 'invalid-one', 'flex'];
+			const invalid = validator.getInvalidClasses(classes);
+			expect(invalid).toEqual(['invalid-one']);
+		});
 	});
 
 	describe('reload', () => {
