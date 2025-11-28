@@ -10,6 +10,12 @@ import { ClassNameInfo, ExtractionContext, UtilityFunction, UtilityFunctionConfi
 type ImportMap = Map<string, string>;
 
 /**
+ * Represents namespace imports: local name -> module specifier
+ * For example: { 'utils': 'clsx' } for `import * as utils from 'clsx'`
+ */
+type NamespaceImportMap = Map<string, string>;
+
+/**
  * Abstract base class for all extractors
  * Provides common functionality and enforces the contract
  */
@@ -19,6 +25,12 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 	 * Maps filename -> (local identifier name -> module specifier)
 	 */
 	private importCache = new Map<string, ImportMap>();
+
+	/**
+	 * Cache for namespace import mappings per file
+	 * Maps filename -> (namespace identifier -> module specifier)
+	 */
+	private namespaceImportCache = new Map<string, NamespaceImportMap>();
 
 	abstract canHandle(node: ts.Node, context: ExtractionContext): boolean;
 	abstract extract(node: ts.Node, context: ExtractionContext): ClassNameInfo[];
@@ -67,7 +79,7 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 	): boolean {
 		const expr = callExpression.expression;
 		let functionName: string | null = null;
-		let isMemberExpression = false;
+		let objectName: string | null = null;
 
 		// Handle simple function calls: clsx('flex')
 		if (ts.isIdentifier(expr)) {
@@ -76,7 +88,10 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 		// Handle member expressions: utils.cn('flex'), lib.clsx('flex')
 		else if (ts.isPropertyAccessExpression(expr)) {
 			functionName = expr.name.text;
-			isMemberExpression = true;
+			// Get the object name (e.g., 'utils' from 'utils.clsx')
+			if (ts.isIdentifier(expr.expression)) {
+				objectName = expr.expression.text;
+			}
 		}
 
 		if (!functionName) {
@@ -93,13 +108,17 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 			} else {
 				// UtilityFunctionConfig: match by name AND verify import
 				if (utilityFunc.name === functionName) {
-					// For member expressions (utils.clsx), skip import verification
-					// since we can't trace through object properties
-					if (isMemberExpression) {
-						return true;
-					}
 					// If we have context, verify the import source
 					if (context) {
+						// For member expressions (utils.clsx), check if object is namespace imported
+						if (objectName) {
+							if (this.isNamespaceImportedFrom(objectName, utilityFunc.from, context)) {
+								return true;
+							}
+							// Object is not a namespace import from expected package, skip
+							continue;
+						}
+						// Direct function call - check direct import
 						if (this.isImportedFrom(functionName, utilityFunc.from, context)) {
 							return true;
 						}
@@ -120,7 +139,6 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 	 * - Named imports: import { clsx } from 'clsx'
 	 * - Aliased imports: import { clsx as cx } from 'clsx'
 	 * - Default imports: import clsx from 'clsx'
-	 * - Namespace imports: import * as utils from 'clsx' (then utils.clsx)
 	 */
 	protected isImportedFrom(
 		functionName: string,
@@ -139,6 +157,26 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 	}
 
 	/**
+	 * Check if an object name is a namespace import from a specific module
+	 * For: import * as utils from 'clsx' -> utils.clsx('flex')
+	 */
+	protected isNamespaceImportedFrom(
+		objectName: string,
+		expectedModule: string,
+		context: ExtractionContext
+	): boolean {
+		const namespaceMap = this.getNamespaceImportMap(context);
+		const actualModule = namespaceMap.get(objectName);
+
+		if (!actualModule) {
+			return false;
+		}
+
+		// Check for exact match or subpath match
+		return actualModule === expectedModule || actualModule.startsWith(expectedModule + '/');
+	}
+
+	/**
 	 * Get the import map for the current file
 	 * Caches the result for performance
 	 */
@@ -150,8 +188,43 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 			return this.importCache.get(fileName)!;
 		}
 
-		// Build import map by scanning all import declarations
+		// Build both maps by scanning all import declarations
+		this.buildImportMaps(context);
+
+		return this.importCache.get(fileName)!;
+	}
+
+	/**
+	 * Get the namespace import map for the current file
+	 * Caches the result for performance
+	 */
+	private getNamespaceImportMap(context: ExtractionContext): NamespaceImportMap {
+		const fileName = context.sourceFile.fileName;
+
+		// Check cache first
+		if (this.namespaceImportCache.has(fileName)) {
+			return this.namespaceImportCache.get(fileName)!;
+		}
+
+		// Build both maps by scanning all import declarations
+		this.buildImportMaps(context);
+
+		return this.namespaceImportCache.get(fileName)!;
+	}
+
+	/**
+	 * Build both import maps (regular and namespace) for the current file
+	 */
+	private buildImportMaps(context: ExtractionContext): void {
+		const fileName = context.sourceFile.fileName;
+
+		// Skip if already built
+		if (this.importCache.has(fileName) && this.namespaceImportCache.has(fileName)) {
+			return;
+		}
+
 		const importMap: ImportMap = new Map();
+		const namespaceMap: NamespaceImportMap = new Map();
 
 		for (const statement of context.sourceFile.statements) {
 			if (!context.typescript.isImportDeclaration(statement)) {
@@ -175,26 +248,25 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 				importMap.set(importClause.name.text, moduleName);
 			}
 
-			// Handle named imports: import { clsx } or import { clsx as cx }
+			// Handle named and namespace imports
 			const namedBindings = importClause.namedBindings;
 			if (namedBindings) {
 				if (context.typescript.isNamedImports(namedBindings)) {
+					// Named imports: import { clsx } or import { clsx as cx }
 					for (const element of namedBindings.elements) {
 						// element.name is the local name (what it's called in this file)
-						// element.propertyName is the original export name (if aliased)
 						importMap.set(element.name.text, moduleName);
 					}
+				} else if (context.typescript.isNamespaceImport(namedBindings)) {
+					// Namespace imports: import * as utils from 'clsx'
+					namespaceMap.set(namedBindings.name.text, moduleName);
 				}
-				// Handle namespace imports: import * as utils from 'clsx'
-				// For namespace imports, we'd need to track utils.* calls separately
-				// For now, we don't add namespace imports to the map since they're accessed as properties
 			}
 		}
 
-		// Cache the result
+		// Cache both results
 		this.importCache.set(fileName, importMap);
-
-		return importMap;
+		this.namespaceImportCache.set(fileName, namespaceMap);
 	}
 
 	/**
@@ -202,6 +274,7 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 	 */
 	clearImportCache(): void {
 		this.importCache.clear();
+		this.namespaceImportCache.clear();
 	}
 
 	/**
