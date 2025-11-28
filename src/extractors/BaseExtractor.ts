@@ -1,7 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { IClassNameExtractor } from '../core/interfaces';
-import { ClassNameInfo, ExtractionContext, UtilityFunction, UtilityFunctionConfig } from '../core/types';
+import { ClassNameInfo, ExtractionContext, UtilityFunction } from '../core/types';
 
 /**
  * Represents a resolved import mapping: local name -> module specifier

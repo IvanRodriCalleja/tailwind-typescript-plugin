@@ -79,7 +79,9 @@ export class PluginConfigService {
 			);
 			return merged;
 		} else {
-			this.logger.log(`Using default utility functions: ${DEFAULT_UTILITY_FUNCTIONS.map(getName).join(', ')}`);
+			this.logger.log(
+				`Using default utility functions: ${DEFAULT_UTILITY_FUNCTIONS.map(getName).join(', ')}`
+			);
 			return DEFAULT_UTILITY_FUNCTIONS;
 		}
 	}
