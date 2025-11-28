@@ -1,3 +1,9 @@
+## [1.4.0-beta.7](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.6...v1.4.0-beta.7) (2025-11-28)
+
+### ✨ Features
+
+* add wildcard pattern support for allowedClasses ([a490b68](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/a490b68800b54bfde6eadef42ab97aaee51550fc))
+
 ## [1.4.0-beta.6](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.5...v1.4.0-beta.6) (2025-11-28)
 
 ### ✨ Features
