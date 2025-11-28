@@ -1,3 +1,13 @@
+## [1.4.0-beta.6](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.5...v1.4.0-beta.6) (2025-11-28)
+
+### ✨ Features
+
+* add spread operator support for class name validation ([a4c4ad1](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/a4c4ad1fc2ef42e7d4d87351af4fe464384c44b3))
+
+### 🔧 Chores
+
+* add utility libraries and cn helper ([2ac664d](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/2ac664dc33ba4a5c52e3059ee5ec5c9257da1c78))
+
 ## [1.4.0-beta.5](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.4...v1.4.0-beta.5) (2025-11-27)
 
 ### ♻️ Code Refactoring
