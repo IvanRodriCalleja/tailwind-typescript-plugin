@@ -245,6 +245,18 @@ const validClass = 'flex items-center';
 const baseClass = 'flex';
 <div className={[baseClass, 'items-center']}>Array with variable</div>
 
+// ✅ Spread operator in arrays
+const baseClasses = ['flex', 'items-center'];
+<div className={[...baseClasses, 'p-4']}>Spread in array</div>
+
+// ✅ Spread operator in function calls
+<div className={cn(...baseClasses, 'p-4')}>Spread in function</div>
+
+// ✅ Multiple spreads
+const layoutClasses = ['flex', 'items-center'];
+const spacingClasses = ['p-4', 'm-2'];
+<div className={cn(...layoutClasses, ...spacingClasses)}>Multiple spreads</div>
+
 // ✅ Variables in tv() and cva()
 const buttonBase = 'font-semibold text-white';
 const button = tv({ base: buttonBase });
@@ -275,6 +287,14 @@ const badClass = 'invalid-array-class';
 // Error: The class "invalid-array-class" is not a valid Tailwind class.
 //        This value is used as className via variable "badClass" on line 8
 <div className={['flex', badClass]}>Array with invalid variable</div>
+
+// ❌ Invalid class in spread operator
+const invalidClasses = ['flex', 'invalid-spread-class'];
+// Error: The class "invalid-spread-class" is not a valid Tailwind class.
+<div className={[...invalidClasses, 'items-center']}>Spread with invalid</div>
+
+// ❌ Invalid class in spread within function call
+<div className={cn(...invalidClasses, 'p-4')}>Function spread with invalid</div>
 ```
 
 **Custom allowed classes**:
@@ -324,6 +344,18 @@ The plugin detects duplicate classes within the same `className` attribute and s
 
 // ⚠️ Warning: Duplicates in arrays
 <div className={cn(['flex', 'flex', 'items-center'])}>In array</div>
+// Warning: Duplicate class "flex"
+
+// ⚠️ Warning: Duplicates with spread operators
+const baseClasses = ['flex', 'items-center'];
+<div className={cn(...baseClasses, 'flex', 'items-center', 'p-4')}>Spread duplicates</div>
+// Warning: Duplicate class "flex"
+// Warning: Duplicate class "items-center"
+
+// ⚠️ Warning: Duplicates between multiple spreads
+const layoutClasses = ['flex', 'items-center'];
+const containerClasses = ['flex', 'justify-center'];
+<div className={cn(...layoutClasses, ...containerClasses)}>Multiple spread duplicates</div>
 // Warning: Duplicate class "flex"
 
 // ✅ Valid: Same class in DIFFERENT elements (not duplicates)
@@ -477,6 +509,22 @@ The plugin intelligently handles ternary expressions - conflicts are NOT flagged
 
 <div className={cn('text-left', 'text-right')}>Conflict</div>
 // Warning: Both classes affect text-align
+```
+
+**Conflicts with spread operators**:
+
+```tsx
+// ⚠️ Warning: Conflicts with spread operator
+const baseClasses = ['flex', 'p-4'];
+<div className={cn(...baseClasses, 'p-2', 'items-center')}>Spread conflict</div>
+// Warning: Class "p-4" conflicts with "p-2". Both affect the padding property.
+
+// ⚠️ Warning: Conflicts between multiple spreads
+const smallText = ['text-sm', 'font-medium'];
+const largeText = ['text-lg', 'font-bold'];
+<div className={cn(...smallText, ...largeText)}>Multiple spread conflicts</div>
+// Warning: Class "text-sm" conflicts with "text-lg". Both affect the font-size property.
+// Warning: Class "font-medium" conflicts with "font-bold". Both affect the font-weight property.
 ```
 
 **Conflicts in tv() and cva()**:
@@ -833,6 +881,15 @@ const card2 = tv({ base: 'flex justify-center' });
 - [X] **Variable in Objects** → [`test-variable-in-object.tsx`](./example/src/test-variable-in-object.tsx)
   Validates variables used in computed object property keys
   Example: `const myClass = 'invalid-class'; <div className={{ [myClass]: true }}>Object</div>`
+
+- [X] **Spread Operator** → [`test-spread-operator/`](./example/src/test-spread-operator/)
+  Validates spread operators in arrays and function calls
+  Example: `const base = ['flex', 'invalid']; <div className={[...base, 'p-4']}>Spread</div>`
+  - Spread in arrays: `className={[...baseClasses, 'p-4']}`
+  - Spread in function calls: `className={cn(...baseClasses, 'p-4')}`
+  - Multiple spreads: `className={cn(...layoutClasses, ...spacingClasses)}`
+  - Nested spreads: Variables containing arrays with spreads are resolved
+  - Detects invalid classes, duplicates, and conflicts within spread expressions
 
 - [X] **TV Variable** → [`tv-variable.tsx`](./example/src/tv-variable.tsx)
   Validates variables in tailwind-variants tv() definitions

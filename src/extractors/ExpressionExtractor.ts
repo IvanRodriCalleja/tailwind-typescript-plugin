@@ -75,12 +75,26 @@ export class ExpressionExtractor extends BaseExtractor {
 				);
 			}
 		}
-		// Handle call expressions: clsx('class1', 'class2', myVar)
+		// Handle call expressions: clsx('class1', 'class2', myVar, ...spreadClasses)
 		else if (context.typescript.isCallExpression(expression)) {
 			if (this.shouldValidateFunctionCall(expression, context.utilityFunctions)) {
 				expression.arguments.forEach(arg => {
+					// Handle spread arguments: clsx('flex', ...baseClasses)
+					if (context.typescript.isSpreadElement(arg)) {
+						const spreadExpr = arg.expression;
+						// If the spread target is an identifier, resolve it as a variable reference
+						if (context.typescript.isIdentifier(spreadExpr)) {
+							const extracted = this.variableExtractor.extractFromIdentifier(spreadExpr, context);
+							classNames.push(...addBranchId(extracted));
+						} else {
+							// Recursively extract from the spread target expression
+							classNames.push(
+								...this.extractFromExpression(spreadExpr, context, conditionalBranchId)
+							);
+						}
+					}
 					// Handle identifier arguments (variable references in function calls)
-					if (context.typescript.isIdentifier(arg)) {
+					else if (context.typescript.isIdentifier(arg)) {
 						const extracted = this.variableExtractor.extractFromIdentifier(arg, context);
 						classNames.push(...addBranchId(extracted));
 					} else {
@@ -132,11 +146,29 @@ export class ExpressionExtractor extends BaseExtractor {
 				classNames.push(...this.extractFromExpression(inner, context, conditionalBranchId));
 			}
 		}
-		// Handle array literal expressions: ['class1', 'class2', myVar]
+		// Handle array literal expressions: ['class1', 'class2', myVar, ...spreadClasses]
 		else if (context.typescript.isArrayLiteralExpression(expression)) {
 			expression.elements.forEach(element => {
+				// Skip empty array holes: [, , 'flex']
+				if (element === undefined) {
+					return;
+				}
+				// Handle spread elements: [...baseClasses, 'flex']
+				if (context.typescript.isSpreadElement(element)) {
+					const spreadExpr = element.expression;
+					// If the spread target is an identifier, resolve it as a variable reference
+					if (context.typescript.isIdentifier(spreadExpr)) {
+						const extracted = this.variableExtractor.extractFromIdentifier(spreadExpr, context);
+						classNames.push(...addBranchId(extracted));
+					} else {
+						// Recursively extract from the spread target expression
+						classNames.push(
+							...this.extractFromExpression(spreadExpr, context, conditionalBranchId)
+						);
+					}
+				}
 				// Handle identifier elements (variable references in arrays)
-				if (context.typescript.isIdentifier(element)) {
+				else if (context.typescript.isIdentifier(element)) {
 					const extracted = this.variableExtractor.extractFromIdentifier(element, context);
 					classNames.push(...addBranchId(extracted));
 				} else {

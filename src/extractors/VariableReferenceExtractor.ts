@@ -211,6 +211,36 @@ export class VariableReferenceExtractor extends BaseExtractor {
 				}
 			}
 		}
+		// Handle array literal expressions: const classes = ['flex', 'items-center']
+		else if (typescript.isArrayLiteralExpression(initializer)) {
+			for (const element of initializer.elements) {
+				// Skip empty array holes: [, , 'flex']
+				if (element === undefined) {
+					continue;
+				}
+				// Handle spread elements: [...otherClasses]
+				if (typescript.isSpreadElement(element)) {
+					classNames.push(
+						...this.extractFromInitializer(
+							element.expression,
+							variableUsage,
+							context,
+							conditionalBranchId
+						)
+					);
+				}
+				// Handle identifiers (variable references)
+				else if (typescript.isIdentifier(element)) {
+					classNames.push(...this.extractFromIdentifier(element, context));
+				}
+				// Handle other expressions (strings, conditionals, etc.)
+				else {
+					classNames.push(
+						...this.extractFromInitializer(element, variableUsage, context, conditionalBranchId)
+					);
+				}
+			}
+		}
 
 		return classNames;
 	}
