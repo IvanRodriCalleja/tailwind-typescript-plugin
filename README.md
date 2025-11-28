@@ -82,15 +82,27 @@ Add the plugin to the `compilerOptions.plugins` array in your `tsconfig.json`:
 
 - `globalCss` (required): Path to your global CSS file that imports Tailwind CSS. This can be relative to your project root.
 
-- `allowedClasses` (optional): Array of custom class names that should be treated as valid alongside Tailwind classes. Useful for project-specific or third-party utility classes that aren't part of Tailwind.
+- `allowedClasses` (optional): Array of custom class names or wildcard patterns that should be treated as valid alongside Tailwind classes. Useful for project-specific or third-party utility classes that aren't part of Tailwind.
   - **Default**: `[]` (no custom classes allowed)
+  - **Supports wildcard patterns**:
+    | Pattern | Description | Example | Matches |
+    |---------|-------------|---------|---------|
+    | `prefix-*` | Matches classes starting with prefix | `custom-*` | `custom-button`, `custom-card` |
+    | `*-suffix` | Matches classes ending with suffix | `*-icon` | `arrow-icon`, `close-icon` |
+    | `*-contains-*` | Matches classes containing the string | `*-component-*` | `app-component-header` |
+    | `exact` | Exact match (no wildcards) | `my-class` | Only `my-class` |
   - **Example**:
     ```json
     {
-      "allowedClasses": ["custom-button", "app-header", "project-card"]
+      "allowedClasses": [
+        "custom-*",
+        "*-icon",
+        "*-component-*",
+        "exact-class"
+      ]
     }
     ```
-  - Classes in this list will be considered valid and won't trigger validation errors
+  - Classes matching any pattern will be considered valid and won't trigger validation errors
   - Works with all extraction patterns (literals, expressions, functions, arrays, etc.)
   - Combines with Tailwind classes - both are validated independently
 
