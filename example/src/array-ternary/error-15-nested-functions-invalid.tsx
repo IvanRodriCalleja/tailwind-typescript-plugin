@@ -1,3 +1,7 @@
+import { clsx as cn } from 'clsx';
+
+import clsx from 'clsx';
+
 /**
  * ❌ Invalid: Nested functions with invalid ternary in array
  * @invalidClasses [invalid-active]
@@ -15,5 +19,3 @@ export function ArrayNestedFunctionsWithTernaryInvalid() {
 	);
 }
 
-declare function cn(...args: unknown[]): string;
-declare function clsx(...args: unknown[]): string;

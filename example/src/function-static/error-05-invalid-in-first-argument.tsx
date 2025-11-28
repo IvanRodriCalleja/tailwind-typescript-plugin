@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ❌ Invalid: Invalid class in first argument
  * @invalidClasses [invalid-first]
@@ -9,4 +11,3 @@ export function InvalidInFirstArgument() {
 	);
 }
 
-declare function clsx(...args: string[]): string;

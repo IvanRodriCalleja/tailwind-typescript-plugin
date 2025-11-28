@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+
 /**
  * ✅ Valid: Using classNames() function
  * @validClasses [flex, items-center, justify-center]
@@ -10,4 +12,3 @@ export function UsingClassNamesFunction() {
 	);
 }
 
-declare function classNames(...args: string[]): string;

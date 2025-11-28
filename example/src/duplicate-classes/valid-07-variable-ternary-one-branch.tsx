@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 const isActive = true;
 
 // @test-scope-start
@@ -15,4 +17,3 @@ export function ValidVariableWithTernaryOneBranch() {
 	);
 }
 
-declare function clsx(...args: unknown[]): string;

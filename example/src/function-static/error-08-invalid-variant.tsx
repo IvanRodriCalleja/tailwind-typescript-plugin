@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ❌ Invalid: Function with invalid variant
  * @invalidClasses [invalid-variant:bg-blue]
@@ -9,4 +11,3 @@ export function FunctionWithInvalidVariant() {
 	);
 }
 
-declare function clsx(...args: string[]): string;

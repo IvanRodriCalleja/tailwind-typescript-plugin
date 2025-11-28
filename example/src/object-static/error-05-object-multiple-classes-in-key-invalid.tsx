@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ❌ Invalid: Object key with multiple classes, one invalid
  * @invalidClasses [invalid-class]
@@ -9,6 +11,3 @@ export function ObjectMultipleClassesInKeyInvalid() {
 	);
 }
 
-declare function clsx(
-	...args: (string | string[] | Record<string, boolean | unknown> | boolean | null | undefined)[]
-): string;

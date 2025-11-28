@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ❌ Invalid: Ternary with mix of arbitrary and invalid in array
  * @invalidClasses [invalid-size]
@@ -14,4 +16,3 @@ export function ArrayTernaryWithArbitraryAndInvalid() {
 	);
 }
 
-declare function cn(...args: unknown[]): string;

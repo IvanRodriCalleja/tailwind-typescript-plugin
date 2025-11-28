@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ✅ Valid: Array with variants
  * @validClasses [hover:bg-blue-500, focus:ring-2, active:scale-95]
@@ -10,4 +12,3 @@ export function ArrayWithVariants() {
 	);
 }
 
-declare function cn(...args: (string | string[] | boolean | null | undefined)[]): string;

@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ❌ Invalid: Invalid in first element
  * @invalidClasses [invalid-first]
@@ -9,4 +11,3 @@ export function InvalidInFirstElement() {
 	);
 }
 
-declare function cn(...args: (string | string[] | boolean | null | undefined)[]): string;

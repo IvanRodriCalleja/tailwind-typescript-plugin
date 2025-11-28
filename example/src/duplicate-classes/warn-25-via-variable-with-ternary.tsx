@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 const isActive = true;
 
 // @test-scope-start
@@ -13,4 +15,3 @@ export function DuplicateViaVariableWithTernary() {
 	return <div className={clsx('flex', dynamicClasses)}>Duplicate via variable with ternary</div>;
 }
 
-declare function clsx(...args: unknown[]): string;

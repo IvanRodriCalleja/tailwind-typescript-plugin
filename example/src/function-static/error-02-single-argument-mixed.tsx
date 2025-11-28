@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ❌ Invalid: Single argument with mix of valid and invalid classes
  * @invalidClasses [invalid-class]
@@ -11,4 +13,3 @@ export function SingleArgumentMixedClasses() {
 	);
 }
 
-declare function clsx(...args: string[]): string;

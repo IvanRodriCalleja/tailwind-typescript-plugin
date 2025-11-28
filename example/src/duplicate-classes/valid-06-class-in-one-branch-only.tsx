@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 const isActive = true;
 
 /**
@@ -12,4 +14,3 @@ export function ClassInOneBranchOnly() {
 	);
 }
 
-declare function clsx(...args: unknown[]): string;

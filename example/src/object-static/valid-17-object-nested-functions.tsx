@@ -1,3 +1,7 @@
+import { clsx as cn } from 'clsx';
+
+import clsx from 'clsx';
+
 // Simulate dynamic values that might come from props or state
 const isActive = true;
 
@@ -18,9 +22,3 @@ export function ObjectNestedFunctions() {
 	);
 }
 
-declare function clsx(
-	...args: (string | string[] | Record<string, boolean | unknown> | boolean | null | undefined)[]
-): string;
-declare function cn(
-	...args: (string | string[] | Record<string, boolean | unknown> | boolean | null | undefined)[]
-): string;

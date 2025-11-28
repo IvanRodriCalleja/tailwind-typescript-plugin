@@ -1,8 +1,9 @@
+import clsx from 'clsx';
+
 // Simulate dynamic values that might come from props or state
 const isActive = true;
 
 // Mock function declaration
-declare function clsx(...args: (string | boolean | null | undefined)[]): string;
 
 /**
  * ✅ Valid: Ternary in function call wrapper

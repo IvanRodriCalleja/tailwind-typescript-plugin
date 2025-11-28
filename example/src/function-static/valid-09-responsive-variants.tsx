@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ✅ Valid: Function with responsive variants
  * @validClasses [sm:flex, md:grid, lg:grid-cols-3]
@@ -10,4 +12,3 @@ export function FunctionWithResponsiveVariants() {
 	);
 }
 
-declare function clsx(...args: string[]): string;

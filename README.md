@@ -169,7 +169,7 @@ Add the plugin to the `compilerOptions.plugins` array in your `tsconfig.json`:
   }
   ```
 
-  - **Defaults (always included)**: `['clsx', 'cn', 'classnames', 'classNames', 'cx', 'cva', 'twMerge', 'tv']`
+  - **Defaults (always included)**: `clsx` (from 'clsx'), `cn` (name-only), `classnames`/`classNames`/`cx` (from 'classnames'), `twMerge` (from 'tailwind-merge'). Note: `cva` and `tv` are variant functions handled by dedicated extractors.
   - **Import verification**: When using the object format with `from`, the plugin verifies the function is actually imported from that package before validating. This prevents false positives when a function with the same name exists but isn't a className utility.
   - **Subpath matching**: `{ "name": "fn", "from": "my-pkg" }` also matches `import { fn } from 'my-pkg/utils'`
 

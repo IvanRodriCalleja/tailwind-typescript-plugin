@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 // Simulate dynamic values that might come from props or state
 const isError = false;
 
@@ -14,4 +16,3 @@ export function MixedStaticAndBinaryValid() {
 }
 
 // Mock function declarations
-declare function clsx(...args: unknown[]): string;

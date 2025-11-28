@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ⚠️ Warning: Duplicate across array elements
  * @duplicateClasses [bg-blue-500, bg-blue-500]
@@ -10,4 +12,3 @@ export function DuplicateAcrossArrayElements() {
 	);
 }
 
-declare function cn(...args: unknown[]): string;

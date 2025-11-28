@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ❌ Invalid: Invalid class as object key with allowed classes
  * @invalidClasses [invalid-class]
@@ -11,4 +13,3 @@ export function AllowedInObjectWithInvalid() {
 	);
 }
 
-declare function clsx(...args: unknown[]): string;

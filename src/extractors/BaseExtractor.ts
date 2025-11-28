@@ -67,6 +67,7 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 	): boolean {
 		const expr = callExpression.expression;
 		let functionName: string | null = null;
+		let isMemberExpression = false;
 
 		// Handle simple function calls: clsx('flex')
 		if (ts.isIdentifier(expr)) {
@@ -75,6 +76,7 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 		// Handle member expressions: utils.cn('flex'), lib.clsx('flex')
 		else if (ts.isPropertyAccessExpression(expr)) {
 			functionName = expr.name.text;
+			isMemberExpression = true;
 		}
 
 		if (!functionName) {
@@ -91,6 +93,11 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 			} else {
 				// UtilityFunctionConfig: match by name AND verify import
 				if (utilityFunc.name === functionName) {
+					// For member expressions (utils.clsx), skip import verification
+					// since we can't trace through object properties
+					if (isMemberExpression) {
+						return true;
+					}
 					// If we have context, verify the import source
 					if (context) {
 						if (this.isImportedFrom(functionName, utilityFunc.from, context)) {

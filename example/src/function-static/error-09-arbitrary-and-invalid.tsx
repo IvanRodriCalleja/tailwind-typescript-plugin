@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ❌ Invalid: Function with mix of arbitrary and invalid classes
  * @invalidClasses [invalid-size]
@@ -11,4 +13,3 @@ export function FunctionWithArbitraryAndInvalid() {
 	);
 }
 
-declare function clsx(...args: string[]): string;

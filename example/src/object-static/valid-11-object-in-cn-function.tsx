@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 // Simulate dynamic values that might come from props or state
 const isActive = true;
 
@@ -13,6 +15,3 @@ export function ObjectInCnFunction() {
 	);
 }
 
-declare function cn(
-	...args: (string | string[] | Record<string, boolean | unknown> | boolean | null | undefined)[]
-): string;

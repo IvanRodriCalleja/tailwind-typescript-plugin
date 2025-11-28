@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 const isActive = true;
 
 /**
@@ -13,4 +15,3 @@ export function DuplicateRootAndTernaryBranches() {
 	);
 }
 
-declare function clsx(...args: unknown[]): string;

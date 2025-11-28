@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ✅ Valid: Multiple arguments with valid classes
  * @validClasses [flex, items-center, justify-center]
@@ -8,4 +10,3 @@ export function MultipleArgumentsAllValid() {
 	);
 }
 
-declare function clsx(...args: string[]): string;

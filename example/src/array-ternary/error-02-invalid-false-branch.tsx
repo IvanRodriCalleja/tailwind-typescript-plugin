@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ❌ Invalid: Array with ternary, invalid in false branch
  * @invalidClasses [invalid-inactive]
@@ -14,4 +16,3 @@ export function ArrayTernaryInvalidFalse() {
 	);
 }
 
-declare function cn(...args: unknown[]): string;

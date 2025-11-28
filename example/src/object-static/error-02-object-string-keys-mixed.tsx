@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ❌ Invalid: Object with mix of valid and invalid string keys
  * @invalidClasses [invalid-center]
@@ -11,6 +13,3 @@ export function ObjectStringKeysMixed() {
 	);
 }
 
-declare function clsx(
-	...args: (string | string[] | Record<string, boolean | unknown> | boolean | null | undefined)[]
-): string;

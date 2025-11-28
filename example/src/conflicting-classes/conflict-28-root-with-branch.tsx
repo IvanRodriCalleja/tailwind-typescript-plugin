@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ⚠️ Warning: Root class conflicts with branch class
  * @conflictClasses [text-left, text-center]
@@ -9,4 +11,3 @@ export function RootConflictWithBranch() {
 	);
 }
 
-declare function clsx(...args: unknown[]): string;

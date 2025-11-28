@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ✅ Valid: Array with ternary and binary combined
  * @validClasses [flex, bg-blue-500, bg-gray-500, text-red-500]
@@ -19,4 +21,3 @@ export function ArrayTernaryAndBinaryValid() {
 	);
 }
 
-declare function cn(...args: unknown[]): string;

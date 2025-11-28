@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ✅ Valid: Ternary in array with clsx()
  * @validClasses [flex, bg-blue-500, bg-gray-500]
@@ -13,4 +15,3 @@ export function ArrayTernaryInClsx() {
 	);
 }
 
-declare function clsx(...args: unknown[]): string;

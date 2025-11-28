@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ❌ Invalid: Multiple arguments with mix of valid and invalid
  * @invalidClasses [invalid-class]
@@ -7,4 +9,3 @@ export function MultipleArgumentsMixed() {
 	return <div className={clsx('flex', 'invalid-class', 'items-center')}>Mixed arguments</div>;
 }
 
-declare function clsx(...args: string[]): string;

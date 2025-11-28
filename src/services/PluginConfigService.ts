@@ -3,20 +3,18 @@ import { UtilityFunction } from '../core/types';
 import { Logger } from '../utils/Logger';
 
 /**
- * Default utility functions to validate
- * These are kept as simple strings since the names are specific enough
- * that false positives are unlikely. Users can add custom functions with
- * import verification using the { name, from } format.
+ * Default utility functions to validate with precise import sources
+ * Note: cva and tv are NOT included here - they are variant functions
+ * handled by dedicated extractors (CvaExtractor, TailwindVariantsExtractor)
+ * Note: 'cn' is a simple string since it's typically a custom wrapper (e.g., shadcn pattern)
  */
 const DEFAULT_UTILITY_FUNCTIONS: UtilityFunction[] = [
-	'clsx',
+	{ name: 'clsx', from: 'clsx' },
 	'cn',
-	'classnames',
-	'classNames',
-	'cx',
-	'cva',
-	'twMerge',
-	'tv'
+	{ name: 'classnames', from: 'classnames' },
+	{ name: 'classNames', from: 'classnames' },
+	{ name: 'cx', from: 'classnames' },
+	{ name: 'twMerge', from: 'tailwind-merge' }
 ];
 
 /**

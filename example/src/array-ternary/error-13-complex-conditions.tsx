@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ❌ Invalid: Complex array with multiple conditions
  * @invalidClasses [invalid-loading]
@@ -22,4 +24,3 @@ export function ArrayComplexConditions() {
 	);
 }
 
-declare function cn(...args: unknown[]): string;
