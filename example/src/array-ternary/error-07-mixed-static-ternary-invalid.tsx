@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ❌ Invalid: Mix with invalid in both static and ternary
  * @invalidClasses [invalid-static, invalid-ternary]
@@ -20,4 +22,3 @@ export function ArrayMixedStaticTernaryInvalid() {
 	);
 }
 
-declare function cn(...args: unknown[]): string;

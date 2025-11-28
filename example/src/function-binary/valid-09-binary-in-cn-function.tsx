@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 // Simulate dynamic values that might come from props or state
 const isError = false;
 
@@ -10,4 +12,3 @@ export function BinaryInCnFunction() {
 }
 
 // Mock function declarations
-declare function cn(...args: unknown[]): string;

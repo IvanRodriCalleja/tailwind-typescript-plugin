@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ✅ Valid: Allowed classes as object keys
  * @validClasses [custom-button, app-header]
@@ -8,4 +10,3 @@ export function AllowedInObject() {
 	);
 }
 
-declare function clsx(...args: unknown[]): string;

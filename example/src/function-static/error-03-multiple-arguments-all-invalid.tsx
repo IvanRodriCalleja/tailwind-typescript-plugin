@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ❌ Invalid: Multiple arguments, all invalid
  * @invalidClasses [invalid-one, invalid-two, invalid-three]
@@ -10,4 +12,3 @@ export function MultipleArgumentsAllInvalid() {
 	);
 }
 
-declare function clsx(...args: string[]): string;

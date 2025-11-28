@@ -1,18 +1,20 @@
 import { IPluginConfig } from '../core/interfaces';
+import { UtilityFunction } from '../core/types';
 import { Logger } from '../utils/Logger';
 
 /**
- * Default utility functions to validate
+ * Default utility functions to validate with precise import sources
+ * Note: cva and tv are NOT included here - they are variant functions
+ * handled by dedicated extractors (CvaExtractor, TailwindVariantsExtractor)
+ * Note: 'cn' is a simple string since it's typically a custom wrapper (e.g., shadcn pattern)
  */
-const DEFAULT_UTILITY_FUNCTIONS = [
-	'clsx',
+const DEFAULT_UTILITY_FUNCTIONS: UtilityFunction[] = [
+	{ name: 'clsx', from: 'clsx' },
 	'cn',
-	'classnames',
-	'classNames',
-	'cx',
-	'cva',
-	'twMerge',
-	'tv'
+	{ name: 'classnames', from: 'classnames' },
+	{ name: 'classNames', from: 'classnames' },
+	{ name: 'cx', from: 'classnames' },
+	{ name: 'twMerge', from: 'tailwind-merge' }
 ];
 
 /**
@@ -20,7 +22,7 @@ const DEFAULT_UTILITY_FUNCTIONS = [
  * Follows Single Responsibility Principle
  */
 export class PluginConfigService {
-	private utilityFunctions: string[];
+	private utilityFunctions: UtilityFunction[];
 	private cssFilePath?: string;
 	private tailwindVariantsEnabled: boolean;
 	private classVarianceAuthorityEnabled: boolean;
@@ -57,14 +59,29 @@ export class PluginConfigService {
 		this.logExtractorConfig();
 	}
 
-	private initializeUtilityFunctions(config: IPluginConfig): string[] {
+	private initializeUtilityFunctions(config: IPluginConfig): UtilityFunction[] {
+		// Helper to get the name from a UtilityFunction
+		const getName = (f: UtilityFunction): string => (typeof f === 'string' ? f : f.name);
+
 		if (config.utilityFunctions && Array.isArray(config.utilityFunctions)) {
-			// Merge user-provided functions with defaults (remove duplicates)
-			const merged = [...new Set([...DEFAULT_UTILITY_FUNCTIONS, ...config.utilityFunctions])];
-			this.logger.log(`Using utility functions (defaults + custom): ${merged.join(', ')}`);
+			// Merge user-provided functions with defaults (remove duplicates by name)
+			const userFunctions = config.utilityFunctions;
+			const userFunctionNames = new Set(userFunctions.map(getName));
+
+			// Only include defaults that aren't overridden by user config
+			const nonOverriddenDefaults = DEFAULT_UTILITY_FUNCTIONS.filter(
+				def => !userFunctionNames.has(getName(def))
+			);
+
+			const merged = [...nonOverriddenDefaults, ...userFunctions];
+			this.logger.log(
+				`Using utility functions (defaults + custom): ${merged.map(getName).join(', ')}`
+			);
 			return merged;
 		} else {
-			this.logger.log(`Using default utility functions: ${DEFAULT_UTILITY_FUNCTIONS.join(', ')}`);
+			this.logger.log(
+				`Using default utility functions: ${DEFAULT_UTILITY_FUNCTIONS.map(getName).join(', ')}`
+			);
 			return DEFAULT_UTILITY_FUNCTIONS;
 		}
 	}
@@ -78,7 +95,7 @@ export class PluginConfigService {
 		}
 	}
 
-	getUtilityFunctions(): string[] {
+	getUtilityFunctions(): UtilityFunction[] {
 		return this.utilityFunctions;
 	}
 

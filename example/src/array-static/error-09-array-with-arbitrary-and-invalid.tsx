@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ❌ Invalid: Array with mix of arbitrary and invalid
  * @invalidClasses [invalid-size]
@@ -11,4 +13,3 @@ export function ArrayWithArbitraryAndInvalid() {
 	);
 }
 
-declare function cn(...args: (string | string[] | boolean | null | undefined)[]): string;

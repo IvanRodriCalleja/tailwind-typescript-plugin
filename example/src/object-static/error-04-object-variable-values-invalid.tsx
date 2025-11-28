@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 // Simulate dynamic values that might come from props or state
 const isDisabled = false;
 const hasError = false;
@@ -15,6 +17,3 @@ export function ObjectVariableValuesInvalid() {
 	);
 }
 
-declare function clsx(
-	...args: (string | string[] | Record<string, boolean | unknown> | boolean | null | undefined)[]
-): string;

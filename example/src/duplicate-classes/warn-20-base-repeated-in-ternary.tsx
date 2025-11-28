@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 const isActive = true;
 
 /**
@@ -12,4 +14,3 @@ export function DuplicateBaseAndTernary() {
 	);
 }
 
-declare function cn(...args: unknown[]): string;

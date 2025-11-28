@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ⚠️ Warning: Duplicate in object keys
  * Note: Object syntax uses class names as keys, duplicates can occur with string values
@@ -11,4 +13,3 @@ export function DuplicateInObjectWithString() {
 	);
 }
 
-declare function clsx(...args: unknown[]): string;

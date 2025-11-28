@@ -140,34 +140,99 @@ Add the plugin to the `compilerOptions.plugins` array in your `tsconfig.json`:
     ```
   - **Performance impact**: Disabling unused extractors skips TypeChecker operations and symbol resolution for that library, providing faster validation
 
-- `utilityFunctions` (optional): Array of additional function names to validate. These will be **merged with the defaults**, so you don't lose the common ones.
-  - **Defaults (always included)**: `['clsx', 'cn', 'classnames', 'classNames', 'cx', 'cva', 'twMerge', 'tv']`
-  - **Add your own**: Provide custom function names that will be added to the defaults
-  - **Example config**:
-    ```json
-    {
-      "utilityFunctions": ["myCustomFn", "buildClasses"]
-    }
-    ```
-    This will validate: `clsx`, `cn`, `classnames`, `classNames`, `cx`, `cva`, `twMerge`, `tv`, **`myCustomFn`**, **`buildClasses`**
+- `utilityFunctions` (optional): Array of utility functions to validate. These will be **merged with the defaults**, so you don't lose the common ones. Supports two formats:
 
-  - **Supported patterns**:
-    ```typescript
-    // Simple calls (validated by default):
-    className={clsx('flex', 'items-center')}
-    className={cn('flex', 'items-center')}
+  **Simple string format** (matches by function name only):
+  ```json
+  {
+    "utilityFunctions": ["myCustomFn", "buildClasses"]
+  }
+  ```
 
-    // Member expressions (nested property access):
-    className={utils.cn('flex', 'items-center')}
-    className={lib.clsx('flex', 'items-center')}
+  **Object format with import verification** (matches by name AND verifies import source):
+  ```json
+  {
+    "utilityFunctions": [
+      { "name": "merge", "from": "@/lib/utils" },
+      { "name": "cx", "from": "my-styling-package" }
+    ]
+  }
+  ```
 
-    // Custom functions (add via config):
-    className={myCustomFn('flex', 'items-center')}
-    className={buildClasses('flex', 'items-center')}
+  **Mixed format** (combine both):
+  ```json
+  {
+    "utilityFunctions": [
+      "anyFunctionNamedThis",
+      { "name": "merge", "from": "@/lib/utils" }
+    ]
+  }
+  ```
 
-    // Dynamic calls (ignored, won't throw errors):
-    className={functions['cn']('flex', 'items-center')}
-    ```
+  - **Defaults (always included)**: `clsx` (from 'clsx'), `cn` (name-only), `classnames`/`classNames`/`cx` (from 'classnames'), `twMerge` (from 'tailwind-merge'). Note: `cva` and `tv` are variant functions handled by dedicated extractors.
+  - **Import verification**: When using the object format with `from`, the plugin verifies the function is actually imported from that package before validating. This prevents false positives when a function with the same name exists but isn't a className utility.
+  - **Subpath matching**: `{ "name": "fn", "from": "my-pkg" }` also matches `import { fn } from 'my-pkg/utils'`
+
+  **Example configurations**:
+  ```json
+  // Simple: just add function names
+  {
+    "utilityFunctions": ["myCustomFn", "buildClasses"]
+  }
+
+  // Precise: verify import sources
+  {
+    "utilityFunctions": [
+      { "name": "cn", "from": "@/lib/utils" },
+      { "name": "merge", "from": "tailwind-merge" }
+    ]
+  }
+
+  // Mixed: some with import verification, some without
+  {
+    "utilityFunctions": [
+      "anyFn",
+      { "name": "preciseFn", "from": "@/utils" }
+    ]
+  }
+  ```
+
+  **Supported import patterns**:
+  ```typescript
+  // Named import
+  import { merge } from '@/lib/utils';
+  className={merge('flex', 'items-center')} // ✅ Validated
+
+  // Default import
+  import merge from '@/lib/utils';
+  className={merge('flex', 'items-center')} // ✅ Validated
+
+  // Aliased import
+  import { something as merge } from '@/lib/utils';
+  className={merge('flex', 'items-center')} // ✅ Validated
+
+  // Wrong import source (not validated when using object format)
+  import { merge } from 'different-package';
+  className={merge('flex', 'invalid-class')} // ⏭️ Skipped (wrong import)
+  ```
+
+  **Supported call patterns**:
+  ```typescript
+  // Simple calls (validated by default):
+  className={clsx('flex', 'items-center')}
+  className={cn('flex', 'items-center')}
+
+  // Member expressions (nested property access):
+  className={utils.cn('flex', 'items-center')}
+  className={lib.clsx('flex', 'items-center')}
+
+  // Custom functions (add via config):
+  className={myCustomFn('flex', 'items-center')}
+  className={buildClasses('flex', 'items-center')}
+
+  // Dynamic calls (ignored, won't throw errors):
+  className={functions['cn']('flex', 'items-center')}
+  ```
 
 ### 2. Ensure your CSS file imports Tailwind
 
@@ -947,6 +1012,16 @@ const card2 = tv({ base: 'flex justify-center' });
   - Smart ternary handling: mutually exclusive branches don't conflict
   - Works with clsx, cn, tv(), cva() and other utility functions
   - tv()/cva() base vs variant: NO conflict (variants are designed to override base)
+
+- [X] **Utility Function Import Verification** → [`utility-function-imports/`](./example/src/utility-function-imports/)
+  Validates custom utility functions with optional import source verification
+  Example: `{ "name": "merge", "from": "@/lib/utils" }` only validates `merge()` if imported from `@/lib/utils`
+  - Supports simple string format (name-only matching) and object format (with import verification)
+  - Named imports: `import { merge } from '@/lib/utils'`
+  - Default imports: `import merge from '@/lib/utils'`
+  - Aliased imports: `import { something as merge } from '@/lib/utils'`
+  - Subpath matching: `{ "from": "my-pkg" }` matches `import from 'my-pkg/utils'`
+  - Functions from wrong import sources are skipped (prevents false positives)
 
 ## How It Works
 

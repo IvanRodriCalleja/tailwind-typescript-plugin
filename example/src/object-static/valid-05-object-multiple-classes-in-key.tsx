@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ✅ Valid: Object key with multiple classes
  * @validClasses [flex, items-center, justify-center]
@@ -10,6 +12,3 @@ export function ObjectMultipleClassesInKey() {
 	);
 }
 
-declare function clsx(
-	...args: (string | string[] | Record<string, boolean | unknown> | boolean | null | undefined)[]
-): string;

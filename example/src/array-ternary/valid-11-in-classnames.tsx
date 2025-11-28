@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+
 /**
  * ✅ Valid: Ternary in array with classNames()
  * @validClasses [flex, bg-blue-500, bg-gray-500]
@@ -13,4 +15,3 @@ export function ArrayTernaryInClassNames() {
 	);
 }
 
-declare function classNames(...args: unknown[]): string;

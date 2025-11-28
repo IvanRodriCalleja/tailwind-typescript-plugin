@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 // Simulate dynamic values that might come from props or state
 const isActive = true;
 const hasError = false;
@@ -23,4 +25,3 @@ export function ComplexMixedConditions() {
 }
 
 // Mock function declarations
-declare function clsx(...args: unknown[]): string;

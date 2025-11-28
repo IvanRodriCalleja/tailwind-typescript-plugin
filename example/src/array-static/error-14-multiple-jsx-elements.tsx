@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ❌ Invalid: Multiple elements with different validation results
  * @element {1} First child with invalid in array
@@ -19,4 +21,3 @@ export function MultipleJsxElements() {
 	);
 }
 
-declare function cn(...args: (string | string[] | boolean | null | undefined)[]): string;

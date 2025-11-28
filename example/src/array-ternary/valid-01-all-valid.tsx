@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ✅ Valid: Array with ternary expression, all valid
  * @validClasses [flex, bg-blue-500, bg-gray-500]
@@ -11,4 +13,3 @@ export function ArrayTernaryAllValid() {
 	);
 }
 
-declare function cn(...args: unknown[]): string;

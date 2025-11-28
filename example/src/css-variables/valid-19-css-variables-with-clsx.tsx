@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ✅ Valid: CSS variables with clsx
  * @validClasses [[--card-bg:#1e293b], bg-[var(--card-bg)], p-4]
@@ -10,4 +12,3 @@ export function CSSVariablesWithClsx() {
 	);
 }
 
-declare function clsx(...args: unknown[]): string;

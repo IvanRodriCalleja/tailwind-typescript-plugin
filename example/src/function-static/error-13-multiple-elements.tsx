@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ❌ Invalid: Multiple elements with different validation results
  * @element {1} First child with invalid class
@@ -19,4 +21,3 @@ export function MultipleElements() {
 	);
 }
 
-declare function clsx(...args: string[]): string;

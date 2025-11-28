@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+
 // Simulate dynamic values that might come from props or state
 const isActive = true;
 
@@ -13,6 +15,3 @@ export function ObjectInClassNamesFunction() {
 	);
 }
 
-declare function classNames(
-	...args: (string | string[] | Record<string, boolean | unknown> | boolean | null | undefined)[]
-): string;

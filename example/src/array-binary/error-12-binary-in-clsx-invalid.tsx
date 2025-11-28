@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 // Simulate dynamic values that might come from props or state
 const isError = true;
 
@@ -11,4 +13,3 @@ export function ArrayBinaryInClsxInvalid() {
 }
 
 // Mock function declarations
-declare function clsx(...args: (string | string[] | boolean | null | undefined)[]): string;

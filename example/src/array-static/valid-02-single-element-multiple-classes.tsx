@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ✅ Valid: Single element with multiple classes
  * @validClasses [flex, items-center, justify-center]
@@ -8,4 +10,3 @@ export function SingleElementMultipleClasses() {
 	);
 }
 
-declare function cn(...args: (string | string[] | boolean | null | undefined)[]): string;

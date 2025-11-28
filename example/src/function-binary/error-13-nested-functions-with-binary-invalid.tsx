@@ -1,3 +1,7 @@
+import { clsx as cn } from 'clsx';
+
+import clsx from 'clsx';
+
 // Simulate dynamic values that might come from props or state
 const isError = false;
 
@@ -15,5 +19,3 @@ export function NestedFunctionsWithBinaryInvalid() {
 }
 
 // Mock function declarations
-declare function clsx(...args: unknown[]): string;
-declare function cn(...args: unknown[]): string;

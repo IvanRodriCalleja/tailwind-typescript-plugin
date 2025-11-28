@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ⚠️ Warning: Duplicate in nested array
  * @duplicateClasses [p-4, p-4]
@@ -14,4 +16,3 @@ export function DuplicateInNestedArray() {
 	);
 }
 
-declare function cn(...args: unknown[]): string;

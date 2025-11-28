@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ❌ Invalid: Ternary in array with clsx() invalid
  * @invalidClasses [invalid-active]
@@ -14,4 +16,3 @@ export function ArrayTernaryInClsxInvalid() {
 	);
 }
 
-declare function clsx(...args: unknown[]): string;

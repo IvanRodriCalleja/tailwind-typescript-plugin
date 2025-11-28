@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ✅ Valid: Array with arbitrary values
  * @validClasses [h-[50vh], w-[100px], bg-[#ff0000]]
@@ -8,4 +10,3 @@ export function ArrayWithArbitraryValues() {
 	);
 }
 
-declare function cn(...args: (string | string[] | boolean | null | undefined)[]): string;

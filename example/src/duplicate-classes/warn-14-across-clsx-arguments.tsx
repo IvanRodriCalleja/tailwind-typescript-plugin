@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ⚠️ Warning: Duplicate across clsx arguments
  * @duplicateClasses [bg-blue-500, bg-blue-500]
@@ -10,4 +12,3 @@ export function DuplicateAcrossArguments() {
 	);
 }
 
-declare function clsx(...args: unknown[]): string;

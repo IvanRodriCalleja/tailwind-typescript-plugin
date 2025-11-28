@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ❌ Invalid: Self-closing with invalid ternary in array
  * @invalidClasses [invalid-style]
@@ -12,4 +14,3 @@ export function ArrayTernarySelfClosingInvalid() {
 	);
 }
 
-declare function cn(...args: unknown[]): string;

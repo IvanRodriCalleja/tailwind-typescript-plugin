@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 const hasError = true;
 const isActive = true;
 
@@ -13,4 +15,3 @@ export function MultipleBinaryDuplicates() {
 	);
 }
 
-declare function cn(...args: unknown[]): string;

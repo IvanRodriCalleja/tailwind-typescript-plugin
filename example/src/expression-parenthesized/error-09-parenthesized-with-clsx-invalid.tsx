@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ❌ Invalid: Parenthesized clsx with invalid class
  * @invalidClasses [invalid-class]
@@ -8,4 +10,3 @@ export function ParenthesizedWithClsxInvalid() {
 	return <div className={clsx('flex', isActive && 'invalid-class')}>Invalid in clsx</div>;
 }
 
-declare function clsx(...args: unknown[]): string;

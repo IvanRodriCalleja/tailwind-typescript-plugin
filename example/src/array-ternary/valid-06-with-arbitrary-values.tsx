@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ✅ Valid: Ternary with arbitrary values in array
  * @validClasses [flex, h-[50vh], w-[100px], h-[30vh], w-[50px]]
@@ -13,4 +15,3 @@ export function ArrayTernaryWithArbitraryValues() {
 	);
 }
 
-declare function cn(...args: unknown[]): string;

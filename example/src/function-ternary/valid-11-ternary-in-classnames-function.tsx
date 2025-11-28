@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+
 // Simulate dynamic values that might come from props or state
 const isActive = true;
 
@@ -14,4 +16,3 @@ export function TernaryInClassNamesFunction() {
 }
 
 // Mock function declarations
-declare function classNames(...args: unknown[]): string;

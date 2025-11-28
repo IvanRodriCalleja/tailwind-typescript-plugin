@@ -1,3 +1,7 @@
+import { clsx as cn } from 'clsx';
+
+import clsx from 'clsx';
+
 /**
  * ❌ Invalid: Nested function calls with invalid in array
  * @invalidClasses [invalid-class]
@@ -11,5 +15,3 @@ export function NestedFunctionCallsWithArraysInvalid() {
 	);
 }
 
-declare function cn(...args: (string | string[] | boolean | null | undefined)[]): string;
-declare function clsx(...args: (string | string[] | boolean | null | undefined)[]): string;

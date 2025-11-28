@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 // Simulate dynamic values that might come from props or state
 const isActive = true;
 
@@ -21,4 +23,3 @@ export function MixedStaticAndTernaryInvalid() {
 }
 
 // Mock function declarations
-declare function clsx(...args: unknown[]): string;

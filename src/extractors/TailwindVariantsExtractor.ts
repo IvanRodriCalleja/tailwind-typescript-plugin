@@ -544,7 +544,7 @@ export class TailwindVariantsExtractor extends BaseExtractor {
 				? expr.name.text
 				: null;
 
-		if (functionName && context.utilityFunctions.includes(functionName)) {
+		if (functionName && this.isUtilityFunctionName(functionName, context.utilityFunctions)) {
 			return false;
 		}
 

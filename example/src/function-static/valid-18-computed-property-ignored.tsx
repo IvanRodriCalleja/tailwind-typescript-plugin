@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ✅ Valid: Computed property (should be ignored, not validated)
  */
@@ -7,4 +9,3 @@ export function ComputedPropertyIgnored() {
 	return <div className={functions[key]('flex', 'items-center')}>Computed property</div>;
 }
 
-declare function cn(...args: string[]): string;

@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ❌ Invalid: Array with static strings, invalid in array
  * @invalidClasses [invalid-class]
@@ -11,4 +13,3 @@ export function ArrayWithStaticStringsInvalid() {
 	);
 }
 
-declare function cn(...args: (string | string[] | boolean | null | undefined)[]): string;

@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ❌ Invalid: Ternary with multiple classes, one invalid
  * @invalidClasses [invalid-class]
@@ -14,4 +16,3 @@ export function ArrayTernaryMultipleClasses() {
 	);
 }
 
-declare function cn(...args: unknown[]): string;

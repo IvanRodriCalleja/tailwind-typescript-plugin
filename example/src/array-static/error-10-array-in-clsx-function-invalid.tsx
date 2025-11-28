@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 /**
  * ❌ Invalid: Array in clsx() with invalid class
  * @invalidClasses [invalid-class]
@@ -9,4 +11,3 @@ export function ArrayInClsxFunctionInvalid() {
 	);
 }
 
-declare function clsx(...args: (string | string[] | boolean | null | undefined)[]): string;

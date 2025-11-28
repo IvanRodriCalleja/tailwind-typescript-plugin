@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+
 // Simulate dynamic values that might come from props or state
 const isError = false;
 
@@ -12,4 +14,3 @@ export function BinaryInClassNamesFunction() {
 }
 
 // Mock function declarations
-declare function classNames(...args: unknown[]): string;

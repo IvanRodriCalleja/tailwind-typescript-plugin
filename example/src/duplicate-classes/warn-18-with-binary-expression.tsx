@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 const hasError = true;
 
 /**
@@ -12,4 +14,3 @@ export function DuplicateWithBinary() {
 	);
 }
 
-declare function clsx(...args: unknown[]): string;

@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ✅ Valid: Dynamic function call (should be ignored, not validated)
  */
@@ -6,4 +8,3 @@ export function DynamicCallIgnored() {
 	return <div className={functions['cn']('flex', 'items-center')}>Dynamic call</div>;
 }
 
-declare function cn(...args: string[]): string;

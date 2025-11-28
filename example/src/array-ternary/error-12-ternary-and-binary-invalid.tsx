@@ -1,3 +1,5 @@
+import { clsx as cn } from 'clsx';
+
 /**
  * ❌ Invalid: Array with ternary and binary with invalid
  * @invalidClasses [invalid-active, invalid-error]
@@ -20,4 +22,3 @@ export function ArrayTernaryAndBinaryInvalid() {
 	);
 }
 
-declare function cn(...args: unknown[]): string;

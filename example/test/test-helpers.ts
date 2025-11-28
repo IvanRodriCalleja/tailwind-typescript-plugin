@@ -28,7 +28,7 @@ export interface TestCase {
 	expectedExtractableClasses: string[]; // Classes that should be flagged as extractable (hints)
 	expectedConflictClasses: string[]; // Classes that should be flagged as conflicting
 	elementExpectations: ElementExpectation[]; // For complex multi-element cases
-	utilityFunctions?: string[]; // Optional custom utility functions to test
+	utilityFunctions?: UtilityFunction[]; // Optional custom utility functions to test
 }
 
 /**
@@ -67,7 +67,7 @@ export function parseTestFile(filePath: string): TestCase[] {
 			let expectedDuplicateClasses: string[] = [];
 			let expectedExtractableClasses: string[] = [];
 			let expectedConflictClasses: string[] = [];
-			let utilityFunctions: string[] | undefined = undefined;
+			let utilityFunctions: UtilityFunction[] | undefined = undefined;
 			const elementExpectations: ElementExpectation[] = [];
 			const elementMap: Map<number, Partial<ElementExpectation>> = new Map();
 
@@ -145,10 +145,25 @@ export function parseTestFile(filePath: string): TestCase[] {
 					}
 				}
 
-				// Extract @utilityFunctions [name1, name2]
-				const utilityFunctionsMatch = jsdocLine.match(/^\s*\*\s*@utilityFunctions\s*\[([^\]]+)\]/);
+				// Extract @utilityFunctions [name1, name2] or @utilityFunctions [{name: 'fn', from: 'pkg'}]
+				const utilityFunctionsMatch = jsdocLine.match(/^\s*\*\s*@utilityFunctions\s*\[(.+)\]/);
 				if (utilityFunctionsMatch) {
-					utilityFunctions = utilityFunctionsMatch[1].split(',').map(fn => fn.trim());
+					const content = utilityFunctionsMatch[1].trim();
+					// Check if it contains objects (starts with {)
+					if (content.includes('{')) {
+						// Parse as JSON-like objects
+						try {
+							// Replace single quotes with double quotes for valid JSON
+							const jsonContent = `[${content.replace(/'/g, '"')}]`;
+							utilityFunctions = JSON.parse(jsonContent) as UtilityFunction[];
+						} catch {
+							// Fallback to simple string parsing if JSON fails
+							utilityFunctions = content.split(',').map(fn => fn.trim());
+						}
+					} else {
+						// Simple string list
+						utilityFunctions = content.split(',').map(fn => fn.trim());
+					}
 				}
 
 				// Extract @duplicateClasses [class1, class2]
@@ -272,10 +287,16 @@ export async function runPluginOnFolder(
 }
 
 /**
+ * Utility function configuration type
+ * Can be either a simple string or an object with name and from properties
+ */
+export type UtilityFunction = string | { name: string; from: string };
+
+/**
  * Options for running the plugin on a file
  */
 export interface RunPluginOptions {
-	utilityFunctions?: string[];
+	utilityFunctions?: UtilityFunction[];
 	allowedClasses?: string[];
 }
 
@@ -303,8 +324,9 @@ export async function runPluginOnFile(
 	options?: RunPluginOptions | string[]
 ): Promise<RunPluginResult> {
 	// Support legacy signature where second param is utilityFunctions array
-	const opts: RunPluginOptions =
-		Array.isArray(options) ? { utilityFunctions: options } : options || {};
+	const opts: RunPluginOptions = Array.isArray(options)
+		? { utilityFunctions: options }
+		: options || {};
 	const tempDir = path.dirname(testFilePath);
 
 	// Look for global.css in the current directory or parent directories
@@ -431,10 +453,7 @@ export function getDiagnosticsForFunction(
 		}
 
 		// If we hit another function declaration or a section comment, stop
-		if (
-			trimmedLine.startsWith('export function') ||
-			trimmedLine.startsWith('// ====')
-		) {
+		if (trimmedLine.startsWith('export function') || trimmedLine.startsWith('// ====')) {
 			break;
 		}
 	}
@@ -502,14 +521,14 @@ export function getClassNamesInFunction(sourceCode: string, functionName: string
 	// Extract all className values (both string literals and JSX expressions)
 	const classNamePattern = /className\s*=\s*(?:"([^"]*)"|'([^']*)'|\{'([^']*)'\}|\{"([^"]*)"\})/g;
 	const allClasses: string[] = [];
-	let match;
+	let match: RegExpExecArray | null;
 
 	while ((match = classNamePattern.exec(functionCode)) !== null) {
 		// Get whichever group matched (1-4)
 		const classNameString = match[1] || match[2] || match[3] || match[4];
 		if (classNameString) {
 			// Split by whitespace and filter out empty strings
-			const classes = classNameString.split(/\s+/).filter(c => c.length > 0);
+			const classes = classNameString.split(/\s+/).filter((c: string) => c.length > 0);
 			allClasses.push(...classes);
 		}
 	}

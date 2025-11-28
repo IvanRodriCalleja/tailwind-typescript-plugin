@@ -1,3 +1,5 @@
+import * as utils from 'clsx';
+
 // Simulate dynamic values that might come from props or state
 const isActive = true;
 
@@ -13,7 +15,3 @@ export function ObjectMemberExpressionInvalid() {
 		</div>
 	);
 }
-
-declare const utils: {
-	clsx(...args: unknown[]): string;
-};

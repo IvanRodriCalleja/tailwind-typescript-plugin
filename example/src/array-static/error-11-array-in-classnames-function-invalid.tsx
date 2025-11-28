@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+
 /**
  * ❌ Invalid: Array in classNames() with invalid
  * @invalidClasses [invalid-class]
@@ -11,4 +13,3 @@ export function ArrayInClassNamesFunctionInvalid() {
 	);
 }
 
-declare function classNames(...args: (string | string[] | boolean | null | undefined)[]): string;
