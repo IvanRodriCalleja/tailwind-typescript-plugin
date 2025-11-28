@@ -1,3 +1,14 @@
+## [1.4.0-beta.8](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.7...v1.4.0-beta.8) (2025-11-28)
+
+### ✨ Features
+
+* add import verification for utility functions ([9d34a12](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/9d34a129cdb05d5e74cba1510d89b9b6c6afeab6))
+* add namespace import verification for member expressions ([eaacf9a](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/eaacf9a808c7f63e1d2fa5a284c24e1426821aa6))
+
+### ♻️ Code Refactoring
+
+* add imports to test files and update default utility functions ([698fdc2](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/698fdc2afcfbb59dcd1cf6b17c754ef4a0b9a542))
+
 ## [1.4.0-beta.7](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.6...v1.4.0-beta.7) (2025-11-28)
 
 ### ✨ Features
