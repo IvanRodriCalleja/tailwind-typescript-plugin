@@ -1,7 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { IClassNameExtractor } from '../core/interfaces';
-import { ClassNameInfo, ExtractionContext } from '../core/types';
+import { ClassNameInfo, ExtractionContext, UtilityFunction } from '../core/types';
 import { CvaExtractor } from '../extractors/CvaExtractor';
 import { JsxAttributeExtractor } from '../extractors/JsxAttributeExtractor';
 import { TailwindVariantsExtractor } from '../extractors/TailwindVariantsExtractor';
@@ -39,7 +39,7 @@ export class ClassNameExtractionService {
 	extractFromSourceFile(
 		typescript: typeof ts,
 		sourceFile: ts.SourceFile,
-		utilityFunctions: string[],
+		utilityFunctions: UtilityFunction[],
 		typeChecker?: ts.TypeChecker
 	): ClassNameInfo[] {
 		const classNames: ClassNameInfo[] = [];

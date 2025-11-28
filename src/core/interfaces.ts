@@ -1,6 +1,6 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
-import { ClassNameInfo, ExtractionContext } from './types';
+import { ClassNameInfo, ExtractionContext, UtilityFunction } from './types';
 
 /**
  * Base interface for class name extractors
@@ -40,7 +40,7 @@ export interface IVariantsConfig {
  */
 export interface IPluginConfig {
 	globalCss?: string;
-	utilityFunctions?: string[];
+	utilityFunctions?: UtilityFunction[];
 	variants?: IVariantsConfig;
 	allowedClasses?: string[];
 	enableLogging?: boolean;

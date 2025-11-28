@@ -1,6 +1,26 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 /**
+ * Represents a utility function configuration with optional import source
+ * When 'from' is specified, the import will be verified before matching
+ *
+ * Examples:
+ * - { name: 'clsx', from: 'clsx' } - matches `import { clsx } from 'clsx'` or `import clsx from 'clsx'`
+ * - { name: 'cn', from: '@/lib/utils' } - matches `import { cn } from '@/lib/utils'`
+ */
+export interface UtilityFunctionConfig {
+	name: string;
+	from: string;
+}
+
+/**
+ * A utility function can be either:
+ * - A simple string (matches by function name only, backwards compatible)
+ * - A UtilityFunctionConfig object (matches by name AND verifies import source)
+ */
+export type UtilityFunction = string | UtilityFunctionConfig;
+
+/**
  * Represents information about a class name found in source code
  */
 export interface ClassNameInfo {
@@ -47,7 +67,7 @@ export interface ClassNameInfo {
 export interface ExtractionContext {
 	readonly typescript: typeof ts;
 	readonly sourceFile: ts.SourceFile;
-	readonly utilityFunctions: string[];
+	readonly utilityFunctions: UtilityFunction[];
 	readonly typeChecker?: ts.TypeChecker;
 }
 

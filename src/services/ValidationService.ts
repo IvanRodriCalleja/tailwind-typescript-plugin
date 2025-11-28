@@ -1,7 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { IClassNameValidator } from '../core/interfaces';
-import { ClassNameInfo } from '../core/types';
+import { ClassNameInfo, UtilityFunction } from '../core/types';
 import { ICssProvider, TailwindConflictDetector } from '../infrastructure/TailwindConflictDetector';
 import { Logger } from '../utils/Logger';
 import { ClassNameExtractionService } from './ClassNameExtractionService';
@@ -34,7 +34,7 @@ export class ValidationService {
 	validateFile(
 		typescript: typeof ts,
 		sourceFile: ts.SourceFile,
-		utilityFunctions: string[],
+		utilityFunctions: UtilityFunction[],
 		typeChecker?: ts.TypeChecker
 	): ts.Diagnostic[] {
 		if (!this.validator.isInitialized()) {

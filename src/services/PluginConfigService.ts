@@ -1,10 +1,14 @@
 import { IPluginConfig } from '../core/interfaces';
+import { UtilityFunction } from '../core/types';
 import { Logger } from '../utils/Logger';
 
 /**
  * Default utility functions to validate
+ * These are kept as simple strings since the names are specific enough
+ * that false positives are unlikely. Users can add custom functions with
+ * import verification using the { name, from } format.
  */
-const DEFAULT_UTILITY_FUNCTIONS = [
+const DEFAULT_UTILITY_FUNCTIONS: UtilityFunction[] = [
 	'clsx',
 	'cn',
 	'classnames',
@@ -20,7 +24,7 @@ const DEFAULT_UTILITY_FUNCTIONS = [
  * Follows Single Responsibility Principle
  */
 export class PluginConfigService {
-	private utilityFunctions: string[];
+	private utilityFunctions: UtilityFunction[];
 	private cssFilePath?: string;
 	private tailwindVariantsEnabled: boolean;
 	private classVarianceAuthorityEnabled: boolean;
@@ -57,14 +61,27 @@ export class PluginConfigService {
 		this.logExtractorConfig();
 	}
 
-	private initializeUtilityFunctions(config: IPluginConfig): string[] {
+	private initializeUtilityFunctions(config: IPluginConfig): UtilityFunction[] {
+		// Helper to get the name from a UtilityFunction
+		const getName = (f: UtilityFunction): string => (typeof f === 'string' ? f : f.name);
+
 		if (config.utilityFunctions && Array.isArray(config.utilityFunctions)) {
-			// Merge user-provided functions with defaults (remove duplicates)
-			const merged = [...new Set([...DEFAULT_UTILITY_FUNCTIONS, ...config.utilityFunctions])];
-			this.logger.log(`Using utility functions (defaults + custom): ${merged.join(', ')}`);
+			// Merge user-provided functions with defaults (remove duplicates by name)
+			const userFunctions = config.utilityFunctions;
+			const userFunctionNames = new Set(userFunctions.map(getName));
+
+			// Only include defaults that aren't overridden by user config
+			const nonOverriddenDefaults = DEFAULT_UTILITY_FUNCTIONS.filter(
+				def => !userFunctionNames.has(getName(def))
+			);
+
+			const merged = [...nonOverriddenDefaults, ...userFunctions];
+			this.logger.log(
+				`Using utility functions (defaults + custom): ${merged.map(getName).join(', ')}`
+			);
 			return merged;
 		} else {
-			this.logger.log(`Using default utility functions: ${DEFAULT_UTILITY_FUNCTIONS.join(', ')}`);
+			this.logger.log(`Using default utility functions: ${DEFAULT_UTILITY_FUNCTIONS.map(getName).join(', ')}`);
 			return DEFAULT_UTILITY_FUNCTIONS;
 		}
 	}
@@ -78,7 +95,7 @@ export class PluginConfigService {
 		}
 	}
 
-	getUtilityFunctions(): string[] {
+	getUtilityFunctions(): UtilityFunction[] {
 		return this.utilityFunctions;
 	}
 
