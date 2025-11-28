@@ -18,6 +18,11 @@
     "typescript-custom-plugin": "file:.."
   },
   "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "classnames": "^2.5.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.4.0",
+    "tailwind-variants": "^3.2.2",
     "tailwindcss": "^4.1.17"
   }
 }
