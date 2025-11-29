@@ -5,6 +5,7 @@ import path from 'path';
 import { TailwindValidator } from '../infrastructure/TailwindValidator';
 import { ClassNameExtractionService } from '../services/ClassNameExtractionService';
 import { CodeActionService } from '../services/CodeActionService';
+import { CompletionService } from '../services/CompletionService';
 import { DiagnosticService } from '../services/DiagnosticService';
 import { FileDiagnosticCache } from '../services/FileDiagnosticCache';
 import { PluginConfigService } from '../services/PluginConfigService';
@@ -18,6 +19,7 @@ export class TailwindTypescriptPlugin {
 	private configService!: PluginConfigService;
 	private diagnosticCache!: FileDiagnosticCache;
 	private codeActionService!: CodeActionService;
+	private completionService!: CompletionService;
 	private initializationPromise: Promise<void> | null = null;
 	private cssFileWatcher: fs.FSWatcher | null = null;
 	private cssFilePath: string | null = null;
@@ -84,6 +86,9 @@ export class TailwindTypescriptPlugin {
 
 		// Initialize code action service for quick fixes
 		this.codeActionService = new CodeActionService(this.validator);
+
+		// Initialize completion service for Tailwind class autocompletion
+		this.completionService = new CompletionService(this.validator, this.logger);
 
 		// Set allowed classes from config
 		const allowedClasses = this.configService.getAllowedClasses();
@@ -159,6 +164,12 @@ export class TailwindTypescriptPlugin {
 		// Clear the diagnostic cache - all files need revalidation
 		this.diagnosticCache.clear();
 		this.logger.log('[CSSWatcher] Diagnostic cache cleared');
+
+		// Clear the completion service cache
+		if (this.completionService) {
+			this.completionService.clearCache();
+			this.logger.log('[CSSWatcher] Completion cache cleared');
+		}
 
 		// Reload the validator (this clears its internal cache too)
 		this.validator
@@ -264,6 +275,12 @@ export class TailwindTypescriptPlugin {
 
 		// Override getEditsForRefactor to handle our refactors
 		proxy.getEditsForRefactor = this.createGetEditsForRefactor(info);
+
+		// Override getCompletionsAtPosition to provide Tailwind class completions
+		proxy.getCompletionsAtPosition = this.createGetCompletionsAtPosition(info);
+
+		// Override getCompletionEntryDetails to provide CSS documentation for completions
+		proxy.getCompletionEntryDetails = this.createGetCompletionEntryDetails(info);
 
 		return proxy;
 	}
@@ -644,6 +661,123 @@ export class TailwindTypescriptPlugin {
 			}
 
 			return undefined;
+		};
+
+	/**
+	 * Create the getCompletionsAtPosition method with Tailwind class completions
+	 */
+	private createGetCompletionsAtPosition =
+		(info: ts.server.PluginCreateInfo) =>
+		(
+			fileName: string,
+			position: number,
+			options: ts.GetCompletionsAtPositionOptions | undefined
+		): ts.WithMetadata<ts.CompletionInfo> | undefined => {
+			this.logger.log(`[getCompletionsAtPosition] fileName=${fileName}, position=${position}`);
+
+			// Get original TypeScript completions
+			const prior = info.languageService.getCompletionsAtPosition(fileName, position, options);
+
+			// Skip if completion service not initialized or not a supported file
+			if (!this.completionService || !this.shouldValidateFile(fileName)) {
+				return prior;
+			}
+
+			// Get source file
+			const program = info.languageService.getProgram();
+			if (!program) {
+				return prior;
+			}
+
+			const sourceFile = program.getSourceFile(fileName);
+			if (!sourceFile) {
+				return prior;
+			}
+
+			// Get Tailwind completions
+			const tailwindCompletions = this.completionService.getCompletionsAtPosition(
+				this.typescript,
+				sourceFile,
+				position,
+				prior
+			);
+
+			if (!tailwindCompletions) {
+				return prior;
+			}
+
+			return tailwindCompletions as ts.WithMetadata<ts.CompletionInfo>;
+		};
+
+	/**
+	 * Create the getCompletionEntryDetails method with CSS documentation
+	 */
+	private createGetCompletionEntryDetails =
+		(info: ts.server.PluginCreateInfo) =>
+		(
+			fileName: string,
+			position: number,
+			entryName: string,
+			formatOptions: ts.FormatCodeOptions | ts.FormatCodeSettings | undefined,
+			source: string | undefined,
+			preferences: ts.UserPreferences | undefined,
+			data: ts.CompletionEntryData | undefined
+		): ts.CompletionEntryDetails | undefined => {
+			this.logger.log(
+				`[getCompletionEntryDetails] fileName=${fileName}, position=${position}, entryName=${entryName}`
+			);
+
+			// Get source file
+			const program = info.languageService.getProgram();
+			if (!program) {
+				return info.languageService.getCompletionEntryDetails(
+					fileName,
+					position,
+					entryName,
+					formatOptions,
+					source,
+					preferences,
+					data
+				);
+			}
+
+			const sourceFile = program.getSourceFile(fileName);
+			if (!sourceFile) {
+				return info.languageService.getCompletionEntryDetails(
+					fileName,
+					position,
+					entryName,
+					formatOptions,
+					source,
+					preferences,
+					data
+				);
+			}
+
+			// Try to get Tailwind completion details first
+			if (this.completionService && this.shouldValidateFile(fileName)) {
+				const tailwindDetails = this.completionService.getCompletionEntryDetails(
+					this.typescript,
+					sourceFile,
+					position,
+					entryName
+				);
+
+				if (tailwindDetails) {
+					return tailwindDetails;
+				}
+			}
+
+			// Fall back to original TypeScript completion details
+			return info.languageService.getCompletionEntryDetails(
+				fileName,
+				position,
+				entryName,
+				formatOptions,
+				source,
+				preferences,
+				data
+			);
 		};
 
 	/**
