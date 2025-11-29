@@ -1,3 +1,9 @@
+## [1.4.0-beta.11](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.10...v1.4.0-beta.11) (2025-11-29)
+
+### ✨ Features
+
+* add Tailwind CSS class completion suggestions ([a6f20ff](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/a6f20ff1c4fb97577e92ce7946ed1e6cd7d196a4))
+
 ## [1.4.0-beta.10](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.9...v1.4.0-beta.10) (2025-11-29)
 
 ### ⚡ Performance
