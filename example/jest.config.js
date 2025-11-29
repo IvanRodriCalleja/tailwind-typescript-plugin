@@ -9,5 +9,9 @@ module.exports = {
 		'!src/**/*.spec.ts',
 		'!src/test-helpers.ts'
 	],
-	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json']
+	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+	// Performance optimizations
+	maxWorkers: '50%',
+	workerIdleMemoryLimit: '512MB',
+	testTimeout: 30000
 };
