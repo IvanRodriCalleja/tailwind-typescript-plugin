@@ -6,6 +6,8 @@
   "scripts": {
     "setup": "npm install && cd .. && npm install && npm run build",
     "test": "jest",
+    "test:ci": "jest --runInBand",
+    "test:shard": "jest --shard",
     "lint": "eslint src --ext .ts,.tsx,.json --quiet --cache",
     "tsc": "tsc --noEmit"
   },

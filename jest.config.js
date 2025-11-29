@@ -2,8 +2,8 @@
 module.exports = {
 	preset: 'ts-jest',
 	testEnvironment: 'node',
-	roots: ['<rootDir>/src', '<rootDir>/example/src'],
-	testMatch: ['**/src/**/*.spec.ts', '**/src/**/*.spec.tsx'],
+	roots: ['<rootDir>/src'],
+	testMatch: ['**/src/**/*.spec.ts'],
 	collectCoverageFrom: ['src/**/*.ts', '!src/**/*.spec.ts', '!src/**/__tests__/**'],
 	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
 	transform: {
@@ -18,5 +18,5 @@ module.exports = {
 			}
 		]
 	},
-	testTimeout: 30000 // 30 seconds for slow initialization
+	testTimeout: 30000
 };

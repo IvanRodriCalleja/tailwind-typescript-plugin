@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "test": "jest",
+    "test": "jest --testPathPattern=src/",
     "lint": "eslint src --ext .ts,.tsx,.json --quiet --cache",
     "tsc": "tsc --noEmit",
     "prepare": "npm run build",
