@@ -1,3 +1,9 @@
+## [1.4.0-beta.10](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.9...v1.4.0-beta.10) (2025-11-29)
+
+### ⚡ Performance
+
+* optimize test execution with sharding and separated test commands ([0a89bdd](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/0a89bddcd77ec96eba6a2c0ff579b1c8b4d46f2d))
+
 ## [1.4.0-beta.9](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.8...v1.4.0-beta.9) (2025-11-29)
 
 ### ♻️ Code Refactoring
