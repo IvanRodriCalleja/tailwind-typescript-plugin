@@ -11,7 +11,7 @@ Everything is already built and installed! Let's verify:
 ls lib/
 
 # Check that example dependencies are installed
-ls example/node_modules/typescript-custom-plugin
+ls example/node_modules/tailwind-typescript-plugin
 ```
 
 ## 2. Test the Plugin (Without Debugging)

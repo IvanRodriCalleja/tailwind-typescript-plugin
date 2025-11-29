@@ -1116,7 +1116,7 @@ Commit to main → Auto-publishes 1.0.33-beta.3
 
 Users can install beta versions:
 ```bash
-npm install typescript-custom-plugin@beta
+npm install tailwind-typescript-plugin@beta
 ```
 
 ### Stable Releases (Manual)

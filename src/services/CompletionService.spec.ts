@@ -11,23 +11,25 @@ describe('CompletionService', () => {
 	beforeEach(() => {
 		validator = new TailwindValidator('/fake/path.css', new NoOpLogger());
 		// Mock the validator methods
-		jest.spyOn(validator, 'getAllClasses').mockReturnValue([
-			'flex',
-			'flex-row',
-			'flex-col',
-			'items-center',
-			'items-start',
-			'items-end',
-			'justify-center',
-			'justify-between',
-			'p-4',
-			'px-4',
-			'py-4',
-			'bg-red-500',
-			'bg-blue-500',
-			'text-white',
-			'text-black'
-		]);
+		jest
+			.spyOn(validator, 'getAllClasses')
+			.mockReturnValue([
+				'flex',
+				'flex-row',
+				'flex-col',
+				'items-center',
+				'items-start',
+				'items-end',
+				'justify-center',
+				'justify-between',
+				'p-4',
+				'px-4',
+				'py-4',
+				'bg-red-500',
+				'bg-blue-500',
+				'text-white',
+				'text-black'
+			]);
 		jest.spyOn(validator, 'isValidClass').mockImplementation((className: string) => {
 			return validator.getAllClasses().includes(className);
 		});
@@ -74,7 +76,12 @@ describe('CompletionService', () => {
 
 			// Position inside the empty className string (after the opening quote)
 			const position = 16;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			expect(result!.entries.length).toBeGreaterThan(0);
@@ -96,7 +103,12 @@ describe('CompletionService', () => {
 
 			// Position after "fl"
 			const position = 18;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 
@@ -123,7 +135,12 @@ describe('CompletionService', () => {
 
 			// Position after "flex " (after the space)
 			const position = 21;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			// Should provide all classes except "flex" which is already present
@@ -146,7 +163,12 @@ describe('CompletionService', () => {
 
 			// Position after "p" (typing a new class) - position 35 is after the "p"
 			const position = 35;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -173,7 +195,12 @@ describe('CompletionService', () => {
 
 			// Position inside the second empty string in cn()
 			const position = 41;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			expect(result!.entries.length).toBeGreaterThan(0);
@@ -191,7 +218,12 @@ describe('CompletionService', () => {
 
 			// Position after "f"
 			const position = 23;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			// Should include classes starting with "f"
@@ -211,7 +243,12 @@ describe('CompletionService', () => {
 
 			// Position after "fl"
 			const position = 28;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -230,7 +267,12 @@ describe('CompletionService', () => {
 
 			// Position after "ite"
 			const position = 24;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 
@@ -330,7 +372,8 @@ describe('CompletionService', () => {
 			// Mock a class with multiple declarations
 			jest.spyOn(validator, 'getCssForClasses').mockImplementation((classNames: string[]) => {
 				return classNames.map(name => {
-					if (name === 'p-4') return '.p-4 { padding-top: 1rem; padding-right: 1rem; padding-bottom: 1rem; padding-left: 1rem; }';
+					if (name === 'p-4')
+						return '.p-4 { padding-top: 1rem; padding-right: 1rem; padding-bottom: 1rem; padding-left: 1rem; }';
 					return null;
 				});
 			});
@@ -354,7 +397,6 @@ describe('CompletionService', () => {
 			expect(docText).toContain('padding-top: 1rem;');
 			expect(docText).toContain('padding-right: 1rem;');
 		});
-
 	});
 
 	describe('color class detection', () => {
@@ -368,8 +410,8 @@ describe('CompletionService', () => {
 				'text-black',
 				'border-gray-300',
 				'ring-indigo-500',
-				'text-sm',  // not a color
-				'border-2'  // not a color
+				'text-sm', // not a color
+				'border-2' // not a color
 			]);
 
 			const sourceCode = '<div className="">Hello</div>';
@@ -408,16 +450,16 @@ describe('CompletionService', () => {
 
 		it('should detect various color class patterns', () => {
 			jest.spyOn(validator, 'getAllClasses').mockReturnValue([
-				'from-purple-400',  // gradient from
-				'via-pink-500',     // gradient via
-				'to-red-500',       // gradient to
-				'fill-current',     // SVG fill
-				'stroke-blue-600',  // SVG stroke
+				'from-purple-400', // gradient from
+				'via-pink-500', // gradient via
+				'to-red-500', // gradient to
+				'fill-current', // SVG fill
+				'stroke-blue-600', // SVG stroke
 				'accent-violet-500', // accent color
-				'shadow-sm',        // not a color (shadow size)
-				'outline-none',     // not a color (outline style)
-				'divide-y',         // not a color (divide direction)
-				'text-center'       // not a color (text alignment)
+				'shadow-sm', // not a color (shadow size)
+				'outline-none', // not a color (outline style)
+				'divide-y', // not a color (divide direction)
+				'text-center' // not a color (text alignment)
 			]);
 
 			const sourceCode = '<div className="">Hello</div>';
@@ -439,7 +481,9 @@ describe('CompletionService', () => {
 			expect(result!.entries.find(e => e.name === 'to-red-500')?.kindModifiers).toBe('color');
 			expect(result!.entries.find(e => e.name === 'fill-current')?.kindModifiers).toBe('color');
 			expect(result!.entries.find(e => e.name === 'stroke-blue-600')?.kindModifiers).toBe('color');
-			expect(result!.entries.find(e => e.name === 'accent-violet-500')?.kindModifiers).toBe('color');
+			expect(result!.entries.find(e => e.name === 'accent-violet-500')?.kindModifiers).toBe(
+				'color'
+			);
 
 			// Non-color classes
 			expect(result!.entries.find(e => e.name === 'shadow-sm')?.kindModifiers).toBe('');
@@ -447,7 +491,6 @@ describe('CompletionService', () => {
 			expect(result!.entries.find(e => e.name === 'divide-y')?.kindModifiers).toBe('');
 			expect(result!.entries.find(e => e.name === 'text-center')?.kindModifiers).toBe('');
 		});
-
 	});
 
 	describe('clearCache', () => {

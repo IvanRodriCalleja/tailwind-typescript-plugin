@@ -53,7 +53,9 @@ export class CompletionService {
 		const context = this.getCompletionContext(typescript, sourceFile, position);
 
 		if (!context.isInClassNameContext) {
-			this.logger.log('[CompletionService] Not in className context, returning original completions');
+			this.logger.log(
+				'[CompletionService] Not in className context, returning original completions'
+			);
 			return existingCompletions;
 		}
 
@@ -61,11 +63,7 @@ export class CompletionService {
 			`[CompletionService] In className context, prefix="${context.currentPrefix}", existingClasses=${context.existingClasses.size}`
 		);
 
-		const tailwindCompletions = this.generateCompletions(
-			typescript,
-			context,
-			sourceFile.fileName
-		);
+		const tailwindCompletions = this.generateCompletions(typescript, context);
 
 		if (tailwindCompletions.length === 0) {
 			return existingCompletions;
@@ -105,7 +103,7 @@ export class CompletionService {
 
 		if (css) {
 			// Format the CSS with proper structure like Tailwind IntelliSense
-			const formattedCss = this.formatCssForDisplay(css, entryName);
+			const formattedCss = this.formatCssForDisplay(css);
 
 			// Use markdown code block for syntax highlighting
 			documentation.push({
@@ -125,9 +123,7 @@ export class CompletionService {
 			kind: typescript.ScriptElementKind.string,
 			// Set 'color' kindModifier for color classes so VS Code shows color icon
 			kindModifiers: isColor ? 'color' : '',
-			displayParts: detail
-				? [{ kind: 'text', text: detail }]
-				: [{ kind: 'text', text: entryName }],
+			displayParts: detail ? [{ kind: 'text', text: detail }] : [{ kind: 'text', text: entryName }],
 			documentation
 		};
 	}
@@ -136,13 +132,13 @@ export class CompletionService {
 	 * Format CSS output for display in the completion documentation
 	 * Transforms the raw Tailwind CSS output into a nicely formatted rule block
 	 */
-	private formatCssForDisplay(css: string, className: string): string {
+	private formatCssForDisplay(css: string): string {
 		// The CSS from Tailwind typically looks like:
 		// .flex { display: flex; }
 		// We want to format it nicely with proper indentation
 
 		// First, let's clean up and format the CSS
-		let formatted = css.trim();
+		const formatted = css.trim();
 
 		// If it's already well-formatted, return as-is
 		if (formatted.includes('\n')) {
@@ -184,12 +180,14 @@ export class CompletionService {
 		const match = css.match(/\{([^}]+)\}/);
 		if (match) {
 			// Clean up the declarations
-			return match[1]
-				.trim()
-				.split(';')
-				.map(d => d.trim())
-				.filter(d => d.length > 0)
-				.join('; ') + ';';
+			return (
+				match[1]
+					.trim()
+					.split(';')
+					.map(d => d.trim())
+					.filter(d => d.length > 0)
+					.join('; ') + ';'
+			);
 		}
 		return css.trim();
 	}
@@ -264,17 +262,12 @@ export class CompletionService {
 		// Find the current "word" being typed (from last space to cursor)
 		const textBeforeCursor = stringContent.substring(0, positionInString);
 		const lastSpaceIndex = textBeforeCursor.lastIndexOf(' ');
-		const currentPrefix = lastSpaceIndex === -1
-			? textBeforeCursor
-			: textBeforeCursor.substring(lastSpaceIndex + 1);
+		const currentPrefix =
+			lastSpaceIndex === -1 ? textBeforeCursor : textBeforeCursor.substring(lastSpaceIndex + 1);
 		const prefixStart = stringStart + (lastSpaceIndex === -1 ? 0 : lastSpaceIndex + 1);
 
 		// Get all existing classes in this attribute (for duplicate filtering)
-		const existingClasses = new Set(
-			stringContent
-				.split(/\s+/)
-				.filter(c => c.length > 0)
-		);
+		const existingClasses = new Set(stringContent.split(/\s+/).filter(c => c.length > 0));
 
 		// Remove the current prefix from existing classes if it's a partial match
 		// (so we can still suggest completions for partially typed classes)
@@ -468,8 +461,7 @@ export class CompletionService {
 	 */
 	private generateCompletions(
 		typescript: typeof ts,
-		context: CompletionContext,
-		fileName: string
+		context: CompletionContext
 	): ts.CompletionEntry[] {
 		// Get all classes from the validator
 		const allClasses = this.getClassList();
@@ -506,7 +498,9 @@ export class CompletionService {
 			});
 		}
 
-		this.logger.log(`[CompletionService] Generated ${entries.length} completions for prefix "${prefix}"`);
+		this.logger.log(
+			`[CompletionService] Generated ${entries.length} completions for prefix "${prefix}"`
+		);
 
 		return entries;
 	}
@@ -537,22 +531,22 @@ export class CompletionService {
 		// Color-related prefixes in Tailwind CSS
 		// These patterns match classes that typically set colors
 		const colorPrefixes = [
-			'bg-',          // background-color
-			'text-',        // color (text color)
-			'border-',      // border-color (but not border-0, border-2, etc.)
-			'ring-',        // ring-color (but not ring-0, ring-1, etc.)
-			'outline-',     // outline-color (but not outline-0, outline-1, etc.)
-			'shadow-',      // box-shadow colors (but not shadow-sm, shadow-lg, etc.)
-			'accent-',      // accent-color
-			'caret-',       // caret-color
-			'fill-',        // SVG fill
-			'stroke-',      // SVG stroke
-			'from-',        // gradient from color
-			'via-',         // gradient via color
-			'to-',          // gradient to color
-			'divide-',      // divide color (but not divide-x, divide-y)
+			'bg-', // background-color
+			'text-', // color (text color)
+			'border-', // border-color (but not border-0, border-2, etc.)
+			'ring-', // ring-color (but not ring-0, ring-1, etc.)
+			'outline-', // outline-color (but not outline-0, outline-1, etc.)
+			'shadow-', // box-shadow colors (but not shadow-sm, shadow-lg, etc.)
+			'accent-', // accent-color
+			'caret-', // caret-color
+			'fill-', // SVG fill
+			'stroke-', // SVG stroke
+			'from-', // gradient from color
+			'via-', // gradient via color
+			'to-', // gradient to color
+			'divide-', // divide color (but not divide-x, divide-y)
 			'placeholder-', // placeholder color
-			'decoration-'   // text-decoration-color
+			'decoration-' // text-decoration-color
 		];
 
 		// Check if class starts with any color prefix
