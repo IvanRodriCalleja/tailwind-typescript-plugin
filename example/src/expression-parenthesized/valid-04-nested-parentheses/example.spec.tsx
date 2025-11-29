@@ -1,0 +1,23 @@
+import {
+	getClassNamesFromDiagnostics,
+	getInvalidClassDiagnostics,
+	runPlugin
+} from '../../../test/folder-test-helpers';
+
+describe('expression-parenthesized', () => {
+	describe('valid-04-nested-parentheses', () => {
+		it('✅ Valid: Nested parentheses', async () => {
+			const { diagnostics, sourceCode, plugin } = await runPlugin(__dirname);
+
+			try {
+				const invalidDiagnostics = getInvalidClassDiagnostics(diagnostics);
+				const invalidClassNames = getClassNamesFromDiagnostics(invalidDiagnostics, sourceCode);
+
+				expect(invalidClassNames).not.toContain('bg-green-500');
+				expect(invalidClassNames).not.toContain('bg-gray-500');
+			} finally {
+				plugin.dispose();
+			}
+		});
+	});
+});

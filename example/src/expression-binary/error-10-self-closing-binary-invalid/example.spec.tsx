@@ -1,0 +1,23 @@
+import {
+	getClassNamesFromDiagnostics,
+	getInvalidClassDiagnostics,
+	runPlugin
+} from '../../../test/folder-test-helpers';
+
+describe('expression-binary', () => {
+	describe('error-10-self-closing-binary-invalid', () => {
+		it('❌ Invalid: Self-closing element with invalid in binary', async () => {
+			const { diagnostics, sourceCode, plugin } = await runPlugin(__dirname);
+
+			try {
+				const invalidDiagnostics = getInvalidClassDiagnostics(diagnostics);
+				const invalidClassNames = getClassNamesFromDiagnostics(invalidDiagnostics, sourceCode);
+
+				expect(invalidClassNames).toContain('invalid-style');
+				expect(invalidClassNames).not.toContain('rounded-lg');
+			} finally {
+				plugin.dispose();
+			}
+		});
+	});
+});
