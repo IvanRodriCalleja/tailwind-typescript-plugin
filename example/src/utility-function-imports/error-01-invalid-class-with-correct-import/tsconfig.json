@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "plugins": [
+      {
+        "name": "tailwind-typescript-plugin",
+        "globalCss": "./global.css",
+        "utilityFunctions": [
+          {
+            "name": "combine",
+            "from": "@/lib/styles"
+          }
+        ]
+      }
+    ]
+  },
+  "include": ["example.tsx"]
+}
