@@ -9,7 +9,8 @@
       {
         "name": "tailwind-typescript-plugin",
         "globalCss": "./global.css",
-        "allowedClasses": []
+        "allowedClasses": [],
+        "enableLogging": true
       }
     ]
   },
