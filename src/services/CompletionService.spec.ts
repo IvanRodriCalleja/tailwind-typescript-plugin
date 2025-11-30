@@ -862,7 +862,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 14;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -880,7 +885,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 18;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -898,7 +908,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 11;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeUndefined();
 		});
@@ -914,7 +929,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 19;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeUndefined();
 		});
@@ -930,7 +950,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 20;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -948,7 +973,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 24;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -968,7 +998,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 21;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -986,7 +1021,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 21;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1004,7 +1044,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 24;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1022,7 +1067,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 24;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1040,7 +1090,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 16;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1059,7 +1114,12 @@ describe('CompletionService', () => {
 
 			// Position inside the first string "fl"
 			const position = 27;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1078,7 +1138,12 @@ describe('CompletionService', () => {
 
 			// Position inside "fl"
 			const position = 17;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1097,7 +1162,12 @@ describe('CompletionService', () => {
 
 			// Position inside "fl" key
 			const position = 18;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1115,7 +1185,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 23;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeUndefined();
 		});
@@ -1160,7 +1235,12 @@ describe('CompletionService', () => {
 
 			// Position inside empty string
 			const position = 16;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			expect(result!.entries.length).toBeGreaterThan(0);
@@ -1178,7 +1258,12 @@ describe('CompletionService', () => {
 
 			// Position at start of string content (right after opening quote)
 			const position = 16;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 		});
@@ -1195,7 +1280,12 @@ describe('CompletionService', () => {
 
 			// Position after multiple spaces
 			const position = 23;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 		});
@@ -1212,7 +1302,12 @@ describe('CompletionService', () => {
 
 			// Position after trailing space
 			const position = 21;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			// flex should be excluded as it's already in the string
@@ -1262,17 +1357,21 @@ describe('CompletionService', () => {
 
 			// Position before the opening quote
 			const position = 14;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			// Should not provide completions when cursor is outside string
 			expect(result).toBeUndefined();
 		});
 
 		it('should handle very long class names', () => {
-			jest.spyOn(validator, 'getAllClasses').mockReturnValue([
-				'very-long-tailwind-class-name-that-is-quite-long',
-				'flex'
-			]);
+			jest
+				.spyOn(validator, 'getAllClasses')
+				.mockReturnValue(['very-long-tailwind-class-name-that-is-quite-long', 'flex']);
 
 			const sourceCode = '<div className="very">Hello</div>';
 			const sourceFile = ts.createSourceFile(
@@ -1284,7 +1383,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 20;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1292,13 +1396,9 @@ describe('CompletionService', () => {
 		});
 
 		it('should handle special characters in class prefix', () => {
-			jest.spyOn(validator, 'getAllClasses').mockReturnValue([
-				'w-1/2',
-				'w-1/3',
-				'w-1/4',
-				'-mt-4',
-				'-translate-x-1/2'
-			]);
+			jest
+				.spyOn(validator, 'getAllClasses')
+				.mockReturnValue(['w-1/2', 'w-1/3', 'w-1/4', '-mt-4', '-translate-x-1/2']);
 
 			const sourceCode = '<div className="w-1/">Hello</div>';
 			const sourceFile = ts.createSourceFile(
@@ -1310,7 +1410,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 20;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1332,7 +1437,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 18;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1341,7 +1451,9 @@ describe('CompletionService', () => {
 		});
 
 		it('should handle arbitrary value classes', () => {
-			jest.spyOn(validator, 'getAllClasses').mockReturnValue(['w-[100px]', 'h-[50vh]', 'bg-[#ff0000]']);
+			jest
+				.spyOn(validator, 'getAllClasses')
+				.mockReturnValue(['w-[100px]', 'h-[50vh]', 'bg-[#ff0000]']);
 
 			const sourceCode = '<div className="w-[">Hello</div>';
 			const sourceFile = ts.createSourceFile(
@@ -1353,7 +1465,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 19;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1375,7 +1492,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 20;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const flexEntry = result!.entries.find(e => e.name === 'flex');
@@ -1400,7 +1522,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 18;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const flexEntry = result!.entries.find(e => e.name === 'flex');
@@ -1422,7 +1549,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 21;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1550,9 +1682,9 @@ describe('CompletionService', () => {
 
 	describe('getCompletionEntryDetails - additional cases', () => {
 		it('should set color kindModifier in completion details', () => {
-			jest.spyOn(validator, 'getCssForClasses').mockReturnValue([
-				'.bg-red-500 { background-color: rgb(239 68 68); }'
-			]);
+			jest
+				.spyOn(validator, 'getCssForClasses')
+				.mockReturnValue(['.bg-red-500 { background-color: rgb(239 68 68); }']);
 
 			const sourceCode = '<div className="bg-red-500">Hello</div>';
 			const sourceFile = ts.createSourceFile(
@@ -1563,12 +1695,7 @@ describe('CompletionService', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const result = completionService.getCompletionEntryDetails(
-				ts,
-				sourceFile,
-				16,
-				'bg-red-500'
-			);
+			const result = completionService.getCompletionEntryDetails(ts, sourceFile, 16, 'bg-red-500');
 
 			expect(result).toBeDefined();
 			expect(result!.kindModifiers).toBe('color');
@@ -1651,7 +1778,12 @@ describe('CompletionService', () => {
 
 			// Position inside template literal
 			const position = 16;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1670,7 +1802,12 @@ describe('CompletionService', () => {
 
 			// Position after "fl" inside template literal
 			const position = 25;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1740,7 +1877,12 @@ describe('CompletionService', () => {
 
 			// Position inside cn() string argument
 			const position = 23;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1760,7 +1902,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 18;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const names = result!.entries.map(e => e.name);
@@ -1782,7 +1929,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 18;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const flexEntry = result!.entries.find(e => e.name === 'flex');
@@ -1803,7 +1955,12 @@ describe('CompletionService', () => {
 			);
 
 			const position = 24;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const itemsEntry = result!.entries.find(e => e.name === 'items-center');
@@ -1825,7 +1982,12 @@ describe('CompletionService', () => {
 
 			// Position after space (no prefix yet)
 			const position = 21;
-			const result = completionService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
 
 			expect(result).toBeDefined();
 			const itemsEntry = result!.entries.find(e => e.name === 'items-center');

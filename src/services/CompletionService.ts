@@ -1,7 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
-import { TailwindValidator } from '../infrastructure/TailwindValidator';
 import { UtilityFunction } from '../core/types';
+import { TailwindValidator } from '../infrastructure/TailwindValidator';
 import { Logger } from '../utils/Logger';
 
 /**
