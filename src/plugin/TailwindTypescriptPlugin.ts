@@ -287,6 +287,9 @@ export class TailwindTypescriptPlugin {
 		// Override getCompletionEntryDetails to provide CSS documentation for completions
 		proxy.getCompletionEntryDetails = this.createGetCompletionEntryDetails(info);
 
+		// Override getQuickInfoAtPosition to provide hover information for Tailwind classes
+		proxy.getQuickInfoAtPosition = this.createGetQuickInfoAtPosition(info);
+
 		return proxy;
 	}
 
@@ -783,6 +786,43 @@ export class TailwindTypescriptPlugin {
 				preferences,
 				data
 			);
+		};
+
+	/**
+	 * Create the getQuickInfoAtPosition method with Tailwind hover information
+	 */
+	private createGetQuickInfoAtPosition =
+		(info: ts.server.PluginCreateInfo) =>
+		(fileName: string, position: number): ts.QuickInfo | undefined => {
+			this.logger.log(`[getQuickInfoAtPosition] fileName=${fileName}, position=${position}`);
+
+			// Get source file
+			const program = info.languageService.getProgram();
+			if (!program) {
+				return info.languageService.getQuickInfoAtPosition(fileName, position);
+			}
+
+			const sourceFile = program.getSourceFile(fileName);
+			if (!sourceFile) {
+				return info.languageService.getQuickInfoAtPosition(fileName, position);
+			}
+
+			// Try to get Tailwind hover info first
+			if (this.completionService && this.shouldValidateFile(fileName)) {
+				const tailwindInfo = this.completionService.getQuickInfoAtPosition(
+					this.typescript,
+					sourceFile,
+					position
+				);
+
+				if (tailwindInfo) {
+					this.logger.log(`[getQuickInfoAtPosition] Returning Tailwind hover info`);
+					return tailwindInfo;
+				}
+			}
+
+			// Fall back to original TypeScript quick info
+			return info.languageService.getQuickInfoAtPosition(fileName, position);
 		};
 
 	/**
