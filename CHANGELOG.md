@@ -1,3 +1,9 @@
+## [1.4.0-beta.12](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.11...v1.4.0-beta.12) (2025-11-30)
+
+### ✨ Features
+
+* add configurable utility functions and comprehensive completion tests ([742b3cf](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/742b3cfb8ddaf8fafc9ae201c983723a301d0b50))
+
 ## [1.4.0-beta.11](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.10...v1.4.0-beta.11) (2025-11-29)
 
 ### ✨ Features
