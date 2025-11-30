@@ -1997,4 +1997,266 @@ describe('CompletionService', () => {
 			});
 		});
 	});
+
+	describe('getQuickInfoAtPosition (hover)', () => {
+		it('should return hover info for valid Tailwind class', () => {
+			const sourceCode = '<div className="flex">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position on "flex"
+			const position = 18;
+			const result = completionService.getQuickInfoAtPosition(ts, sourceFile, position);
+
+			expect(result).toBeDefined();
+			expect(result!.displayParts).toBeDefined();
+			expect(result!.displayParts!.length).toBeGreaterThan(0);
+			expect(result!.displayParts![0].text).toContain('display: flex');
+		});
+
+		it('should return correct textSpan for hovered class', () => {
+			const sourceCode = '<div className="flex">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 18;
+			const result = completionService.getQuickInfoAtPosition(ts, sourceFile, position);
+
+			expect(result).toBeDefined();
+			expect(result!.textSpan).toEqual({
+				start: 16, // Start of "flex"
+				length: 4 // Length of "flex"
+			});
+		});
+
+		it('should return documentation with CSS code block', () => {
+			const sourceCode = '<div className="flex">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 18;
+			const result = completionService.getQuickInfoAtPosition(ts, sourceFile, position);
+
+			expect(result).toBeDefined();
+			expect(result!.documentation).toBeDefined();
+			expect(result!.documentation!.length).toBeGreaterThan(0);
+
+			const docText = result!.documentation![0].text;
+			expect(docText).toContain('```css');
+			expect(docText).toContain('.flex');
+			expect(docText).toContain('display: flex');
+		});
+
+		it('should return undefined for non-Tailwind class', () => {
+			const sourceCode = '<div className="my-custom-class">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 20;
+			const result = completionService.getQuickInfoAtPosition(ts, sourceFile, position);
+
+			expect(result).toBeUndefined();
+		});
+
+		it('should return undefined when not in className context', () => {
+			const sourceCode = 'const x = "flex";';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 13;
+			const result = completionService.getQuickInfoAtPosition(ts, sourceFile, position);
+
+			expect(result).toBeUndefined();
+		});
+
+		it('should set color kindModifier for color classes', () => {
+			jest
+				.spyOn(validator, 'getCssForClasses')
+				.mockReturnValue(['.bg-red-500 { background-color: rgb(239 68 68); }']);
+
+			const sourceCode = '<div className="bg-red-500">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 20;
+			const result = completionService.getQuickInfoAtPosition(ts, sourceFile, position);
+
+			expect(result).toBeDefined();
+			expect(result!.kindModifiers).toBe('color');
+		});
+
+		it('should return hover info for class in utility function', () => {
+			const sourceCode = 'const x = cn("flex items-center");';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position on "flex"
+			const position = 16;
+			const result = completionService.getQuickInfoAtPosition(ts, sourceFile, position);
+
+			expect(result).toBeDefined();
+			expect(result!.displayParts![0].text).toContain('display: flex');
+		});
+
+		it('should return hover info for second class in list', () => {
+			jest.spyOn(validator, 'getCssForClasses').mockImplementation((classNames: string[]) => {
+				return classNames.map(name => {
+					if (name === 'flex') return '.flex { display: flex; }';
+					if (name === 'items-center') return '.items-center { align-items: center; }';
+					return null;
+				});
+			});
+
+			const sourceCode = '<div className="flex items-center">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position on "items-center"
+			const position = 25;
+			const result = completionService.getQuickInfoAtPosition(ts, sourceFile, position);
+
+			expect(result).toBeDefined();
+			expect(result!.displayParts![0].text).toContain('align-items: center');
+			expect(result!.textSpan).toEqual({
+				start: 21, // Start of "items-center"
+				length: 12 // Length of "items-center"
+			});
+		});
+
+		it('should return undefined for position on whitespace', () => {
+			const sourceCode = '<div className="flex  items-center">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position on the space between classes
+			const position = 21;
+			const result = completionService.getQuickInfoAtPosition(ts, sourceFile, position);
+
+			// Should return undefined because we're on whitespace, not a class
+			expect(result).toBeUndefined();
+		});
+
+		it('should return hover info for class at start of string', () => {
+			const sourceCode = '<div className="flex">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position at the very start of "flex"
+			const position = 16;
+			const result = completionService.getQuickInfoAtPosition(ts, sourceFile, position);
+
+			expect(result).toBeDefined();
+			expect(result!.displayParts![0].text).toContain('display: flex');
+		});
+
+		it('should return hover info for class at end of word', () => {
+			const sourceCode = '<div className="flex">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position at the end of "flex" (just before closing quote)
+			const position = 20;
+			const result = completionService.getQuickInfoAtPosition(ts, sourceFile, position);
+
+			expect(result).toBeDefined();
+			expect(result!.displayParts![0].text).toContain('display: flex');
+		});
+
+		it('should return undefined when position is outside string', () => {
+			const sourceCode = '<div className="flex">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position on "className" attribute name
+			const position = 10;
+			const result = completionService.getQuickInfoAtPosition(ts, sourceFile, position);
+
+			expect(result).toBeUndefined();
+		});
+
+		it('should return hover info in tv() variants', () => {
+			const sourceCode = `const button = tv({
+				base: "flex",
+				variants: {
+					color: {
+						primary: "bg-blue-500"
+					}
+				}
+			});`;
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position on "flex" in base
+			const position = sourceCode.indexOf('"flex"') + 2;
+			const result = completionService.getQuickInfoAtPosition(ts, sourceFile, position);
+
+			expect(result).toBeDefined();
+			expect(result!.displayParts![0].text).toContain('display: flex');
+		});
+	});
 });
