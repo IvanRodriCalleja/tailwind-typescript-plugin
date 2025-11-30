@@ -1,7 +1,6 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { TailwindValidator } from '../infrastructure/TailwindValidator';
-import { NoOpLogger } from '../utils/Logger';
 import { CodeActionService } from './CodeActionService';
 import { TAILWIND_DIAGNOSTIC_CODE, TAILWIND_DUPLICATE_CODE } from './DiagnosticService';
 
@@ -10,7 +9,7 @@ describe('CodeActionService', () => {
 	let codeActionService: CodeActionService;
 
 	beforeEach(() => {
-		validator = new TailwindValidator('/fake/path.css', new NoOpLogger());
+		validator = new TailwindValidator('/fake/path.css');
 		// Mock the validator methods
 		jest.spyOn(validator, 'getSimilarClasses').mockImplementation((invalidClass: string) => {
 			if (invalidClass === 'itms-center') {

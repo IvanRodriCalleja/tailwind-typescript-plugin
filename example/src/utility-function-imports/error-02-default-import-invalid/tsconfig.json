@@ -9,14 +9,15 @@
       {
         "name": "tailwind-typescript-plugin",
         "globalCss": "./global.css",
-        "utilityFunctions": [
-          {
-            "name": "styles",
-            "from": "my-styles-pkg"
+        "libraries": {
+          "utilities": {
+            "styles": "my-styles-pkg"
           }
-        ]
+        }
       }
     ]
   },
-  "include": ["example.tsx"]
+  "include": [
+    "example.tsx"
+  ]
 }

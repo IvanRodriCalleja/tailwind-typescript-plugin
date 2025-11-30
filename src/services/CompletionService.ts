@@ -2,7 +2,6 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { UtilityFunction } from '../core/types';
 import { TailwindValidator } from '../infrastructure/TailwindValidator';
-import { Logger } from '../utils/Logger';
 
 /**
  * Completion context information extracted from the source file
@@ -53,7 +52,6 @@ export class CompletionService {
 
 	constructor(
 		private readonly validator: TailwindValidator,
-		private readonly logger: Logger,
 		private readonly config: CompletionServiceConfig
 	) {
 		// Build a set of utility function names for quick lookup
@@ -68,10 +66,6 @@ export class CompletionService {
 		if (config.classVarianceAuthorityEnabled) {
 			this.utilityFunctionNames.add('cva');
 		}
-
-		this.logger.log(
-			`[CompletionService] Initialized with utility functions: ${Array.from(this.utilityFunctionNames).join(', ')}`
-		);
 	}
 
 	/**
@@ -86,15 +80,8 @@ export class CompletionService {
 		const context = this.getCompletionContext(typescript, sourceFile, position);
 
 		if (!context.isInClassNameContext) {
-			this.logger.log(
-				'[CompletionService] Not in className context, returning original completions'
-			);
 			return existingCompletions;
 		}
-
-		this.logger.log(
-			`[CompletionService] In className context, prefix="${context.currentPrefix}", existingClasses=${context.existingClasses.size}`
-		);
 
 		const tailwindCompletions = this.generateCompletions(typescript, context);
 
@@ -376,34 +363,24 @@ export class CompletionService {
 		// Find the node at the current position
 		let node = this.findNodeAtPosition(typescript, sourceFile, position);
 		if (!node) {
-			this.logger.log(`[CompletionService] No node found at position ${position}`);
 			return defaultContext;
 		}
-
-		this.logger.log(
-			`[CompletionService] Found node kind: ${typescript.SyntaxKind[node.kind]} at position ${position}`
-		);
 
 		// If we found a JsxAttribute, look for its string literal initializer
 		if (typescript.isJsxAttribute(node)) {
 			const initializer = node.initializer;
 			if (initializer && typescript.isStringLiteral(initializer)) {
 				node = initializer;
-				this.logger.log(`[CompletionService] Found string literal in JsxAttribute initializer`);
 			}
 		}
 
 		// Check if we're in a string literal
 		if (!typescript.isStringLiteral(node) && !typescript.isNoSubstitutionTemplateLiteral(node)) {
-			this.logger.log(
-				`[CompletionService] Node is not a string literal: ${typescript.SyntaxKind[node.kind]}`
-			);
 			return defaultContext;
 		}
 
 		// Check if this string is in a className context
 		if (!this.isClassNameContext(typescript, node)) {
-			this.logger.log(`[CompletionService] Node is not in className context`);
 			return defaultContext;
 		}
 
@@ -649,10 +626,6 @@ export class CompletionService {
 			});
 		}
 
-		this.logger.log(
-			`[CompletionService] Generated ${entries.length} completions for prefix "${prefix}"`
-		);
-
 		return entries;
 	}
 
@@ -662,7 +635,6 @@ export class CompletionService {
 	private getClassList(): string[] {
 		if (this.cachedClassList === null) {
 			this.cachedClassList = this.validator.getAllClasses().sort();
-			this.logger.log(`[CompletionService] Cached ${this.cachedClassList.length} classes`);
 		}
 		return this.cachedClassList;
 	}

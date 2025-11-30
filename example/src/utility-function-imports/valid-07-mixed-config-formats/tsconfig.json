@@ -9,15 +9,16 @@
       {
         "name": "tailwind-typescript-plugin",
         "globalCss": "./global.css",
-        "utilityFunctions": [
-          "simpleFn",
-          {
-            "name": "preciseFn",
-            "from": "@/utils"
+        "libraries": {
+          "utilities": {
+            "simpleFn": "*",
+            "preciseFn": "@/utils"
           }
-        ]
+        }
       }
     ]
   },
-  "include": ["example.tsx"]
+  "include": [
+    "example.tsx"
+  ]
 }
