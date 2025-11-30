@@ -2,7 +2,13 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { TailwindValidator } from '../infrastructure/TailwindValidator';
 import { NoOpLogger } from '../utils/Logger';
-import { CompletionService } from './CompletionService';
+import { CompletionService, CompletionServiceConfig } from './CompletionService';
+
+const defaultConfig: CompletionServiceConfig = {
+	utilityFunctions: ['clsx', 'cn', 'classnames', 'classNames', 'cx', 'twMerge'],
+	tailwindVariantsEnabled: true,
+	classVarianceAuthorityEnabled: true
+};
 
 describe('CompletionService', () => {
 	let validator: TailwindValidator;
@@ -40,7 +46,7 @@ describe('CompletionService', () => {
 				return null;
 			});
 		});
-		completionService = new CompletionService(validator, new NoOpLogger());
+		completionService = new CompletionService(validator, new NoOpLogger(), defaultConfig);
 	});
 
 	describe('getCompletionsAtPosition', () => {
@@ -521,6 +527,1474 @@ describe('CompletionService', () => {
 			expect(names).toContain('new-class');
 			expect(names).toContain('another-class');
 			expect(names).not.toContain('flex');
+		});
+	});
+
+	describe('custom utility functions', () => {
+		it('should provide completions in custom utility function', () => {
+			const customConfig: CompletionServiceConfig = {
+				utilityFunctions: ['myCustomClass', { name: 'styles', from: '@/utils' }],
+				tailwindVariantsEnabled: false,
+				classVarianceAuthorityEnabled: false
+			};
+			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+
+			const sourceCode = 'const x = myCustomClass("fl");';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position after "fl"
+			const position = 27;
+			const result = customService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should provide completions in tv() when tailwindVariants is enabled', () => {
+			const sourceCode = 'const button = tv({ base: "fl" });';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position at "l" inside "fl" string (position 28)
+			// const button = tv({ base: "fl" });
+			//                            ^^ position 27-28
+			const position = 28;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should NOT provide completions in tv() when tailwindVariants is disabled', () => {
+			const customConfig: CompletionServiceConfig = {
+				utilityFunctions: ['clsx'],
+				tailwindVariantsEnabled: false,
+				classVarianceAuthorityEnabled: false
+			};
+			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+
+			const sourceCode = 'const button = tv({ base: "fl" });';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position after "fl" inside the string
+			const position = 29;
+			const result = customService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+
+			// Should not provide Tailwind completions since tv() is not recognized
+			expect(result).toBeUndefined();
+		});
+
+		it('should provide completions in cva() when classVarianceAuthority is enabled', () => {
+			const sourceCode = 'const button = cva("fl");';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position after "fl"
+			const position = 22;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should NOT provide completions in cva() when classVarianceAuthority is disabled', () => {
+			const customConfig: CompletionServiceConfig = {
+				utilityFunctions: ['clsx'],
+				tailwindVariantsEnabled: false,
+				classVarianceAuthorityEnabled: false
+			};
+			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+
+			const sourceCode = 'const button = cva("fl");';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position after "fl"
+			const position = 22;
+			const result = customService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+
+			// Should not provide Tailwind completions since cva() is not recognized
+			expect(result).toBeUndefined();
+		});
+
+		it('should provide completions with UtilityFunctionConfig objects', () => {
+			const customConfig: CompletionServiceConfig = {
+				utilityFunctions: [{ name: 'customStyles', from: '@/lib/styles' }],
+				tailwindVariantsEnabled: false,
+				classVarianceAuthorityEnabled: false
+			};
+			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+
+			const sourceCode = 'const x = customStyles("fl");';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 26;
+			const result = customService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should provide completions with mixed string and object utility functions', () => {
+			const customConfig: CompletionServiceConfig = {
+				utilityFunctions: ['simpleUtil', { name: 'configuredUtil', from: '@/utils' }],
+				tailwindVariantsEnabled: false,
+				classVarianceAuthorityEnabled: false
+			};
+			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+
+			// Test simple string utility
+			const sourceCode1 = 'const x = simpleUtil("fl");';
+			const sourceFile1 = ts.createSourceFile(
+				'test.tsx',
+				sourceCode1,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const result1 = customService.getCompletionsAtPosition(ts, sourceFile1, 24, undefined);
+			expect(result1).toBeDefined();
+			expect(result1!.entries.map(e => e.name)).toContain('flex');
+
+			// Test configured utility
+			const sourceCode2 = 'const x = configuredUtil("fl");';
+			const sourceFile2 = ts.createSourceFile(
+				'test.tsx',
+				sourceCode2,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const result2 = customService.getCompletionsAtPosition(ts, sourceFile2, 28, undefined);
+			expect(result2).toBeDefined();
+			expect(result2!.entries.map(e => e.name)).toContain('flex');
+		});
+
+		it('should provide completions in tv() variants property', () => {
+			const sourceCode = `const button = tv({
+				base: "flex",
+				variants: {
+					color: {
+						primary: "bg-blue-500 te",
+						secondary: "bg-gray-500"
+					}
+				}
+			});`;
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Find position after "te" in primary variant
+			const position = sourceCode.indexOf('te",') + 2;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('text-white');
+			expect(names).toContain('text-black');
+		});
+
+		it('should provide completions in cva() variants property', () => {
+			const sourceCode = `const button = cva("base-class", {
+				variants: {
+					size: {
+						sm: "p-",
+						lg: "p-4"
+					}
+				}
+			});`;
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Find position after "p-" in sm variant
+			const position = sourceCode.indexOf('p-",') + 2;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			// Should match classes starting with "p-" from the mock (p-4, px-4, py-4)
+			expect(names).toContain('p-4');
+		});
+
+		it('should provide completions in tv() compoundVariants', () => {
+			const sourceCode = `const button = tv({
+				base: "flex",
+				variants: {
+					color: { primary: "bg-blue-500" }
+				},
+				compoundVariants: [
+					{ color: "primary", class: "fl" }
+				]
+			});`;
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Find position after "fl" in compoundVariants class
+			const position = sourceCode.indexOf('"fl"') + 3;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should enable both tv and cva when both variant options are true', () => {
+			const customConfig: CompletionServiceConfig = {
+				utilityFunctions: [],
+				tailwindVariantsEnabled: true,
+				classVarianceAuthorityEnabled: true
+			};
+			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+
+			// Test tv()
+			const tvSource = 'const x = tv({ base: "fl" });';
+			const tvFile = ts.createSourceFile(
+				'test.tsx',
+				tvSource,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+			const tvResult = customService.getCompletionsAtPosition(ts, tvFile, 24, undefined);
+			expect(tvResult).toBeDefined();
+
+			// Test cva()
+			const cvaSource = 'const x = cva("fl");';
+			const cvaFile = ts.createSourceFile(
+				'test.tsx',
+				cvaSource,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+			const cvaResult = customService.getCompletionsAtPosition(ts, cvaFile, 17, undefined);
+			expect(cvaResult).toBeDefined();
+		});
+	});
+
+	describe('JSX attribute variations', () => {
+		it('should provide completions in "class" attribute', () => {
+			const sourceCode = '<div class="fl">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 14;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should provide completions in "classList" attribute', () => {
+			const sourceCode = '<div classList="fl">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 18;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should NOT provide completions in non-className attributes', () => {
+			const sourceCode = '<div id="fl">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 11;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeUndefined();
+		});
+
+		it('should NOT provide completions in data attributes', () => {
+			const sourceCode = '<div data-class="fl">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 19;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeUndefined();
+		});
+
+		it('should provide completions in self-closing JSX element', () => {
+			const sourceCode = '<input className="fl" />';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 20;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should provide completions in nested JSX elements', () => {
+			const sourceCode = '<div><span className="fl"></span></div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 24;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+	});
+
+	describe('utility function contexts', () => {
+		it('should provide completions in nested utility function calls', () => {
+			const sourceCode = 'const x = cn(clsx("fl"));';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 21;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should provide completions in twMerge function', () => {
+			const sourceCode = 'const x = twMerge("fl");';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 21;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should provide completions in classnames function (lowercase)', () => {
+			const sourceCode = 'const x = classnames("fl");';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 24;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should provide completions in classNames function (camelCase)', () => {
+			const sourceCode = 'const x = classNames("fl");';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 24;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should provide completions in cx function', () => {
+			const sourceCode = 'const x = cx("fl");';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 16;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should provide completions in conditional utility function argument', () => {
+			const sourceCode = 'const x = cn(isActive ? "fl" : "hidden");';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position inside the first string "fl"
+			const position = 27;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should provide completions in array argument of utility function', () => {
+			const sourceCode = 'const x = cn(["fl", "items-center"]);';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position inside "fl"
+			const position = 17;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should provide completions in object value of utility function', () => {
+			const sourceCode = 'const x = cn({ "fl": isActive });';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position inside "fl" key
+			const position = 18;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should NOT provide completions in unknown function', () => {
+			const sourceCode = 'const x = unknownFn("fl");';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 23;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeUndefined();
+		});
+
+		it('should provide completions with property access expression (method call)', () => {
+			// When cn is called as a method: utils.cn("fl")
+			const customConfig: CompletionServiceConfig = {
+				utilityFunctions: ['cn'],
+				tailwindVariantsEnabled: false,
+				classVarianceAuthorityEnabled: false
+			};
+			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+
+			const sourceCode = 'const x = utils.cn("fl");';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 22;
+			const result = customService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+	});
+
+	describe('edge cases and position handling', () => {
+		it('should handle empty className attribute', () => {
+			const sourceCode = '<div className="">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position inside empty string
+			const position = 16;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			expect(result!.entries.length).toBeGreaterThan(0);
+		});
+
+		it('should handle position at start of string content', () => {
+			const sourceCode = '<div className="flex">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position at start of string content (right after opening quote)
+			const position = 16;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+		});
+
+		it('should handle multiple spaces between classes', () => {
+			const sourceCode = '<div className="flex   items-center">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position after multiple spaces
+			const position = 23;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+		});
+
+		it('should handle trailing space in className', () => {
+			const sourceCode = '<div className="flex ">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position after trailing space
+			const position = 21;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			// flex should be excluded as it's already in the string
+			const names = result!.entries.map(e => e.name);
+			expect(names).not.toContain('flex');
+		});
+
+		it('should return existingCompletions when no Tailwind classes match', () => {
+			// Mock empty class list
+			jest.spyOn(validator, 'getAllClasses').mockReturnValue([]);
+
+			const existingCompletions: ts.CompletionInfo = {
+				isGlobalCompletion: false,
+				isMemberCompletion: false,
+				isNewIdentifierLocation: false,
+				entries: [{ name: 'existing', kind: ts.ScriptElementKind.unknown, sortText: '0' }]
+			};
+
+			const sourceCode = '<div className="xyz">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				19,
+				existingCompletions
+			);
+
+			expect(result).toBe(existingCompletions);
+		});
+
+		it('should handle cursor position before string start', () => {
+			const sourceCode = '<div className="flex">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position before the opening quote
+			const position = 14;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			// Should not provide completions when cursor is outside string
+			expect(result).toBeUndefined();
+		});
+
+		it('should handle very long class names', () => {
+			jest
+				.spyOn(validator, 'getAllClasses')
+				.mockReturnValue(['very-long-tailwind-class-name-that-is-quite-long', 'flex']);
+
+			const sourceCode = '<div className="very">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 20;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('very-long-tailwind-class-name-that-is-quite-long');
+		});
+
+		it('should handle special characters in class prefix', () => {
+			jest
+				.spyOn(validator, 'getAllClasses')
+				.mockReturnValue(['w-1/2', 'w-1/3', 'w-1/4', '-mt-4', '-translate-x-1/2']);
+
+			const sourceCode = '<div className="w-1/">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 20;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('w-1/2');
+			expect(names).toContain('w-1/3');
+			expect(names).toContain('w-1/4');
+		});
+
+		it('should handle negative value classes', () => {
+			jest.spyOn(validator, 'getAllClasses').mockReturnValue(['-mt-4', '-mb-4', '-ml-4', '-mr-4']);
+
+			const sourceCode = '<div className="-m">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 18;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('-mt-4');
+			expect(names).toContain('-mb-4');
+		});
+
+		it('should handle arbitrary value classes', () => {
+			jest
+				.spyOn(validator, 'getAllClasses')
+				.mockReturnValue(['w-[100px]', 'h-[50vh]', 'bg-[#ff0000]']);
+
+			const sourceCode = '<div className="w-[">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 19;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('w-[100px]');
+		});
+	});
+
+	describe('sort text ordering', () => {
+		it('should prioritize exact matches', () => {
+			jest.spyOn(validator, 'getAllClasses').mockReturnValue(['flex', 'flex-row', 'flex-col']);
+
+			const sourceCode = '<div className="flex">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 20;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const flexEntry = result!.entries.find(e => e.name === 'flex');
+			const flexRowEntry = result!.entries.find(e => e.name === 'flex-row');
+
+			// Exact match should have lower sortText (higher priority)
+			expect(flexEntry!.sortText < flexRowEntry!.sortText).toBe(true);
+		});
+
+		it('should prioritize prefix matches over non-matches', () => {
+			jest
+				.spyOn(validator, 'getAllClasses')
+				.mockReturnValue(['flex', 'flex-row', 'items-center', 'justify-center']);
+
+			const sourceCode = '<div className="fl">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 18;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const flexEntry = result!.entries.find(e => e.name === 'flex');
+
+			// Prefix match should start with "1"
+			expect(flexEntry!.sortText.startsWith('1')).toBe(true);
+		});
+
+		it('should sort alphabetically within same priority', () => {
+			jest.spyOn(validator, 'getAllClasses').mockReturnValue(['flex-col', 'flex-row', 'flex']);
+
+			const sourceCode = '<div className="flex-">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 21;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+
+			// Both should be prefix matches with alphabetical ordering
+			const colIndex = names.indexOf('flex-col');
+			const rowIndex = names.indexOf('flex-row');
+			expect(colIndex).toBeLessThan(rowIndex);
+		});
+	});
+
+	describe('color class detection - additional patterns', () => {
+		beforeEach(() => {
+			jest
+				.spyOn(validator, 'getAllClasses')
+				.mockReturnValue([
+					'bg-red-500',
+					'bg-red-500/50',
+					'bg-[#ff0000]',
+					'bg-gradient-to-r',
+					'text-transparent',
+					'text-current',
+					'text-inherit',
+					'placeholder-gray-400',
+					'caret-blue-500',
+					'decoration-pink-500',
+					'divide-slate-200',
+					'ring-offset-white',
+					'shadow-black/25',
+					'bg-opacity-50',
+					'text-opacity-75'
+				]);
+		});
+
+		it('should detect color classes with opacity modifiers', () => {
+			const sourceCode = '<div className="">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const result = completionService.getCompletionsAtPosition(ts, sourceFile, 16, undefined);
+
+			expect(result).toBeDefined();
+			expect(result!.entries.find(e => e.name === 'bg-red-500/50')?.kindModifiers).toBe('color');
+			expect(result!.entries.find(e => e.name === 'shadow-black/25')?.kindModifiers).toBe('color');
+		});
+
+		it('should detect arbitrary color values', () => {
+			const sourceCode = '<div className="">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const result = completionService.getCompletionsAtPosition(ts, sourceFile, 16, undefined);
+
+			expect(result).toBeDefined();
+			expect(result!.entries.find(e => e.name === 'bg-[#ff0000]')?.kindModifiers).toBe('color');
+		});
+
+		it('should detect special color values (transparent, current, inherit)', () => {
+			const sourceCode = '<div className="">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const result = completionService.getCompletionsAtPosition(ts, sourceFile, 16, undefined);
+
+			expect(result).toBeDefined();
+			expect(result!.entries.find(e => e.name === 'text-transparent')?.kindModifiers).toBe('color');
+			expect(result!.entries.find(e => e.name === 'text-current')?.kindModifiers).toBe('color');
+			expect(result!.entries.find(e => e.name === 'text-inherit')?.kindModifiers).toBe('color');
+		});
+
+		it('should detect placeholder, caret, and decoration colors', () => {
+			const sourceCode = '<div className="">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const result = completionService.getCompletionsAtPosition(ts, sourceFile, 16, undefined);
+
+			expect(result).toBeDefined();
+			expect(result!.entries.find(e => e.name === 'placeholder-gray-400')?.kindModifiers).toBe(
+				'color'
+			);
+			expect(result!.entries.find(e => e.name === 'caret-blue-500')?.kindModifiers).toBe('color');
+			expect(result!.entries.find(e => e.name === 'decoration-pink-500')?.kindModifiers).toBe(
+				'color'
+			);
+		});
+
+		it('should NOT mark gradient direction as color', () => {
+			const sourceCode = '<div className="">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const result = completionService.getCompletionsAtPosition(ts, sourceFile, 16, undefined);
+
+			expect(result).toBeDefined();
+			// bg-gradient-to-r is not a color, it's a gradient direction
+			expect(result!.entries.find(e => e.name === 'bg-gradient-to-r')?.kindModifiers).toBe('');
+		});
+	});
+
+	describe('getCompletionEntryDetails - additional cases', () => {
+		it('should set color kindModifier in completion details', () => {
+			jest
+				.spyOn(validator, 'getCssForClasses')
+				.mockReturnValue(['.bg-red-500 { background-color: rgb(239 68 68); }']);
+
+			const sourceCode = '<div className="bg-red-500">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const result = completionService.getCompletionEntryDetails(ts, sourceFile, 16, 'bg-red-500');
+
+			expect(result).toBeDefined();
+			expect(result!.kindModifiers).toBe('color');
+		});
+
+		it('should NOT set color kindModifier for non-color class in details', () => {
+			const sourceCode = '<div className="flex">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const result = completionService.getCompletionEntryDetails(ts, sourceFile, 16, 'flex');
+
+			expect(result).toBeDefined();
+			expect(result!.kindModifiers).toBe('');
+		});
+
+		it('should handle class with no CSS definition gracefully', () => {
+			jest.spyOn(validator, 'getCssForClasses').mockReturnValue([null]);
+			jest.spyOn(validator, 'isValidClass').mockReturnValue(true);
+
+			const sourceCode = '<div className="unknown-class">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const result = completionService.getCompletionEntryDetails(
+				ts,
+				sourceFile,
+				16,
+				'unknown-class'
+			);
+
+			expect(result).toBeDefined();
+			expect(result!.name).toBe('unknown-class');
+			expect(result!.documentation).toEqual([]);
+			expect(result!.displayParts![0].text).toBe('unknown-class');
+		});
+
+		it('should format CSS with already formatted multiline input', () => {
+			const multilineCss = `.complex {\n  display: flex;\n  align-items: center;\n}`;
+			jest.spyOn(validator, 'getCssForClasses').mockReturnValue([multilineCss]);
+			jest.spyOn(validator, 'isValidClass').mockReturnValue(true);
+
+			const sourceCode = '<div className="complex">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const result = completionService.getCompletionEntryDetails(ts, sourceFile, 16, 'complex');
+
+			expect(result).toBeDefined();
+			// Should preserve the already formatted CSS
+			expect(result!.documentation![0].text).toContain(multilineCss);
+		});
+	});
+
+	describe('template literals', () => {
+		it('should provide completions in template literal utility function', () => {
+			const sourceCode = 'const x = cn(`fl`);';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position inside template literal
+			const position = 16;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+
+		it('should provide completions in NoSubstitutionTemplateLiteral inside utility function', () => {
+			const sourceCode = 'const cls = clsx(`flex fl`);';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position after "fl" inside template literal
+			const position = 25;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex-row');
+			expect(names).toContain('flex-col');
+		});
+	});
+
+	describe('boundary conditions', () => {
+		it('should NOT provide completions inside arrow function body', () => {
+			const customConfig: CompletionServiceConfig = {
+				utilityFunctions: [],
+				tailwindVariantsEnabled: false,
+				classVarianceAuthorityEnabled: false
+			};
+			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+
+			const sourceCode = 'const fn = () => { const x = "fl"; };';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position inside string in arrow function (not a utility function context)
+			const position = 32;
+			const result = customService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+
+			expect(result).toBeUndefined();
+		});
+
+		it('should NOT provide completions inside regular function body', () => {
+			const customConfig: CompletionServiceConfig = {
+				utilityFunctions: [],
+				tailwindVariantsEnabled: false,
+				classVarianceAuthorityEnabled: false
+			};
+			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+
+			const sourceCode = 'function fn() { const x = "fl"; }';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position inside string in function (not a utility function context)
+			const position = 29;
+			const result = customService.getCompletionsAtPosition(ts, sourceFile, position, undefined);
+
+			expect(result).toBeUndefined();
+		});
+
+		it('should provide completions when utility function is inside arrow function', () => {
+			const sourceCode = 'const fn = () => cn("fl");';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position inside cn() string argument
+			const position = 23;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			expect(names).toContain('flex');
+		});
+	});
+
+	describe('case sensitivity', () => {
+		it('should handle case-insensitive prefix matching', () => {
+			const sourceCode = '<div className="FL">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 18;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const names = result!.entries.map(e => e.name);
+			// Should still match lowercase flex classes even with uppercase prefix
+			expect(names).toContain('flex');
+			expect(names).toContain('flex-row');
+		});
+	});
+
+	describe('replacement span', () => {
+		it('should set correct replacement span at start of string', () => {
+			const sourceCode = '<div className="fl">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 18;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const flexEntry = result!.entries.find(e => e.name === 'flex');
+			expect(flexEntry!.replacementSpan).toEqual({
+				start: 16, // Start of "fl"
+				length: 2 // Length of "fl"
+			});
+		});
+
+		it('should set correct replacement span after space', () => {
+			const sourceCode = '<div className="flex ite">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const position = 24;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const itemsEntry = result!.entries.find(e => e.name === 'items-center');
+			expect(itemsEntry!.replacementSpan).toEqual({
+				start: 21, // Start of "ite" (after "flex ")
+				length: 3 // Length of "ite"
+			});
+		});
+
+		it('should set zero-length replacement span when no prefix', () => {
+			const sourceCode = '<div className="flex ">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Position after space (no prefix yet)
+			const position = 21;
+			const result = completionService.getCompletionsAtPosition(
+				ts,
+				sourceFile,
+				position,
+				undefined
+			);
+
+			expect(result).toBeDefined();
+			const itemsEntry = result!.entries.find(e => e.name === 'items-center');
+			expect(itemsEntry!.replacementSpan).toEqual({
+				start: 21,
+				length: 0 // No prefix to replace
+			});
 		});
 	});
 });
