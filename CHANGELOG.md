@@ -1,3 +1,9 @@
+## [1.4.0-beta.13](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.12...v1.4.0-beta.13) (2025-11-30)
+
+### ✨ Features
+
+* add hover information for Tailwind CSS classes ([33cac86](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/33cac864f774e6925c0d7dd63e29dced85a0b157))
+
 ## [1.4.0-beta.12](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.11...v1.4.0-beta.12) (2025-11-30)
 
 ### ✨ Features
