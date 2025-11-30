@@ -5,7 +5,7 @@ import path from 'path';
 import { TailwindValidator } from '../infrastructure/TailwindValidator';
 import { ClassNameExtractionService } from '../services/ClassNameExtractionService';
 import { CodeActionService } from '../services/CodeActionService';
-import { CompletionService } from '../services/CompletionService';
+import { CompletionService, CompletionServiceConfig } from '../services/CompletionService';
 import { DiagnosticService } from '../services/DiagnosticService';
 import { FileDiagnosticCache } from '../services/FileDiagnosticCache';
 import { PluginConfigService } from '../services/PluginConfigService';
@@ -88,7 +88,12 @@ export class TailwindTypescriptPlugin {
 		this.codeActionService = new CodeActionService(this.validator);
 
 		// Initialize completion service for Tailwind class autocompletion
-		this.completionService = new CompletionService(this.validator, this.logger);
+		const completionConfig: CompletionServiceConfig = {
+			utilityFunctions: this.configService.getUtilityFunctions(),
+			tailwindVariantsEnabled: this.configService.isTailwindVariantsEnabled(),
+			classVarianceAuthorityEnabled: this.configService.isClassVarianceAuthorityEnabled()
+		};
+		this.completionService = new CompletionService(this.validator, this.logger, completionConfig);
 
 		// Set allowed classes from config
 		const allowedClasses = this.configService.getAllowedClasses();

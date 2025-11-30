@@ -1,6 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { TailwindValidator } from '../infrastructure/TailwindValidator';
+import { UtilityFunction } from '../core/types';
 import { Logger } from '../utils/Logger';
 
 /**
@@ -20,6 +21,18 @@ interface CompletionContext {
 }
 
 /**
+ * Configuration options for completion service
+ */
+export interface CompletionServiceConfig {
+	/** Custom utility functions to recognize for completions */
+	utilityFunctions: UtilityFunction[];
+	/** Whether tailwind-variants (tv) is enabled */
+	tailwindVariantsEnabled: boolean;
+	/** Whether class-variance-authority (cva) is enabled */
+	classVarianceAuthorityEnabled: boolean;
+}
+
+/**
  * Service that provides autocompletion for Tailwind CSS class names
  *
  * Provides completions when:
@@ -35,11 +48,31 @@ interface CompletionContext {
 export class CompletionService {
 	/** Cached sorted class list for faster completion generation */
 	private cachedClassList: string[] | null = null;
+	/** Cached set of utility function names for quick lookup */
+	private utilityFunctionNames: Set<string>;
 
 	constructor(
 		private readonly validator: TailwindValidator,
-		private readonly logger: Logger
-	) {}
+		private readonly logger: Logger,
+		private readonly config: CompletionServiceConfig
+	) {
+		// Build a set of utility function names for quick lookup
+		this.utilityFunctionNames = new Set(
+			config.utilityFunctions.map(f => (typeof f === 'string' ? f : f.name))
+		);
+
+		// Add variant functions based on config
+		if (config.tailwindVariantsEnabled) {
+			this.utilityFunctionNames.add('tv');
+		}
+		if (config.classVarianceAuthorityEnabled) {
+			this.utilityFunctionNames.add('cva');
+		}
+
+		this.logger.log(
+			`[CompletionService] Initialized with utility functions: ${Array.from(this.utilityFunctionNames).join(', ')}`
+		);
+	}
 
 	/**
 	 * Get completions at the given position
@@ -334,9 +367,13 @@ export class CompletionService {
 		}
 
 		// Case 2: Property assignment like { className: "..." }
+		// But only return true here - we need to fall through for properties inside tv()/cva() like base/variants
 		if (typescript.isPropertyAssignment(parent)) {
 			const propName = parent.name.getText();
-			return this.isClassNameAttribute(propName);
+			if (this.isClassNameAttribute(propName)) {
+				return true;
+			}
+			// Fall through to check if this property is inside a utility function call
 		}
 
 		// Case 3: Inside a call expression (utility function like clsx, cn, etc.)
@@ -352,12 +389,12 @@ export class CompletionService {
 				}
 			}
 
-			// Case 4: Inside tv() or cva() variant definitions
+			// Case 4: Inside tv() or cva() variant definitions (property assignments within these calls)
 			if (typescript.isPropertyAssignment(current)) {
 				const parentCall = this.findParentCallExpression(typescript, current);
 				if (parentCall) {
 					const callName = this.getCallExpressionName(typescript, parentCall);
-					if (callName === 'tv' || callName === 'cva') {
+					if (callName && this.isUtilityFunction(callName)) {
 						return true;
 					}
 				}
@@ -391,21 +428,10 @@ export class CompletionService {
 	}
 
 	/**
-	 * Check if a function name is a common utility function for class names
+	 * Check if a function name is a configured utility function for class names
 	 */
 	private isUtilityFunction(name: string): boolean {
-		const utilityFunctions = [
-			'clsx',
-			'cn',
-			'classnames',
-			'classNames',
-			'cx',
-			'cva',
-			'tv',
-			'twMerge',
-			'twJoin'
-		];
-		return utilityFunctions.includes(name);
+		return this.utilityFunctionNames.has(name);
 	}
 
 	/**
