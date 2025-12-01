@@ -1,7 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { IClassNameValidator } from '../core/interfaces';
-import { ClassNameInfo, DiagnosticSeverity, UtilityFunction } from '../core/types';
+import { ClassNameInfo, UtilityFunction } from '../core/types';
 import { ICssProvider, TailwindConflictDetector } from '../infrastructure/TailwindConflictDetector';
 import { ClassNameExtractionService } from './ClassNameExtractionService';
 import { DiagnosticService } from './DiagnosticService';
@@ -102,11 +102,7 @@ export class ValidationService {
 					const conflicts = this.conflictDetector.findConflicts(classNames);
 					if (conflicts.length > 0) {
 						diagnostics.push(
-							...this.diagnosticService.createConflictDiagnostics(
-								conflicts,
-								sourceFile,
-								severity
-							)
+							...this.diagnosticService.createConflictDiagnostics(conflicts, sourceFile, severity)
 						);
 					}
 				}

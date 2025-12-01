@@ -57,19 +57,6 @@ const DEFAULT_LINT: LintConfig = {
 };
 
 /**
- * Default editor configuration
- */
-const DEFAULT_EDITOR: EditorConfig = {
-	enabled: true,
-	autocomplete: {
-		enabled: true
-	},
-	hover: {
-		enabled: true
-	}
-};
-
-/**
  * Service responsible for managing plugin configuration
  * Follows Single Responsibility Principle
  */
@@ -128,7 +115,9 @@ export class PluginConfigService {
 		return { ...DEFAULT_VARIANTS };
 	}
 
-	private initializeValidation(config: IPluginConfig): Required<Omit<ValidationConfig, 'allowedClasses'>> & {
+	private initializeValidation(config: IPluginConfig): Required<
+		Omit<ValidationConfig, 'allowedClasses'>
+	> & {
 		allowedClasses: string[];
 	} {
 		const validation = config.validation || {};

@@ -2,7 +2,11 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { IClassNameValidator } from '../core/interfaces';
 import { ClassNameExtractionService } from './ClassNameExtractionService';
-import { DiagnosticService, TAILWIND_DUPLICATE_CODE } from './DiagnosticService';
+import {
+	DiagnosticService,
+	TAILWIND_DUPLICATE_CODE,
+	TAILWIND_EXTRACTABLE_CLASS_CODE
+} from './DiagnosticService';
 import { PluginConfigService } from './PluginConfigService';
 import { ValidationService } from './ValidationService';
 
@@ -275,9 +279,9 @@ describe('Duplicate Class Detection', () => {
 			expect(duplicates.every(d => d.category === ts.DiagnosticCategory.Warning)).toBe(true);
 		});
 
-		it('should NOT flag when class appears in both branches but NOT at root', () => {
+		it('should flag extractable class when class appears in both branches but NOT at root', () => {
 			// Case: clsx('mt-4', isActive ? 'flex bg-blue-500' : 'flex bg-gray-500')
-			// No root 'flex', but 'flex' in both branches = not a duplicate (user might want this pattern)
+			// No root 'flex', but 'flex' in both branches = extractable hint (can be moved outside)
 			const sourceCode =
 				"<div className={clsx('mt-4', isActive ? 'flex bg-blue-500' : 'flex bg-gray-500')}>Hello</div>";
 			const sourceFile = ts.createSourceFile(
@@ -290,8 +294,10 @@ describe('Duplicate Class Detection', () => {
 
 			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
 
-			// No diagnostics - same class in both branches is intentional
-			expect(diagnostics.length).toBe(0);
+			// 2 extractable hints - one for each 'flex' in both branches
+			const extractable = diagnostics.filter(d => d.code === TAILWIND_EXTRACTABLE_CLASS_CODE);
+			expect(extractable.length).toBe(2);
+			expect(extractable.every(d => d.category === ts.DiagnosticCategory.Warning)).toBe(true);
 		});
 
 		it('should not flag class in only one ternary branch', () => {
@@ -332,9 +338,9 @@ describe('Duplicate Class Detection', () => {
 			expect(duplicates.every(d => d.category === ts.DiagnosticCategory.Warning)).toBe(true);
 		});
 
-		it('should NOT flag simple ternary with same class in both branches', () => {
+		it('should flag extractable class for simple ternary with same class in both branches', () => {
 			// Case: className={isActive ? 'flex bg-blue-500' : 'flex bg-gray-500'}
-			// Same class in both branches is intentional - user might want this pattern
+			// Same class in both branches = extractable hint (can be moved outside)
 			const sourceCode =
 				"<div className={isActive ? 'flex bg-blue-500' : 'flex bg-gray-500'}>Hello</div>";
 			const sourceFile = ts.createSourceFile(
@@ -347,13 +353,14 @@ describe('Duplicate Class Detection', () => {
 
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
-			// No diagnostics - same class in both branches is intentional
-			expect(diagnostics.length).toBe(0);
+			// 2 extractable hints - one for each 'flex' in both branches
+			const extractable = diagnostics.filter(d => d.code === TAILWIND_EXTRACTABLE_CLASS_CODE);
+			expect(extractable.length).toBe(2);
 		});
 
-		it('should NOT flag multiple classes appearing in both ternary branches', () => {
+		it('should flag extractable classes for multiple classes appearing in both ternary branches', () => {
 			// Case: className={isActive ? 'flex items-center p-4' : 'flex items-center m-4'}
-			// Both 'flex' and 'items-center' appear in both branches - intentional
+			// Both 'flex' and 'items-center' appear in both branches = extractable hints
 			const sourceCode =
 				"<div className={isActive ? 'flex items-center p-4' : 'flex items-center m-4'}>Hello</div>";
 			const sourceFile = ts.createSourceFile(
@@ -366,8 +373,9 @@ describe('Duplicate Class Detection', () => {
 
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
-			// No diagnostics - same class in both branches is intentional
-			expect(diagnostics.length).toBe(0);
+			// 4 extractable hints - 2 for 'flex' + 2 for 'items-center' (in both branches)
+			const extractable = diagnostics.filter(d => d.code === TAILWIND_EXTRACTABLE_CLASS_CODE);
+			expect(extractable.length).toBe(4);
 		});
 	});
 
