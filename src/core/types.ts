@@ -1,5 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
+import { Framework } from '../utils/FrameworkDetector';
+
 /**
  * Represents a utility function configuration with optional import source
  * When 'from' is specified, the import will be verified before matching
@@ -154,6 +156,11 @@ export interface ExtractionContext {
 	readonly sourceFile: ts.SourceFile;
 	readonly utilityFunctions: UtilityFunction[];
 	readonly typeChecker?: ts.TypeChecker;
+	/**
+	 * The detected framework for the current file
+	 * Used to determine which extractor to use
+	 */
+	readonly framework?: Framework;
 }
 
 /**
