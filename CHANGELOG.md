@@ -1,3 +1,9 @@
+## [1.4.0-beta.15](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.14...v1.4.0-beta.15) (2025-12-02)
+
+### ♻️ Code Refactoring
+
+* add multi-framework architecture with lazy initialization ([a403e18](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/a403e1869d92f8b926dc40a9e6eedc0bec55e06c))
+
 ## [1.4.0-beta.14](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.13...v1.4.0-beta.14) (2025-12-02)
 
 ### ⚠ BREAKING CHANGES
