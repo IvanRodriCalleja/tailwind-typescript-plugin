@@ -10,6 +10,7 @@ import { DiagnosticService } from '../services/DiagnosticService';
 import { FileDiagnosticCache } from '../services/FileDiagnosticCache';
 import { PluginConfigService } from '../services/PluginConfigService';
 import { ValidationService } from '../services/ValidationService';
+import { isSupportedFile } from '../utils/FrameworkDetector';
 
 export class TailwindTypescriptPlugin {
 	private validator!: TailwindValidator;
@@ -377,13 +378,8 @@ export class TailwindTypescriptPlugin {
 			return false;
 		}
 
-		// Process .ts, .tsx, .js, and .jsx files
-		const isSupportedFile =
-			fileName.endsWith('.ts') ||
-			fileName.endsWith('.tsx') ||
-			fileName.endsWith('.js') ||
-			fileName.endsWith('.jsx');
-		if (!isSupportedFile) {
+		// Process supported framework files (.ts, .tsx, .js, .jsx, .vue, .svelte)
+		if (!isSupportedFile(fileName)) {
 			return false;
 		}
 
