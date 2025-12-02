@@ -3,7 +3,6 @@ import path from 'path';
 
 import { IClassNameValidator } from '../core/interfaces';
 import { PerformanceCache } from '../services/PerformanceCache';
-import { Logger } from '../utils/Logger';
 
 type Tailwind = {
 	__unstable__loadDesignSystem: (
@@ -35,14 +34,12 @@ export class TailwindValidator implements IClassNameValidator {
 	// @ts-expect-error
 	private designSystem: DesignSystem;
 	private cssFilePath: string;
-	private logger: Logger;
 	private validationCache: PerformanceCache<string, boolean>;
 	private allowedClasses: Set<string> = new Set();
 	private allowedPatterns: Array<{ pattern: string; type: 'prefix' | 'suffix' | 'contains' }> = [];
 
-	constructor(cssFilePath: string, logger: Logger) {
+	constructor(cssFilePath: string) {
 		this.cssFilePath = cssFilePath;
-		this.logger = logger;
 		this.validationCache = new PerformanceCache<string, boolean>(2000);
 	}
 
@@ -53,8 +50,6 @@ export class TailwindValidator implements IClassNameValidator {
 		if (this.classSet !== null) {
 			return; // Already initialized
 		}
-
-		this.logger.log(`[TailwindValidator] Loading design system from: ${this.cssFilePath}`);
 
 		try {
 			// Load the design system with full API access
@@ -84,8 +79,7 @@ export class TailwindValidator implements IClassNameValidator {
 							base: path.dirname(resolvedPath),
 							content: fs.readFileSync(resolvedPath, 'utf-8')
 						};
-					} catch (err) {
-						this.logger.log(`[TailwindValidator] Failed to load stylesheet: ${err}`);
+					} catch {
 						return { base, content: '' };
 					}
 				},
@@ -94,8 +88,7 @@ export class TailwindValidator implements IClassNameValidator {
 						const resolvedPath = require.resolve(id, { paths: [base] });
 						const module = require(resolvedPath);
 						return { base: path.dirname(resolvedPath), module };
-					} catch (err) {
-						this.logger.log(`[TailwindValidator] Failed to load module: ${err}`);
+					} catch {
 						if (resourceType === 'config') {
 							return { base, module: {} };
 						} else if (resourceType === 'plugin') {
@@ -108,7 +101,6 @@ export class TailwindValidator implements IClassNameValidator {
 
 			this.classSet = new Set(this.designSystem.getClassList().map(([className]) => className));
 		} catch (error) {
-			this.logger.log(`[TailwindValidator] Failed to load design system: ${error}`);
 			throw error;
 		}
 	}
@@ -152,12 +144,6 @@ export class TailwindValidator implements IClassNameValidator {
 
 		// Clear cache when allowed classes change
 		this.validationCache.clear();
-
-		if (exactClasses.length > 0 || patterns.length > 0) {
-			this.logger.log(
-				`[TailwindValidator] Set ${exactClasses.length} exact allowed classes and ${patterns.length} patterns`
-			);
-		}
 	}
 
 	/**
@@ -187,8 +173,6 @@ export class TailwindValidator implements IClassNameValidator {
 	 */
 	isValidClass(className: string): boolean {
 		if (!this.classSet || !this.designSystem) {
-			// Only log if logging is enabled (checked internally by logger)
-			this.logger.log('[TailwindValidator] Validator not initialized. Call initialize() first.');
 			return true; // Assume valid if not initialized
 		}
 
@@ -223,11 +207,7 @@ export class TailwindValidator implements IClassNameValidator {
 			const isValid = result[0] !== null;
 			this.validationCache.set(className, isValid);
 			return isValid;
-		} catch (err) {
-			// PERFORMANCE: Only log errors if enabled
-			if (this.logger.isEnabled()) {
-				this.logger.log(`[TailwindValidator] Failed to check class: ${err}`);
-			}
+		} catch {
 			this.validationCache.set(className, false);
 			return false;
 		}
@@ -290,10 +270,7 @@ export class TailwindValidator implements IClassNameValidator {
 						invalidClasses.push(className);
 					}
 				}
-			} catch (err) {
-				if (this.logger.isEnabled()) {
-					this.logger.log(`[TailwindValidator] Failed to batch validate: ${err}`);
-				}
+			} catch {
 				// On error, mark all as invalid
 				for (const className of uncachedArbitraryValues) {
 					this.validationCache.set(className, false);
@@ -406,10 +383,7 @@ export class TailwindValidator implements IClassNameValidator {
 
 		try {
 			return this.designSystem.candidatesToCss(classNames);
-		} catch (err) {
-			if (this.logger.isEnabled()) {
-				this.logger.log(`[TailwindValidator] Failed to get CSS for classes: ${err}`);
-			}
+		} catch {
 			return classNames.map(() => null);
 		}
 	}

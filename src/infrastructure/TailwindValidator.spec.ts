@@ -2,20 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-import { Logger } from '../utils/Logger';
 import { TailwindValidator } from './TailwindValidator';
-
-// Mock logger for testing
-class MockLogger implements Logger {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	log(_message: string): void {
-		// Silent during tests
-	}
-
-	isEnabled(): boolean {
-		return false;
-	}
-}
 
 describe('TailwindValidator', () => {
 	let validator: TailwindValidator;
@@ -27,7 +14,7 @@ describe('TailwindValidator', () => {
 		tempCssFile = path.join(tempDir, 'global.css');
 		fs.writeFileSync(tempCssFile, '@import "tailwindcss";');
 
-		validator = new TailwindValidator(tempCssFile, new MockLogger());
+		validator = new TailwindValidator(tempCssFile);
 		await validator.initialize();
 	});
 
@@ -154,7 +141,7 @@ describe('TailwindValidator', () => {
 }`;
 				fs.writeFileSync(customCssFile, cssContent);
 
-				customValidator = new TailwindValidator(customCssFile, new MockLogger());
+				customValidator = new TailwindValidator(customCssFile);
 				await customValidator.initialize();
 			});
 
@@ -365,7 +352,7 @@ describe('TailwindValidator', () => {
 			// Start with basic Tailwind
 			fs.writeFileSync(reloadCssFile, '@import "tailwindcss";');
 
-			const reloadValidator = new TailwindValidator(reloadCssFile, new MockLogger());
+			const reloadValidator = new TailwindValidator(reloadCssFile);
 			await reloadValidator.initialize();
 
 			// Custom class should be invalid initially
@@ -400,7 +387,7 @@ describe('TailwindValidator', () => {
 			// Start with basic Tailwind
 			fs.writeFileSync(reloadCssFile, '@import "tailwindcss";');
 
-			const reloadValidator = new TailwindValidator(reloadCssFile, new MockLogger());
+			const reloadValidator = new TailwindValidator(reloadCssFile);
 			await reloadValidator.initialize();
 
 			// Custom color should be invalid initially
@@ -437,7 +424,7 @@ describe('TailwindValidator', () => {
 			// Start with basic Tailwind
 			fs.writeFileSync(reloadCssFile, '@import "tailwindcss";');
 
-			const reloadValidator = new TailwindValidator(reloadCssFile, new MockLogger());
+			const reloadValidator = new TailwindValidator(reloadCssFile);
 			await reloadValidator.initialize();
 
 			// First reload: add custom-class-1
@@ -494,7 +481,7 @@ describe('TailwindValidator', () => {
 
 			fs.writeFileSync(reloadCssFile, '@import "tailwindcss";');
 
-			const reloadValidator = new TailwindValidator(reloadCssFile, new MockLogger());
+			const reloadValidator = new TailwindValidator(reloadCssFile);
 			await reloadValidator.initialize();
 
 			// Standard classes should be valid
@@ -521,7 +508,7 @@ describe('TailwindValidator', () => {
 
 			fs.writeFileSync(reloadCssFile, '@import "tailwindcss";');
 
-			const reloadValidator = new TailwindValidator(reloadCssFile, new MockLogger());
+			const reloadValidator = new TailwindValidator(reloadCssFile);
 			await reloadValidator.initialize();
 
 			// Before reload: custom-valid should be invalid

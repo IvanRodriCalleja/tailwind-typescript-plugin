@@ -1,7 +1,6 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { TailwindValidator } from '../infrastructure/TailwindValidator';
-import { NoOpLogger } from '../utils/Logger';
 import { CompletionService, CompletionServiceConfig } from './CompletionService';
 
 const defaultConfig: CompletionServiceConfig = {
@@ -15,7 +14,7 @@ describe('CompletionService', () => {
 	let completionService: CompletionService;
 
 	beforeEach(() => {
-		validator = new TailwindValidator('/fake/path.css', new NoOpLogger());
+		validator = new TailwindValidator('/fake/path.css');
 		// Mock the validator methods
 		jest
 			.spyOn(validator, 'getAllClasses')
@@ -46,7 +45,7 @@ describe('CompletionService', () => {
 				return null;
 			});
 		});
-		completionService = new CompletionService(validator, new NoOpLogger(), defaultConfig);
+		completionService = new CompletionService(validator, defaultConfig);
 	});
 
 	describe('getCompletionsAtPosition', () => {
@@ -537,7 +536,7 @@ describe('CompletionService', () => {
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};
-			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+			const customService = new CompletionService(validator, customConfig);
 
 			const sourceCode = 'const x = myCustomClass("fl");';
 			const sourceFile = ts.createSourceFile(
@@ -589,7 +588,7 @@ describe('CompletionService', () => {
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};
-			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+			const customService = new CompletionService(validator, customConfig);
 
 			const sourceCode = 'const button = tv({ base: "fl" });';
 			const sourceFile = ts.createSourceFile(
@@ -638,7 +637,7 @@ describe('CompletionService', () => {
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};
-			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+			const customService = new CompletionService(validator, customConfig);
 
 			const sourceCode = 'const button = cva("fl");';
 			const sourceFile = ts.createSourceFile(
@@ -663,7 +662,7 @@ describe('CompletionService', () => {
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};
-			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+			const customService = new CompletionService(validator, customConfig);
 
 			const sourceCode = 'const x = customStyles("fl");';
 			const sourceFile = ts.createSourceFile(
@@ -688,7 +687,7 @@ describe('CompletionService', () => {
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};
-			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+			const customService = new CompletionService(validator, customConfig);
 
 			// Test simple string utility
 			const sourceCode1 = 'const x = simpleUtil("fl");';
@@ -822,7 +821,7 @@ describe('CompletionService', () => {
 				tailwindVariantsEnabled: true,
 				classVarianceAuthorityEnabled: true
 			};
-			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+			const customService = new CompletionService(validator, customConfig);
 
 			// Test tv()
 			const tvSource = 'const x = tv({ base: "fl" });';
@@ -1202,7 +1201,7 @@ describe('CompletionService', () => {
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};
-			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+			const customService = new CompletionService(validator, customConfig);
 
 			const sourceCode = 'const x = utils.cn("fl");';
 			const sourceFile = ts.createSourceFile(
@@ -1823,7 +1822,7 @@ describe('CompletionService', () => {
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};
-			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+			const customService = new CompletionService(validator, customConfig);
 
 			const sourceCode = 'const fn = () => { const x = "fl"; };';
 			const sourceFile = ts.createSourceFile(
@@ -1847,7 +1846,7 @@ describe('CompletionService', () => {
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};
-			const customService = new CompletionService(validator, new NoOpLogger(), customConfig);
+			const customService = new CompletionService(validator, customConfig);
 
 			const sourceCode = 'function fn() { const x = "fl"; }';
 			const sourceFile = ts.createSourceFile(

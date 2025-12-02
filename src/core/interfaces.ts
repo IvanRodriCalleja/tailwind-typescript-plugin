@@ -1,6 +1,13 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
-import { ClassNameInfo, ExtractionContext, UtilityFunction } from './types';
+import {
+	ClassNameInfo,
+	EditorConfig,
+	ExtractionContext,
+	LibrariesConfig,
+	LintConfig,
+	ValidationConfig
+} from './types';
 
 /**
  * Base interface for class name extractors
@@ -28,22 +35,30 @@ export interface IClassNameValidator {
 }
 
 /**
- * Interface for variant library configuration
- */
-export interface IVariantsConfig {
-	tailwindVariants?: boolean;
-	classVarianceAuthority?: boolean;
-}
-
-/**
  * Interface for configuration management
  */
 export interface IPluginConfig {
 	globalCss?: string;
-	utilityFunctions?: UtilityFunction[];
-	variants?: IVariantsConfig;
-	allowedClasses?: string[];
-	enableLogging?: boolean;
+
+	/**
+	 * Library configurations (utilities and variants)
+	 */
+	libraries?: LibrariesConfig;
+
+	/**
+	 * Validation configuration (invalid class detection)
+	 */
+	validation?: ValidationConfig;
+
+	/**
+	 * Lint configuration (conflicting and repeated classes)
+	 */
+	lint?: LintConfig;
+
+	/**
+	 * Editor features configuration (autocomplete and hover)
+	 */
+	editor?: EditorConfig;
 }
 
 /**

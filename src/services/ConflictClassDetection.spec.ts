@@ -3,9 +3,9 @@ import fs from 'fs';
 import path from 'path';
 
 import { TailwindValidator } from '../infrastructure/TailwindValidator';
-import { NoOpLogger } from '../utils/Logger';
 import { ClassNameExtractionService } from './ClassNameExtractionService';
 import { DiagnosticService, TAILWIND_CONFLICT_CODE } from './DiagnosticService';
+import { PluginConfigService } from './PluginConfigService';
 import { ValidationService } from './ValidationService';
 
 describe('Conflicting Class Detection', () => {
@@ -13,7 +13,7 @@ describe('Conflicting Class Detection', () => {
 	let diagnosticService: DiagnosticService;
 	let extractionService: ClassNameExtractionService;
 	let validator: TailwindValidator;
-	let logger: NoOpLogger;
+	let configService: PluginConfigService;
 	const testCssFile = path.join(__dirname, '../../test-conflict-global.css');
 
 	beforeAll(async () => {
@@ -21,8 +21,7 @@ describe('Conflicting Class Detection', () => {
 		fs.writeFileSync(testCssFile, '@import "tailwindcss";');
 
 		// Initialize the real validator
-		logger = new NoOpLogger();
-		validator = new TailwindValidator(testCssFile, logger);
+		validator = new TailwindValidator(testCssFile);
 		await validator.initialize();
 	});
 
@@ -36,11 +35,12 @@ describe('Conflicting Class Detection', () => {
 	beforeEach(() => {
 		diagnosticService = new DiagnosticService();
 		extractionService = new ClassNameExtractionService();
+		configService = new PluginConfigService({});
 		validationService = new ValidationService(
 			extractionService,
 			diagnosticService,
 			validator,
-			logger,
+			configService,
 			validator // Pass as CSS provider for conflict detection
 		);
 	});

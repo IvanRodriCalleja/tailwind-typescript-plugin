@@ -10,10 +10,8 @@ import { DiagnosticService } from '../services/DiagnosticService';
 import { FileDiagnosticCache } from '../services/FileDiagnosticCache';
 import { PluginConfigService } from '../services/PluginConfigService';
 import { ValidationService } from '../services/ValidationService';
-import { Logger, LoggerImpl, NoOpLogger } from '../utils/Logger';
 
 export class TailwindTypescriptPlugin {
-	private logger!: Logger;
 	private validator!: TailwindValidator;
 	private validationService!: ValidationService;
 	private configService!: PluginConfigService;
@@ -30,13 +28,8 @@ export class TailwindTypescriptPlugin {
 	 * Create the plugin proxy for TypeScript Language Service
 	 */
 	create(info: ts.server.PluginCreateInfo): ts.LanguageService {
-		// PERFORMANCE: Use NoOpLogger by default, only enable if configured
-		const enableLogging = (info.config || {}).enableLogging === true;
-		this.logger = enableLogging ? new LoggerImpl(info, true) : new NoOpLogger();
-		this.logger.log('============= Plugin Starting =============');
-
 		// Initialize configuration service
-		this.configService = new PluginConfigService(info.config || {}, this.logger);
+		this.configService = new PluginConfigService(info.config || {});
 
 		// PERFORMANCE: Initialize file-level diagnostic cache
 		this.diagnosticCache = new FileDiagnosticCache(100);
@@ -53,7 +46,6 @@ export class TailwindTypescriptPlugin {
 	 */
 	private initializeValidator(info: ts.server.PluginCreateInfo): void {
 		if (!this.configService.hasValidCssPath()) {
-			this.logger.log('No CSS file configured');
 			return;
 		}
 
@@ -62,13 +54,11 @@ export class TailwindTypescriptPlugin {
 		const absoluteCssPath = path.resolve(projectRoot, relativeCssPath);
 
 		if (!fs.existsSync(absoluteCssPath)) {
-			this.logger.log(`CSS file not found at: ${absoluteCssPath}`);
 			return;
 		}
 
 		this.cssFilePath = absoluteCssPath;
-		this.logger.log(`CSS file found, initializing Tailwind validator...`);
-		this.validator = new TailwindValidator(absoluteCssPath, this.logger);
+		this.validator = new TailwindValidator(absoluteCssPath);
 
 		// Initialize services with config flags
 		const extractionService = new ClassNameExtractionService(
@@ -80,7 +70,7 @@ export class TailwindTypescriptPlugin {
 			extractionService,
 			diagnosticService,
 			this.validator,
-			this.logger,
+			this.configService,
 			this.validator // Pass as CSS provider for conflict detection
 		);
 
@@ -93,7 +83,7 @@ export class TailwindTypescriptPlugin {
 			tailwindVariantsEnabled: this.configService.isTailwindVariantsEnabled(),
 			classVarianceAuthorityEnabled: this.configService.isClassVarianceAuthorityEnabled()
 		};
-		this.completionService = new CompletionService(this.validator, this.logger, completionConfig);
+		this.completionService = new CompletionService(this.validator, completionConfig);
 
 		// Set allowed classes from config
 		const allowedClasses = this.configService.getAllowedClasses();
@@ -105,12 +95,11 @@ export class TailwindTypescriptPlugin {
 		this.initializationPromise = this.validator
 			.initialize()
 			.then(() => {
-				this.logger.log('Tailwind validator initialized');
 				// Set up file watcher after successful initialization
 				this.setupCssFileWatcher(info);
 			})
-			.catch(error => {
-				this.logger.log(`Failed to initialize Tailwind validator: ${error}`);
+			.catch(() => {
+				// Initialization failed - validator won't be ready
 			});
 	}
 
@@ -129,13 +118,11 @@ export class TailwindTypescriptPlugin {
 			this.cssFileWatcher = null;
 		}
 
-		this.logger.log(`[CSSWatcher] Setting up file watcher for: ${this.cssFilePath}`);
-
 		// Debounce timer to avoid multiple reloads for rapid changes
 		let debounceTimer: NodeJS.Timeout | null = null;
 
 		try {
-			this.cssFileWatcher = fs.watch(this.cssFilePath, (eventType, filename) => {
+			this.cssFileWatcher = fs.watch(this.cssFilePath, eventType => {
 				if (eventType === 'change') {
 					// Debounce: wait 300ms after last change before reloading
 					if (debounceTimer) {
@@ -143,19 +130,16 @@ export class TailwindTypescriptPlugin {
 					}
 
 					debounceTimer = setTimeout(() => {
-						this.logger.log(`[CSSWatcher] CSS file changed: ${filename}`);
 						this.reloadDesignSystem(info);
 					}, 300);
 				}
 			});
 
-			this.cssFileWatcher.on('error', error => {
-				this.logger.log(`[CSSWatcher] Watcher error: ${error}`);
+			this.cssFileWatcher.on('error', () => {
+				// Watcher error - silently ignore
 			});
-
-			this.logger.log('[CSSWatcher] File watcher set up successfully');
-		} catch (error) {
-			this.logger.log(`[CSSWatcher] Failed to set up file watcher: ${error}`);
+		} catch {
+			// Failed to set up file watcher - silently ignore
 		}
 	}
 
@@ -164,24 +148,18 @@ export class TailwindTypescriptPlugin {
 	 * Clears all caches and re-initializes the validator
 	 */
 	private reloadDesignSystem(info: ts.server.PluginCreateInfo): void {
-		this.logger.log('[CSSWatcher] Reloading design system...');
-
 		// Clear the diagnostic cache - all files need revalidation
 		this.diagnosticCache.clear();
-		this.logger.log('[CSSWatcher] Diagnostic cache cleared');
 
 		// Clear the completion service cache
 		if (this.completionService) {
 			this.completionService.clearCache();
-			this.logger.log('[CSSWatcher] Completion cache cleared');
 		}
 
 		// Reload the validator (this clears its internal cache too)
 		this.validator
 			.reload()
 			.then(() => {
-				this.logger.log('[CSSWatcher] Design system reloaded successfully');
-
 				// Notify TypeScript that the project has changed to trigger re-validation
 				try {
 					// Use 'any' to access internal APIs that aren't in the public type definitions
@@ -191,13 +169,11 @@ export class TailwindTypescriptPlugin {
 					// Mark project as dirty - this is the most reliable way to trigger updates
 					if (project && typeof project.markAsDirty === 'function') {
 						project.markAsDirty();
-						this.logger.log('[CSSWatcher] Marked project as dirty');
 					}
 
 					// Update the project graph to reflect changes
 					if (project && typeof project.updateGraph === 'function') {
 						project.updateGraph();
-						this.logger.log('[CSSWatcher] Updated project graph');
 					}
 
 					// Access the project service to trigger diagnostic refresh
@@ -211,13 +187,11 @@ export class TailwindTypescriptPlugin {
 							'function'
 						) {
 							projectService.delayUpdateProjectGraphAndEnsureProjectStructureForOpenFiles();
-							this.logger.log('[CSSWatcher] Triggered delayed project update');
 						}
 
 						// Send custom event to trigger diagnostic refresh in some editors
 						if (typeof projectService.sendProjectsUpdatedInBackgroundEvent === 'function') {
 							projectService.sendProjectsUpdatedInBackgroundEvent();
-							this.logger.log('[CSSWatcher] Sent projects updated event');
 						}
 					}
 
@@ -226,14 +200,13 @@ export class TailwindTypescriptPlugin {
 					if (project && typeof (project as any).refreshDiagnostics === 'function') {
 						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 						(project as any).refreshDiagnostics();
-						this.logger.log('[CSSWatcher] Called refreshDiagnostics');
 					}
-				} catch (error) {
-					this.logger.log(`[CSSWatcher] Error notifying project of changes: ${error}`);
+				} catch {
+					// Error notifying project of changes - silently ignore
 				}
 			})
-			.catch(error => {
-				this.logger.log(`[CSSWatcher] Failed to reload design system: ${error}`);
+			.catch(() => {
+				// Failed to reload design system - silently ignore
 			});
 	}
 
@@ -300,8 +273,6 @@ export class TailwindTypescriptPlugin {
 	private createGetSemanticDiagnostics =
 		(info: ts.server.PluginCreateInfo) =>
 		(fileName: string): ts.Diagnostic[] => {
-			this.logger.log(`[getSemanticDiagnostics] Getting semantic diagnostics for ${fileName}`);
-
 			// Get original TypeScript diagnostics
 			const prior = info.languageService.getSemanticDiagnostics(fileName);
 
@@ -323,11 +294,8 @@ export class TailwindTypescriptPlugin {
 			const cachedDiagnostics = this.diagnosticCache.get(fileName, fileContent);
 
 			if (cachedDiagnostics !== undefined) {
-				this.logger.log(`[CACHE HIT] Returning cached diagnostics for ${fileName}`);
 				return [...prior, ...cachedDiagnostics];
 			}
-
-			this.logger.log(`[CACHE MISS] Validating ${fileName}`);
 
 			// Get fresh type checker from current program (always up-to-date)
 			const typeChecker = program.getTypeChecker();
@@ -359,10 +327,6 @@ export class TailwindTypescriptPlugin {
 			formatOptions: ts.FormatCodeSettings,
 			preferences: ts.UserPreferences
 		): readonly ts.CodeFixAction[] => {
-			this.logger.log(
-				`[getCodeFixesAtPosition] fileName=${fileName}, start=${start}, end=${end}, errorCodes=${errorCodes.join(',')}`
-			);
-
 			// Get original TypeScript code fixes
 			const prior = info.languageService.getCodeFixesAtPosition(
 				fileName,
@@ -375,21 +339,7 @@ export class TailwindTypescriptPlugin {
 
 			// Skip if code action service not initialized or not a supported file
 			if (!this.codeActionService || !this.shouldValidateFile(fileName)) {
-				this.logger.log(
-					'[getCodeFixesAtPosition] Skipping - service not initialized or unsupported file'
-				);
 				return prior;
-			}
-
-			// Check if any of our error codes are requested
-			const supportedCodes = this.codeActionService.getSupportedErrorCodes();
-			const hasOurErrorCode = errorCodes.some(code => supportedCodes.includes(code));
-
-			if (!hasOurErrorCode) {
-				this.logger.log(
-					`[getCodeFixesAtPosition] No matching error codes. Requested: ${errorCodes.join(',')}, Supported: ${supportedCodes.join(',')}`
-				);
-				// Still try to provide fixes - the error code check might not be necessary for all IDEs
 			}
 
 			// Get source file
@@ -405,7 +355,6 @@ export class TailwindTypescriptPlugin {
 
 			// Get all diagnostics for this file (including cached Tailwind diagnostics)
 			const allDiagnostics = this.diagnosticCache.get(fileName, sourceFile.getFullText()) || [];
-			this.logger.log(`[getCodeFixesAtPosition] Found ${allDiagnostics.length} cached diagnostics`);
 
 			// Get Tailwind quick fixes
 			const tailwindFixes = this.codeActionService.getCodeActions(
@@ -417,8 +366,6 @@ export class TailwindTypescriptPlugin {
 				sourceFile
 			);
 
-			this.logger.log(`[getCodeFixesAtPosition] Generated ${tailwindFixes.length} Tailwind fixes`);
-
 			return [...prior, ...tailwindFixes];
 		};
 
@@ -427,7 +374,6 @@ export class TailwindTypescriptPlugin {
 	 */
 	private shouldValidateFile(fileName: string): boolean {
 		if (!this.validator || !this.validator.isInitialized()) {
-			this.logger.log(`[shouldValidateFile] Validator not initialized yet for ${fileName}`);
 			return false;
 		}
 
@@ -681,13 +627,15 @@ export class TailwindTypescriptPlugin {
 			position: number,
 			options: ts.GetCompletionsAtPositionOptions | undefined
 		): ts.WithMetadata<ts.CompletionInfo> | undefined => {
-			this.logger.log(`[getCompletionsAtPosition] fileName=${fileName}, position=${position}`);
-
 			// Get original TypeScript completions
 			const prior = info.languageService.getCompletionsAtPosition(fileName, position, options);
 
-			// Skip if completion service not initialized or not a supported file
-			if (!this.completionService || !this.shouldValidateFile(fileName)) {
+			// Skip if completion service not initialized, not a supported file, or editor/autocomplete disabled
+			if (
+				!this.completionService ||
+				!this.shouldValidateFile(fileName) ||
+				!this.configService.isAutocompleteEnabled()
+			) {
 				return prior;
 			}
 
@@ -731,10 +679,6 @@ export class TailwindTypescriptPlugin {
 			preferences: ts.UserPreferences | undefined,
 			data: ts.CompletionEntryData | undefined
 		): ts.CompletionEntryDetails | undefined => {
-			this.logger.log(
-				`[getCompletionEntryDetails] fileName=${fileName}, position=${position}, entryName=${entryName}`
-			);
-
 			// Get source file
 			const program = info.languageService.getProgram();
 			if (!program) {
@@ -763,7 +707,11 @@ export class TailwindTypescriptPlugin {
 			}
 
 			// Try to get Tailwind completion details first
-			if (this.completionService && this.shouldValidateFile(fileName)) {
+			if (
+				this.completionService &&
+				this.shouldValidateFile(fileName) &&
+				this.configService.isAutocompleteEnabled()
+			) {
 				const tailwindDetails = this.completionService.getCompletionEntryDetails(
 					this.typescript,
 					sourceFile,
@@ -794,8 +742,6 @@ export class TailwindTypescriptPlugin {
 	private createGetQuickInfoAtPosition =
 		(info: ts.server.PluginCreateInfo) =>
 		(fileName: string, position: number): ts.QuickInfo | undefined => {
-			this.logger.log(`[getQuickInfoAtPosition] fileName=${fileName}, position=${position}`);
-
 			// Get source file
 			const program = info.languageService.getProgram();
 			if (!program) {
@@ -807,8 +753,12 @@ export class TailwindTypescriptPlugin {
 				return info.languageService.getQuickInfoAtPosition(fileName, position);
 			}
 
-			// Try to get Tailwind hover info first
-			if (this.completionService && this.shouldValidateFile(fileName)) {
+			// Try to get Tailwind hover info first (only if hover is enabled)
+			if (
+				this.completionService &&
+				this.shouldValidateFile(fileName) &&
+				this.configService.isHoverEnabled()
+			) {
 				const tailwindInfo = this.completionService.getQuickInfoAtPosition(
 					this.typescript,
 					sourceFile,
@@ -816,7 +766,6 @@ export class TailwindTypescriptPlugin {
 				);
 
 				if (tailwindInfo) {
-					this.logger.log(`[getQuickInfoAtPosition] Returning Tailwind hover info`);
 					return tailwindInfo;
 				}
 			}

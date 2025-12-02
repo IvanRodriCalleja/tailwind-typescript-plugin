@@ -9,14 +9,15 @@
       {
         "name": "tailwind-typescript-plugin",
         "globalCss": "./global.css",
-        "utilityFunctions": [
-          {
-            "name": "merge",
-            "from": "@/lib/utils"
+        "libraries": {
+          "utilities": {
+            "merge": "@/lib/utils"
           }
-        ]
+        }
       }
     ]
   },
-  "include": ["example.tsx"]
+  "include": [
+    "example.tsx"
+  ]
 }

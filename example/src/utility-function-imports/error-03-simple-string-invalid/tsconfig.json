@@ -9,9 +9,15 @@
       {
         "name": "tailwind-typescript-plugin",
         "globalCss": "./global.css",
-        "utilityFunctions": ["customFn"]
+        "libraries": {
+          "utilities": {
+            "customFn": "*"
+          }
+        }
       }
     ]
   },
-  "include": ["example.tsx"]
+  "include": [
+    "example.tsx"
+  ]
 }

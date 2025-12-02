@@ -65,12 +65,57 @@ Add the plugin to the `compilerOptions.plugins` array in your `tsconfig.json`:
     "plugins": [
       {
         "name": "tailwind-typescript-plugin",
+        "globalCss": "./src/global.css"
+      }
+    ]
+  }
+}
+```
+
+**Full configuration example with all options:**
+
+```json
+{
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "tailwind-typescript-plugin",
         "globalCss": "./src/global.css",
-        "utilityFunctions": ["clsx", "cn", "classnames"],
-        "allowedClasses": ["custom-button", "app-header", "project-card"],
-        "variants": {
-          "tailwindVariants": true,
-          "classVarianceAuthority": true
+        "libraries": {
+          "utilities": {
+            "cn": "@/lib/utils",
+            "merge": "tailwind-merge",
+            "myFn": "*"
+          },
+          "variants": {
+            "tailwindVariants": true,
+            "classVarianceAuthority": true
+          }
+        },
+        "validation": {
+          "enabled": true,
+          "severity": "error",
+          "allowedClasses": ["custom-*", "app-*"]
+        },
+        "lint": {
+          "enabled": true,
+          "conflictingClasses": {
+            "enabled": true,
+            "severity": "warning"
+          },
+          "repeatedClasses": {
+            "enabled": true,
+            "severity": "warning"
+          }
+        },
+        "editor": {
+          "enabled": true,
+          "autocomplete": {
+            "enabled": true
+          },
+          "hover": {
+            "enabled": true
+          }
         }
       }
     ]
@@ -80,159 +125,183 @@ Add the plugin to the `compilerOptions.plugins` array in your `tsconfig.json`:
 
 **Configuration options:**
 
-- `globalCss` (required): Path to your global CSS file that imports Tailwind CSS. This can be relative to your project root.
+#### `globalCss` (required)
+Path to your global CSS file that imports Tailwind CSS. This can be relative to your project root.
 
-- `allowedClasses` (optional): Array of custom class names or wildcard patterns that should be treated as valid alongside Tailwind classes. Useful for project-specific or third-party utility classes that aren't part of Tailwind.
-  - **Default**: `[]` (no custom classes allowed)
-  - **Supports wildcard patterns**:
-    | Pattern | Description | Example | Matches |
-    |---------|-------------|---------|---------|
-    | `prefix-*` | Matches classes starting with prefix | `custom-*` | `custom-button`, `custom-card` |
-    | `*-suffix` | Matches classes ending with suffix | `*-icon` | `arrow-icon`, `close-icon` |
-    | `*-contains-*` | Matches classes containing the string | `*-component-*` | `app-component-header` |
-    | `exact` | Exact match (no wildcards) | `my-class` | Only `my-class` |
-  - **Example**:
-    ```json
-    {
-      "allowedClasses": [
-        "custom-*",
-        "*-icon",
-        "*-component-*",
-        "exact-class"
-      ]
+---
+
+#### `libraries` (optional)
+Configure utility functions and variant libraries.
+
+##### `libraries.utilities`
+Configure which utility functions to scan for class names. Keys are function names, values control import matching:
+
+| Value | Description |
+|-------|-------------|
+| `"*"` | Match any import source |
+| `"off"` | Disable this utility function |
+| `"package-name"` | Only match if imported from this package |
+
+**Defaults** (automatically included):
+```json
+{
+  "cn": "*",
+  "clsx": "clsx",
+  "classnames": "classnames",
+  "classNames": "classnames",
+  "cx": "classnames",
+  "twMerge": "tailwind-merge"
+}
+```
+
+**Example - Add custom utility and disable a default**:
+```json
+{
+  "libraries": {
+    "utilities": {
+      "myMerge": "@/lib/utils",
+      "clsx": "off"
     }
-    ```
-  - Classes matching any pattern will be considered valid and won't trigger validation errors
-  - Works with all extraction patterns (literals, expressions, functions, arrays, etc.)
-  - Combines with Tailwind classes - both are validated independently
+  }
+}
+```
 
-- `variants` (optional): Configure which variant library extractors to enable. This is useful for performance optimization when you only use one library.
-  - **Default behavior (no config)**: Both `tailwind-variants` and `class-variance-authority` are enabled
-  - **Selective enabling**: If you specify ANY variant config, only those explicitly set to `true` are enabled
-  - **Example configurations**:
-    ```json
-    // Enable only tailwind-variants
-    {
-      "variants": {
-        "tailwindVariants": true
-      }
+**Supported import patterns**:
+```typescript
+// Named import
+import { merge } from '@/lib/utils';
+className={merge('flex', 'items-center')} // ✅ Validated
+
+// Default import
+import merge from '@/lib/utils';
+className={merge('flex', 'items-center')} // ✅ Validated
+
+// Namespace import
+import * as utils from '@/lib/utils';
+className={utils.merge('flex', 'items-center')} // ✅ Validated
+
+// Aliased import
+import { something as merge } from '@/lib/utils';
+className={merge('flex', 'items-center')} // ✅ Validated
+```
+
+##### `libraries.variants`
+Configure which variant library extractors to enable.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `tailwindVariants` | `true` | Enable `tv()` function support |
+| `classVarianceAuthority` | `true` | Enable `cva()` function support |
+
+**Example - Enable only tailwind-variants**:
+```json
+{
+  "libraries": {
+    "variants": {
+      "tailwindVariants": true,
+      "classVarianceAuthority": false
     }
+  }
+}
+```
 
-    // Enable only class-variance-authority
-    {
-      "variants": {
-        "classVarianceAuthority": true
-      }
+---
+
+#### `validation` (optional)
+Configure invalid class detection.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `enabled` | `true` | Enable/disable invalid class validation |
+| `severity` | `"error"` | `"error"` \| `"warning"` \| `"suggestion"` \| `"off"` |
+| `allowedClasses` | `[]` | Custom class patterns to allow |
+
+##### `validation.allowedClasses`
+Array of custom class names or wildcard patterns that should be treated as valid.
+
+| Pattern | Description | Example | Matches |
+|---------|-------------|---------|---------|
+| `prefix-*` | Matches classes starting with prefix | `custom-*` | `custom-button`, `custom-card` |
+| `*-suffix` | Matches classes ending with suffix | `*-icon` | `arrow-icon`, `close-icon` |
+| `*-contains-*` | Matches classes containing the string | `*-component-*` | `app-component-header` |
+| `exact` | Exact match (no wildcards) | `my-class` | Only `my-class` |
+
+**Example**:
+```json
+{
+  "validation": {
+    "allowedClasses": ["custom-*", "*-icon", "exact-class"]
+  }
+}
+```
+
+---
+
+#### `lint` (optional)
+Configure lint rules for code quality issues.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `enabled` | `true` | Master switch for all lint rules |
+| `conflictingClasses` | `{ enabled: true, severity: "warning" }` | Detect conflicting utilities |
+| `repeatedClasses` | `{ enabled: true, severity: "warning" }` | Detect duplicate classes |
+
+**Example - Disable conflicting class detection**:
+```json
+{
+  "lint": {
+    "conflictingClasses": {
+      "enabled": false
     }
+  }
+}
+```
 
-    // Enable both explicitly
-    {
-      "variants": {
-        "tailwindVariants": true,
-        "classVarianceAuthority": true
-      }
+**Example - Make duplicate classes an error**:
+```json
+{
+  "lint": {
+    "repeatedClasses": {
+      "severity": "error"
     }
+  }
+}
+```
 
-    // No config = both enabled by default
-    {
-      // variants not specified - both libraries validated
+---
+
+#### `editor` (optional)
+Configure editor features like autocomplete and hover.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `enabled` | `true` | Master switch for all editor features |
+| `autocomplete.enabled` | `true` | Enable Tailwind class autocomplete |
+| `hover.enabled` | `true` | Enable hover information showing CSS |
+
+**Example - Disable autocomplete**:
+```json
+{
+  "editor": {
+    "autocomplete": {
+      "enabled": false
     }
-    ```
-  - **Performance impact**: Disabling unused extractors skips TypeChecker operations and symbol resolution for that library, providing faster validation
-
-- `utilityFunctions` (optional): Array of utility functions to validate. These will be **merged with the defaults**, so you don't lose the common ones. Supports two formats:
-
-  **Simple string format** (matches by function name only):
-  ```json
-  {
-    "utilityFunctions": ["myCustomFn", "buildClasses"]
   }
-  ```
+}
+```
 
-  **Object format with import verification** (matches by name AND verifies import source):
-  ```json
-  {
-    "utilityFunctions": [
-      { "name": "merge", "from": "@/lib/utils" },
-      { "name": "cx", "from": "my-styling-package" }
-    ]
-  }
-  ```
+---
 
-  **Mixed format** (combine both):
-  ```json
-  {
-    "utilityFunctions": [
-      "anyFunctionNamedThis",
-      { "name": "merge", "from": "@/lib/utils" }
-    ]
-  }
-  ```
+### Backwards Compatibility
 
-  - **Defaults (always included)**: `clsx` (from 'clsx'), `cn` (name-only), `classnames`/`classNames`/`cx` (from 'classnames'), `twMerge` (from 'tailwind-merge'). Note: `cva` and `tv` are variant functions handled by dedicated extractors.
-  - **Import verification**: When using the object format with `from`, the plugin verifies the function is actually imported from that package before validating. This prevents false positives when a function with the same name exists but isn't a className utility.
-  - **Subpath matching**: `{ "name": "fn", "from": "my-pkg" }` also matches `import { fn } from 'my-pkg/utils'`
+The following deprecated options are still supported but will be removed in a future version:
 
-  **Example configurations**:
-  ```json
-  // Simple: just add function names
-  {
-    "utilityFunctions": ["myCustomFn", "buildClasses"]
-  }
-
-  // Precise: verify import sources
-  {
-    "utilityFunctions": [
-      { "name": "cn", "from": "@/lib/utils" },
-      { "name": "merge", "from": "tailwind-merge" }
-    ]
-  }
-
-  // Mixed: some with import verification, some without
-  {
-    "utilityFunctions": [
-      "anyFn",
-      { "name": "preciseFn", "from": "@/utils" }
-    ]
-  }
-  ```
-
-  **Supported import patterns**:
-  ```typescript
-  // Named import
-  import { merge } from '@/lib/utils';
-  className={merge('flex', 'items-center')} // ✅ Validated
-
-  // Default import
-  import merge from '@/lib/utils';
-  className={merge('flex', 'items-center')} // ✅ Validated
-
-  // Aliased import
-  import { something as merge } from '@/lib/utils';
-  className={merge('flex', 'items-center')} // ✅ Validated
-
-  // Wrong import source (not validated when using object format)
-  import { merge } from 'different-package';
-  className={merge('flex', 'invalid-class')} // ⏭️ Skipped (wrong import)
-  ```
-
-  **Supported call patterns**:
-  ```typescript
-  // Simple calls (validated by default):
-  className={clsx('flex', 'items-center')}
-  className={cn('flex', 'items-center')}
-
-  // Member expressions (nested property access):
-  className={utils.cn('flex', 'items-center')}
-  className={lib.clsx('flex', 'items-center')}
-
-  // Custom functions (add via config):
-  className={myCustomFn('flex', 'items-center')}
-  className={buildClasses('flex', 'items-center')}
-
-  // Dynamic calls (ignored, won't throw errors):
-  className={functions['cn']('flex', 'items-center')}
-  ```
+| Deprecated | New Location |
+|------------|--------------|
+| `utilityFunctions` | `libraries.utilities` |
+| `variants` | `libraries.variants` |
+| `allowedClasses` | `validation.allowedClasses` |
+| `enableLogging` | Removed (no replacement) |
 
 ### 2. Ensure your CSS file imports Tailwind
 

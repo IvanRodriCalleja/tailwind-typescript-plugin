@@ -2,20 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-import { Logger } from '../utils/Logger';
 import { TailwindValidator } from './TailwindValidator';
-
-// Mock logger for testing
-class MockLogger implements Logger {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	log(_message: string): void {
-		// Silent during tests
-	}
-
-	isEnabled(): boolean {
-		return false;
-	}
-}
 
 describe('TailwindValidator - CSS Variables', () => {
 	let validator: TailwindValidator;
@@ -27,7 +14,7 @@ describe('TailwindValidator - CSS Variables', () => {
 		tempCssFile = path.join(tempDir, 'global.css');
 		fs.writeFileSync(tempCssFile, '@import "tailwindcss";');
 
-		validator = new TailwindValidator(tempCssFile, new MockLogger());
+		validator = new TailwindValidator(tempCssFile);
 		await validator.initialize();
 	});
 

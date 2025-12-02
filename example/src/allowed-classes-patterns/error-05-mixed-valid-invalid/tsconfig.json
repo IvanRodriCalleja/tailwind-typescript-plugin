@@ -9,9 +9,18 @@
       {
         "name": "tailwind-typescript-plugin",
         "globalCss": "./global.css",
-        "allowedClasses": ["custom-*", "*-icon", "*-component-*", "exact-match"]
+        "validation": {
+          "allowedClasses": [
+            "custom-*",
+            "*-icon",
+            "*-component-*",
+            "exact-match"
+          ]
+        }
       }
     ]
   },
-  "include": ["example.tsx"]
+  "include": [
+    "example.tsx"
+  ]
 }

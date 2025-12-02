@@ -3,9 +3,9 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import { IClassNameValidator } from '../core/interfaces';
 import { ClassNameInfo, UtilityFunction } from '../core/types';
 import { ICssProvider, TailwindConflictDetector } from '../infrastructure/TailwindConflictDetector';
-import { Logger } from '../utils/Logger';
 import { ClassNameExtractionService } from './ClassNameExtractionService';
 import { DiagnosticService } from './DiagnosticService';
+import { PluginConfigService } from './PluginConfigService';
 
 /**
  * Service responsible for validating class names and creating diagnostics
@@ -18,7 +18,7 @@ export class ValidationService {
 		private readonly extractionService: ClassNameExtractionService,
 		private readonly diagnosticService: DiagnosticService,
 		private readonly validator: IClassNameValidator,
-		private readonly logger: Logger,
+		private readonly configService: PluginConfigService,
 		cssProvider?: ICssProvider
 	) {
 		this.conflictDetector = new TailwindConflictDetector();
@@ -38,15 +38,7 @@ export class ValidationService {
 		typeChecker?: ts.TypeChecker
 	): ts.Diagnostic[] {
 		if (!this.validator.isInitialized()) {
-			this.logger.log(
-				`[ValidationService] Validator not initialized yet for ${sourceFile.fileName}`
-			);
 			return [];
-		}
-
-		// PERFORMANCE: Only log if enabled
-		if (this.logger.isEnabled()) {
-			this.logger.log(`[ValidationService] Processing file: ${sourceFile.fileName}`);
 		}
 
 		// Extract all class names from the file
@@ -57,56 +49,64 @@ export class ValidationService {
 			typeChecker
 		);
 
-		// PERFORMANCE: Only log if enabled
-		if (this.logger.isEnabled()) {
-			this.logger.log(`[ValidationService] Found ${classNames.length} class names to validate`);
-		}
+		const diagnostics: ts.Diagnostic[] = [];
 
-		// Filter invalid class names
-		const invalidClasses = this.filterInvalidClasses(classNames);
-
-		// Detect duplicate classes (only for valid classes, to avoid double-reporting)
-		const { trueDuplicates, extractableClasses } = this.findDuplicateClasses(classNames);
-
-		// Detect conflicting classes (only for valid, non-duplicate classes)
-		const conflicts = this.conflictDetector.findConflicts(classNames);
-
-		// PERFORMANCE: Only log if enabled
-		if (this.logger.isEnabled()) {
-			const totalIssues =
-				invalidClasses.length +
-				trueDuplicates.length +
-				extractableClasses.length +
-				conflicts.length;
-			if (totalIssues > 0) {
-				this.logger.log(
-					`[ValidationService] Returning ${invalidClasses.length} invalid + ${trueDuplicates.length} duplicate + ${extractableClasses.length} extractable + ${conflicts.length} conflict diagnostics`
-				);
-			} else {
-				this.logger.log(`[ValidationService] No issues found`);
+		// Validation diagnostics (invalid class detection)
+		if (this.configService.isValidationEnabled()) {
+			const severity = this.configService.getValidationSeverity();
+			if (severity !== 'off') {
+				const invalidClasses = this.filterInvalidClasses(classNames);
+				if (invalidClasses.length > 0) {
+					diagnostics.push(
+						...this.diagnosticService.createDiagnostics(invalidClasses, sourceFile, severity)
+					);
+				}
 			}
 		}
 
-		const diagnostics: ts.Diagnostic[] = [];
+		// Lint diagnostics (only if lint is enabled globally)
+		if (this.configService.isLintEnabled()) {
+			// Detect duplicate and extractable classes
+			const { trueDuplicates, extractableClasses } = this.findDuplicateClasses(classNames);
 
-		if (invalidClasses.length > 0) {
-			diagnostics.push(...this.diagnosticService.createDiagnostics(invalidClasses, sourceFile));
-		}
+			// Repeated classes
+			if (this.configService.isRepeatedClassesEnabled()) {
+				const severity = this.configService.getRepeatedClassesSeverity();
+				if (severity !== 'off') {
+					if (trueDuplicates.length > 0) {
+						diagnostics.push(
+							...this.diagnosticService.createDuplicateDiagnostics(
+								trueDuplicates,
+								sourceFile,
+								severity
+							)
+						);
+					}
+				}
+			}
 
-		if (trueDuplicates.length > 0) {
-			diagnostics.push(
-				...this.diagnosticService.createDuplicateDiagnostics(trueDuplicates, sourceFile)
-			);
-		}
+			// Extractable classes (always enabled when lint is enabled, no config option)
+			if (extractableClasses.length > 0) {
+				diagnostics.push(
+					...this.diagnosticService.createExtractableClassDiagnostics(
+						extractableClasses,
+						sourceFile
+					)
+				);
+			}
 
-		if (extractableClasses.length > 0) {
-			diagnostics.push(
-				...this.diagnosticService.createExtractableClassDiagnostics(extractableClasses, sourceFile)
-			);
-		}
-
-		if (conflicts.length > 0) {
-			diagnostics.push(...this.diagnosticService.createConflictDiagnostics(conflicts, sourceFile));
+			// Conflicting classes
+			if (this.configService.isConflictingClassesEnabled()) {
+				const severity = this.configService.getConflictingClassesSeverity();
+				if (severity !== 'off') {
+					const conflicts = this.conflictDetector.findConflicts(classNames);
+					if (conflicts.length > 0) {
+						diagnostics.push(
+							...this.diagnosticService.createConflictDiagnostics(conflicts, sourceFile, severity)
+						);
+					}
+				}
+			}
 		}
 
 		return diagnostics;
@@ -117,13 +117,12 @@ export class ValidationService {
 	 * PERFORMANCE OPTIMIZED: No logging in hot path
 	 */
 	private filterInvalidClasses(classNames: ClassNameInfo[]): ClassNameInfo[] {
-		// PERFORMANCE: Skip logging each class validation (hot path)
-		// This method is called for every class in every file
 		return classNames.filter(classInfo => !this.validator.isValidClass(classInfo.className));
 	}
 
 	/**
-	 * Result of duplicate detection with separate categories
+	 * Find duplicate and extractable classes within the same attribute
+	 * Returns true duplicates and extractable classes (same class in both ternary branches)
 	 */
 	private findDuplicateClasses(classNames: ClassNameInfo[]): {
 		trueDuplicates: ClassNameInfo[];

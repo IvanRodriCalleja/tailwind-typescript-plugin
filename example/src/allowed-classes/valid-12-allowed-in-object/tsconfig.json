@@ -9,9 +9,17 @@
       {
         "name": "tailwind-typescript-plugin",
         "globalCss": "./global.css",
-        "allowedClasses": ["custom-button", "app-header", "project-card"]
+        "validation": {
+          "allowedClasses": [
+            "custom-button",
+            "app-header",
+            "project-card"
+          ]
+        }
       }
     ]
   },
-  "include": ["example.tsx"]
+  "include": [
+    "example.tsx"
+  ]
 }

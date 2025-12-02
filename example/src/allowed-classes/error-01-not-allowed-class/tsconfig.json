@@ -9,10 +9,14 @@
       {
         "name": "tailwind-typescript-plugin",
         "globalCss": "./global.css",
-        "allowedClasses": [],
-        "enableLogging": true
+        "enableLogging": true,
+        "validation": {
+          "allowedClasses": []
+        }
       }
     ]
   },
-  "include": ["example.tsx"]
+  "include": [
+    "example.tsx"
+  ]
 }

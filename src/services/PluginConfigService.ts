@@ -1,103 +1,275 @@
 import { IPluginConfig } from '../core/interfaces';
-import { UtilityFunction } from '../core/types';
-import { Logger } from '../utils/Logger';
+import {
+	DiagnosticSeverity,
+	EditorConfig,
+	LintConfig,
+	UtilitiesConfig,
+	UtilityFunction,
+	ValidationConfig,
+	VariantsConfig
+} from '../core/types';
 
 /**
- * Default utility functions to validate with precise import sources
- * Note: cva and tv are NOT included here - they are variant functions
- * handled by dedicated extractors (CvaExtractor, TailwindVariantsExtractor)
- * Note: 'cn' is a simple string since it's typically a custom wrapper (e.g., shadcn pattern)
+ * Default utilities configuration
+ * Key is function name, value is import source ("*" = any source, "off" = disabled)
  */
-const DEFAULT_UTILITY_FUNCTIONS: UtilityFunction[] = [
-	{ name: 'clsx', from: 'clsx' },
-	'cn',
-	{ name: 'classnames', from: 'classnames' },
-	{ name: 'classNames', from: 'classnames' },
-	{ name: 'cx', from: 'classnames' },
-	{ name: 'twMerge', from: 'tailwind-merge' }
-];
+const DEFAULT_UTILITIES: UtilitiesConfig = {
+	cn: '*', // Custom wrapper pattern (e.g., shadcn), any source
+	clsx: 'clsx',
+	classnames: 'classnames',
+	classNames: 'classnames',
+	cx: 'classnames',
+	twMerge: 'tailwind-merge'
+};
+
+/**
+ * Default variants configuration
+ */
+const DEFAULT_VARIANTS: VariantsConfig = {
+	tailwindVariants: true,
+	classVarianceAuthority: true
+};
+
+/**
+ * Default validation configuration
+ */
+const DEFAULT_VALIDATION: Required<Omit<ValidationConfig, 'allowedClasses'>> & {
+	allowedClasses: string[];
+} = {
+	enabled: true,
+	severity: 'error',
+	allowedClasses: []
+};
+
+/**
+ * Default lint configuration
+ */
+const DEFAULT_LINT: LintConfig = {
+	enabled: true,
+	conflictingClasses: {
+		enabled: true,
+		severity: 'warning'
+	},
+	repeatedClasses: {
+		enabled: true,
+		severity: 'warning'
+	}
+};
 
 /**
  * Service responsible for managing plugin configuration
  * Follows Single Responsibility Principle
  */
 export class PluginConfigService {
-	private utilityFunctions: UtilityFunction[];
+	private utilitiesConfig: UtilitiesConfig;
+	private variantsConfig: VariantsConfig;
+	private validationConfig: Required<Omit<ValidationConfig, 'allowedClasses'>> & {
+		allowedClasses: string[];
+	};
+	private lintConfig: LintConfig;
+	private editorConfig: EditorConfig;
 	private cssFilePath?: string;
-	private tailwindVariantsEnabled: boolean;
-	private classVarianceAuthorityEnabled: boolean;
-	private allowedClasses: string[];
-	private loggingEnabled: boolean;
 
-	constructor(
-		config: IPluginConfig,
-		private readonly logger: Logger
-	) {
-		this.loggingEnabled = config.enableLogging === true;
-		this.utilityFunctions = this.initializeUtilityFunctions(config);
+	// Legacy format support (for internal use by extractors)
+	private utilityFunctionsLegacy: UtilityFunction[];
+
+	constructor(config: IPluginConfig) {
 		this.cssFilePath = config.globalCss;
-		this.allowedClasses = this.initializeAllowedClasses(config);
 
-		// If ANY variant config is defined, only enable those explicitly set to true
-		// If NO variant config is defined, enable both by default
-		const variantsConfig = config.variants;
-		const hasAnyVariantConfig =
-			variantsConfig &&
-			(variantsConfig.tailwindVariants !== undefined ||
-				variantsConfig.classVarianceAuthority !== undefined);
+		// Initialize configuration with backwards compatibility
+		this.utilitiesConfig = this.initializeUtilities(config);
+		this.variantsConfig = this.initializeVariants(config);
+		this.validationConfig = this.initializeValidation(config);
+		this.lintConfig = this.initializeLint(config);
+		this.editorConfig = this.initializeEditor(config);
 
-		if (hasAnyVariantConfig) {
-			// User specified at least one variant - only enable those explicitly set to true
-			this.tailwindVariantsEnabled = variantsConfig.tailwindVariants === true;
-			this.classVarianceAuthorityEnabled = variantsConfig.classVarianceAuthority === true;
-		} else {
-			// No variants configured - enable both by default
-			this.tailwindVariantsEnabled = true;
-			this.classVarianceAuthorityEnabled = true;
-		}
-
-		this.logExtractorConfig();
+		// Convert to legacy format for extractors
+		this.utilityFunctionsLegacy = this.convertToLegacyFormat(this.utilitiesConfig);
 	}
 
-	private initializeUtilityFunctions(config: IPluginConfig): UtilityFunction[] {
-		// Helper to get the name from a UtilityFunction
-		const getName = (f: UtilityFunction): string => (typeof f === 'string' ? f : f.name);
-
-		if (config.utilityFunctions && Array.isArray(config.utilityFunctions)) {
-			// Merge user-provided functions with defaults (remove duplicates by name)
-			const userFunctions = config.utilityFunctions;
-			const userFunctionNames = new Set(userFunctions.map(getName));
-
-			// Only include defaults that aren't overridden by user config
-			const nonOverriddenDefaults = DEFAULT_UTILITY_FUNCTIONS.filter(
-				def => !userFunctionNames.has(getName(def))
-			);
-
-			const merged = [...nonOverriddenDefaults, ...userFunctions];
-			this.logger.log(
-				`Using utility functions (defaults + custom): ${merged.map(getName).join(', ')}`
-			);
-			return merged;
-		} else {
-			this.logger.log(
-				`Using default utility functions: ${DEFAULT_UTILITY_FUNCTIONS.map(getName).join(', ')}`
-			);
-			return DEFAULT_UTILITY_FUNCTIONS;
+	private initializeUtilities(config: IPluginConfig): UtilitiesConfig {
+		if (config.libraries?.utilities) {
+			// Merge with defaults (user config overrides defaults)
+			return { ...DEFAULT_UTILITIES, ...config.libraries.utilities };
 		}
+
+		return { ...DEFAULT_UTILITIES };
 	}
 
-	private initializeAllowedClasses(config: IPluginConfig): string[] {
-		if (config.allowedClasses && Array.isArray(config.allowedClasses)) {
-			this.logger.log(`Custom allowed classes: ${config.allowedClasses.join(', ')}`);
-			return config.allowedClasses;
-		} else {
-			return [];
+	private initializeVariants(config: IPluginConfig): VariantsConfig {
+		if (config.libraries?.variants) {
+			const userVariants = config.libraries.variants;
+			const hasAnyConfig =
+				userVariants.tailwindVariants !== undefined ||
+				userVariants.classVarianceAuthority !== undefined;
+
+			if (hasAnyConfig) {
+				// User specified at least one - only enable those explicitly set to true
+				return {
+					tailwindVariants: userVariants.tailwindVariants === true,
+					classVarianceAuthority: userVariants.classVarianceAuthority === true
+				};
+			}
 		}
+
+		return { ...DEFAULT_VARIANTS };
 	}
 
+	private initializeValidation(config: IPluginConfig): Required<
+		Omit<ValidationConfig, 'allowedClasses'>
+	> & {
+		allowedClasses: string[];
+	} {
+		const validation = config.validation || {};
+
+		return {
+			enabled: validation.enabled !== false, // default true
+			severity: validation.severity || DEFAULT_VALIDATION.severity,
+			allowedClasses: validation.allowedClasses || []
+		};
+	}
+
+	private initializeLint(config: IPluginConfig): LintConfig {
+		const lint = config.lint || {};
+
+		return {
+			enabled: lint.enabled !== false, // default true
+			conflictingClasses: {
+				enabled: lint.conflictingClasses?.enabled !== false, // default true
+				severity: lint.conflictingClasses?.severity || DEFAULT_LINT.conflictingClasses!.severity
+			},
+			repeatedClasses: {
+				enabled: lint.repeatedClasses?.enabled !== false, // default true
+				severity: lint.repeatedClasses?.severity || DEFAULT_LINT.repeatedClasses!.severity
+			}
+		};
+	}
+
+	private initializeEditor(config: IPluginConfig): EditorConfig {
+		const editor = config.editor || {};
+
+		return {
+			enabled: editor.enabled !== false, // default true
+			autocomplete: {
+				enabled: editor.autocomplete?.enabled !== false // default true
+			},
+			hover: {
+				enabled: editor.hover?.enabled !== false // default true
+			}
+		};
+	}
+
+	/**
+	 * Convert new utilities config to legacy UtilityFunction[] format
+	 * This is needed for backwards compatibility with extractors
+	 */
+	private convertToLegacyFormat(utilities: UtilitiesConfig): UtilityFunction[] {
+		const result: UtilityFunction[] = [];
+
+		for (const [name, source] of Object.entries(utilities)) {
+			if (source === 'off') {
+				continue; // Skip disabled utilities
+			}
+			if (source === '*') {
+				result.push(name); // Simple string = any source
+			} else {
+				result.push({ name, from: source });
+			}
+		}
+
+		return result;
+	}
+
+	// ---- Getters for utilities ----
+
+	getUtilitiesConfig(): UtilitiesConfig {
+		return this.utilitiesConfig;
+	}
+
+	/**
+	 * Get utility functions in legacy format (for extractors)
+	 */
 	getUtilityFunctions(): UtilityFunction[] {
-		return this.utilityFunctions;
+		return this.utilityFunctionsLegacy;
 	}
+
+	// ---- Getters for variants ----
+
+	getVariantsConfig(): VariantsConfig {
+		return this.variantsConfig;
+	}
+
+	isTailwindVariantsEnabled(): boolean {
+		return this.variantsConfig.tailwindVariants === true;
+	}
+
+	isClassVarianceAuthorityEnabled(): boolean {
+		return this.variantsConfig.classVarianceAuthority === true;
+	}
+
+	// ---- Getters for validation ----
+
+	getValidationConfig(): ValidationConfig {
+		return this.validationConfig;
+	}
+
+	isValidationEnabled(): boolean {
+		return this.validationConfig.enabled;
+	}
+
+	getValidationSeverity(): DiagnosticSeverity {
+		return this.validationConfig.severity;
+	}
+
+	getAllowedClasses(): string[] {
+		return this.validationConfig.allowedClasses;
+	}
+
+	// ---- Getters for lint ----
+
+	getLintConfig(): LintConfig {
+		return this.lintConfig;
+	}
+
+	isLintEnabled(): boolean {
+		return this.lintConfig.enabled !== false;
+	}
+
+	isConflictingClassesEnabled(): boolean {
+		return this.isLintEnabled() && this.lintConfig.conflictingClasses?.enabled !== false;
+	}
+
+	getConflictingClassesSeverity(): DiagnosticSeverity {
+		return this.lintConfig.conflictingClasses?.severity || 'warning';
+	}
+
+	isRepeatedClassesEnabled(): boolean {
+		return this.isLintEnabled() && this.lintConfig.repeatedClasses?.enabled !== false;
+	}
+
+	getRepeatedClassesSeverity(): DiagnosticSeverity {
+		return this.lintConfig.repeatedClasses?.severity || 'warning';
+	}
+
+	// ---- Getters for editor ----
+
+	getEditorConfig(): EditorConfig {
+		return this.editorConfig;
+	}
+
+	isEditorEnabled(): boolean {
+		return this.editorConfig.enabled !== false;
+	}
+
+	isAutocompleteEnabled(): boolean {
+		return this.isEditorEnabled() && this.editorConfig.autocomplete?.enabled !== false;
+	}
+
+	isHoverEnabled(): boolean {
+		return this.isEditorEnabled() && this.editorConfig.hover?.enabled !== false;
+	}
+
+	// ---- Getters for global settings ----
 
 	getCssFilePath(): string | undefined {
 		return this.cssFilePath;
@@ -105,33 +277,5 @@ export class PluginConfigService {
 
 	hasValidCssPath(): boolean {
 		return this.cssFilePath !== undefined && this.cssFilePath.length > 0;
-	}
-
-	isTailwindVariantsEnabled(): boolean {
-		return this.tailwindVariantsEnabled;
-	}
-
-	isClassVarianceAuthorityEnabled(): boolean {
-		return this.classVarianceAuthorityEnabled;
-	}
-
-	getAllowedClasses(): string[] {
-		return this.allowedClasses;
-	}
-
-	isLoggingEnabled(): boolean {
-		return this.loggingEnabled;
-	}
-
-	private logExtractorConfig(): void {
-		const enabled: string[] = [];
-		if (this.tailwindVariantsEnabled) enabled.push('tailwind-variants');
-		if (this.classVarianceAuthorityEnabled) enabled.push('class-variance-authority');
-
-		if (enabled.length === 0) {
-			this.logger.log('⚠️  No variant library extractors enabled');
-		} else {
-			this.logger.log(`✓ Enabled variant extractors: ${enabled.join(', ')}`);
-		}
 	}
 }
