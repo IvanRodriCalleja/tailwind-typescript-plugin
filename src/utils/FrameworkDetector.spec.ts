@@ -1,4 +1,4 @@
-import { detectFramework, Framework, isSupportedFile } from './FrameworkDetector';
+import { Framework, detectFramework, isSupportedFile } from './FrameworkDetector';
 
 describe('FrameworkDetector', () => {
 	describe('detectFramework', () => {

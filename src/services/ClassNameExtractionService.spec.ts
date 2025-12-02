@@ -43,12 +43,7 @@ describe('ClassNameExtractionService', () => {
 
 		it('should handle Vue files with stub extractor', () => {
 			const sourceCode = '<template><div class="flex">Hello</div></template>';
-			const sourceFile = ts.createSourceFile(
-				'App.vue',
-				sourceCode,
-				ts.ScriptTarget.Latest,
-				true
-			);
+			const sourceFile = ts.createSourceFile('App.vue', sourceCode, ts.ScriptTarget.Latest, true);
 
 			// Vue extractor is a stub, should return empty array
 			const classNames = service.extractFromSourceFile(ts, sourceFile, []);

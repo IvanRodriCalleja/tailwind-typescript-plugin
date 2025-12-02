@@ -7,7 +7,7 @@ import { JsxAttributeExtractor } from '../extractors/JsxAttributeExtractor';
 import { SvelteAttributeExtractor } from '../extractors/SvelteAttributeExtractor';
 import { TailwindVariantsExtractor } from '../extractors/TailwindVariantsExtractor';
 import { VueAttributeExtractor } from '../extractors/VueAttributeExtractor';
-import { detectFramework, Framework } from '../utils/FrameworkDetector';
+import { Framework, detectFramework } from '../utils/FrameworkDetector';
 
 /**
  * OPTIMIZED: Service responsible for orchestrating class name extraction

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { ClassNameInfo, ExtractionContext } from '../core/types';
