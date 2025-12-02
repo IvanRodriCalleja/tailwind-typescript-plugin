@@ -1,3 +1,13 @@
+## [1.4.0-beta.14](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.13...v1.4.0-beta.14) (2025-12-02)
+
+### ⚠ BREAKING CHANGES
+
+* Old config format no longer supported
+
+### ♻️ Code Refactoring
+
+* restructure plugin configuration ([00c8816](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/00c881612449e4c424c129f4994c57117d94d3c4))
+
 ## [1.4.0-beta.13](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.12...v1.4.0-beta.13) (2025-11-30)
 
 ### ✨ Features
