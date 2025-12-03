@@ -1,3 +1,9 @@
+## [1.4.0-beta.16](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.15...v1.4.0-beta.16) (2025-12-03)
+
+### ✨ Features
+
+* add support for 'class' attribute in JSX elements ([258fe3e](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/258fe3e0006ebf8a9a5cdbdfe8c09ef39a2d9d4d))
+
 ## [1.4.0-beta.15](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.14...v1.4.0-beta.15) (2025-12-02)
 
 ### ♻️ Code Refactoring
