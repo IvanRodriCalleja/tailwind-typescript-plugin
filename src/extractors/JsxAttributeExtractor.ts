@@ -6,7 +6,8 @@ import { ExpressionExtractor } from './ExpressionExtractor';
 import { TemplateExpressionExtractor } from './TemplateExpressionExtractor';
 
 /**
- * OPTIMIZED: Extracts class names from JSX className attributes
+ * OPTIMIZED: Extracts class names from JSX className and class attributes
+ * Supports both React (className) and Solid (class) syntaxes
  *
  * Performance improvements:
  * 1. Fast path for string literals (most common, ~70% of cases)
@@ -52,8 +53,14 @@ export class JsxAttributeExtractor extends BaseExtractor {
 
 		// Process attributes
 		for (const attr of attributes) {
-			// OPTIMIZATION: Check both conditions at once
-			if (!context.typescript.isJsxAttribute(attr) || attr.name.getText() !== 'className') {
+			// OPTIMIZATION: Check type first
+			if (!context.typescript.isJsxAttribute(attr)) {
+				continue;
+			}
+
+			// Support both className (React) and class (Solid, standard JSX)
+			const attrName = attr.name.getText();
+			if (attrName !== 'className' && attrName !== 'class') {
 				continue;
 			}
 
@@ -99,7 +106,7 @@ export class JsxAttributeExtractor extends BaseExtractor {
 				continue; // Skip to next attribute
 			}
 
-			// JSX expression: className={'foo bar'} or className={clsx(...)}
+			// JSX expression: className={'foo bar'} or class={clsx(...)}
 			if (context.typescript.isJsxExpression(initializer)) {
 				const expression = initializer.expression;
 
@@ -135,18 +142,18 @@ export class JsxAttributeExtractor extends BaseExtractor {
 				) {
 					classNames.push(...addAttributeId(this.expressionExtractor.extract(expression, context)));
 				}
-				// Handle identifier references: className={dynamicClass}
+				// Handle identifier references: className={dynamicClass} or class={dynamicClass}
 				// This resolves the variable to its declared value for validation
 				else if (context.typescript.isIdentifier(expression)) {
 					classNames.push(
 						...addAttributeId(this.expressionExtractor.extractFromIdentifier(expression, context))
 					);
 				}
-				// Handle array literal expressions: className={['flex', 'items-center']}
+				// Handle array literal expressions: className={['flex', 'items-center']} or class={['flex', 'items-center']}
 				else if (context.typescript.isArrayLiteralExpression(expression)) {
 					classNames.push(...addAttributeId(this.expressionExtractor.extract(expression, context)));
 				}
-				// Handle object literal expressions: className={{ flex: true }}
+				// Handle object literal expressions: className={{ flex: true }} or class={{ flex: true }}
 				else if (context.typescript.isObjectLiteralExpression(expression)) {
 					classNames.push(...addAttributeId(this.expressionExtractor.extract(expression, context)));
 				}
