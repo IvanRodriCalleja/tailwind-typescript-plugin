@@ -184,6 +184,114 @@ describe('ClassNameExtractionService', () => {
 		});
 	});
 
+	describe('Custom class attributes', () => {
+		it('should extract classes from default className attribute', () => {
+			const sourceCode = '<div className="flex items-center">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'App.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const classNames = service.extractFromSourceFile(ts, sourceFile, [], undefined, [
+				'className',
+				'class',
+				'classList'
+			]);
+
+			expect(classNames).toHaveLength(2);
+			expect(classNames[0].className).toBe('flex');
+			expect(classNames[1].className).toBe('items-center');
+		});
+
+		it('should extract classes from custom attributes when configured', () => {
+			const sourceCode = '<View colorStyles="bg-blue-500 text-white">Hello</View>';
+			const sourceFile = ts.createSourceFile(
+				'App.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const classNames = service.extractFromSourceFile(ts, sourceFile, [], undefined, [
+				'className',
+				'class',
+				'classList',
+				'colorStyles'
+			]);
+
+			expect(classNames).toHaveLength(2);
+			expect(classNames[0].className).toBe('bg-blue-500');
+			expect(classNames[1].className).toBe('text-white');
+		});
+
+		it('should extract classes from multiple custom attributes', () => {
+			const sourceCode =
+				'<View colorStyles="bg-blue-500" textStyles="font-bold text-lg">Hello</View>';
+			const sourceFile = ts.createSourceFile(
+				'App.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const classNames = service.extractFromSourceFile(ts, sourceFile, [], undefined, [
+				'className',
+				'colorStyles',
+				'textStyles'
+			]);
+
+			expect(classNames).toHaveLength(3);
+			expect(classNames[0].className).toBe('bg-blue-500');
+			expect(classNames[1].className).toBe('font-bold');
+			expect(classNames[2].className).toBe('text-lg');
+		});
+
+		it('should not extract from non-configured attributes', () => {
+			const sourceCode = '<View customProp="flex items-center">Hello</View>';
+			const sourceFile = ts.createSourceFile(
+				'App.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			// Only default attributes configured, customProp not included
+			const classNames = service.extractFromSourceFile(ts, sourceFile, [], undefined, [
+				'className',
+				'class',
+				'classList'
+			]);
+
+			expect(classNames).toHaveLength(0);
+		});
+
+		it('should work with JSX expressions in custom attributes', () => {
+			const sourceCode = "<View colorStyles={'bg-blue-500 text-white'}>Hello</View>";
+			const sourceFile = ts.createSourceFile(
+				'App.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const classNames = service.extractFromSourceFile(ts, sourceFile, [], undefined, [
+				'className',
+				'colorStyles'
+			]);
+
+			expect(classNames).toHaveLength(2);
+			expect(classNames[0].className).toBe('bg-blue-500');
+			expect(classNames[1].className).toBe('text-white');
+		});
+	});
+
 	describe('Variant extractors', () => {
 		it('should work across all frameworks', () => {
 			// tv() and cva() should work in any file type
