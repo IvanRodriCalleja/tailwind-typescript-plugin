@@ -116,6 +116,9 @@ Add the plugin to the `compilerOptions.plugins` array in your `tsconfig.json`:
           "hover": {
             "enabled": true
           }
+        },
+        "classAttributes": {
+          "attributes": ["colorStyles", "textStyles"]
         }
       }
     ]
@@ -288,6 +291,41 @@ Configure editor features like autocomplete and hover.
     }
   }
 }
+```
+
+---
+
+#### `classAttributes` (optional)
+Configure which JSX/HTML attributes should be treated as class attributes.
+
+By default, the plugin validates classes in `className`, `class`, and `classList` attributes. You can add additional attributes for frameworks like React Native that use different prop names for styling.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `attributes` | `[]` | Additional attribute names to treat as class attributes |
+
+**Default attributes** (always included):
+- `className` (React, JSX)
+- `class` (HTML, Web Components)
+- `classList` (Solid.js)
+
+**Example - Add React Native style attributes**:
+```json
+{
+  "classAttributes": {
+    "attributes": ["colorStyles", "textStyles", "containerStyles"]
+  }
+}
+```
+
+**Usage example**:
+```tsx
+// ✅ All of these will be validated:
+<div className="flex items-center">...</div>
+<div class="flex items-center">...</div>
+<div classList={{ flex: true }}>...</div>
+<View colorStyles="bg-blue-500 text-white">...</View>
+<Text textStyles="font-bold text-lg">...</Text>
 ```
 
 ---

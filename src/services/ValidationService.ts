@@ -46,7 +46,8 @@ export class ValidationService {
 			typescript,
 			sourceFile,
 			utilityFunctions,
-			typeChecker
+			typeChecker,
+			this.configService.getClassAttributes()
 		);
 
 		const diagnostics: ts.Diagnostic[] = [];

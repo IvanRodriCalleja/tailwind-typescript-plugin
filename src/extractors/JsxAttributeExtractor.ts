@@ -51,16 +51,18 @@ export class JsxAttributeExtractor extends BaseExtractor {
 			return classNames;
 		}
 
+		// Get configured class attributes (defaults to ['className', 'class', 'classList'] if not provided)
+		const classAttributes = context.classAttributes || ['className', 'class', 'classList'];
+
 		// Process attributes
 		for (const attr of attributes) {
-			// OPTIMIZATION: Check type first
+			// OPTIMIZATION: Check if this is a JSX attribute and if it's a class attribute
 			if (!context.typescript.isJsxAttribute(attr)) {
 				continue;
 			}
 
-			// Support both className (React) and class (Solid, standard JSX)
 			const attrName = attr.name.getText();
-			if (attrName !== 'className' && attrName !== 'class') {
+			if (!classAttributes.includes(attrName)) {
 				continue;
 			}
 

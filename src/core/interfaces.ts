@@ -1,6 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 import {
+	ClassAttributesConfig,
 	ClassNameInfo,
 	EditorConfig,
 	ExtractionContext,
@@ -59,6 +60,13 @@ export interface IPluginConfig {
 	 * Editor features configuration (autocomplete and hover)
 	 */
 	editor?: EditorConfig;
+
+	/**
+	 * Additional attribute names to treat as class attributes
+	 * These are merged with defaults (className, class, classList)
+	 * Example: ["containerStyles", "textStyles"]
+	 */
+	classAttributes?: ClassAttributesConfig;
 }
 
 /**

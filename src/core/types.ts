@@ -108,6 +108,14 @@ export interface EditorConfig {
 }
 
 /**
+ * Configuration for class attributes
+ * Additional attribute names that should be treated as class attributes
+ * These will be merged with the default attributes (className, class, classList)
+ * Example: ['colorStyles', 'textStyles'] for React Native
+ */
+export type ClassAttributesConfig = string[];
+
+/**
  * Represents information about a class name found in source code
  */
 export interface ClassNameInfo {
@@ -161,6 +169,11 @@ export interface ExtractionContext {
 	 * Used to determine which extractor to use
 	 */
 	readonly framework?: Framework;
+	/**
+	 * Array of attribute names that should be treated as class attributes
+	 * Includes default attributes (className, class, classList) plus user-configured ones
+	 */
+	readonly classAttributes?: string[];
 }
 
 /**

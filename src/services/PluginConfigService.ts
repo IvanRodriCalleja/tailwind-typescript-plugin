@@ -57,6 +57,12 @@ const DEFAULT_LINT: LintConfig = {
 };
 
 /**
+ * Default class attributes
+ * These are the JSX/HTML attributes that will be treated as class attributes
+ */
+const DEFAULT_CLASS_ATTRIBUTES = ['className', 'class', 'classList'];
+
+/**
  * Service responsible for managing plugin configuration
  * Follows Single Responsibility Principle
  */
@@ -68,6 +74,7 @@ export class PluginConfigService {
 	};
 	private lintConfig: LintConfig;
 	private editorConfig: EditorConfig;
+	private classAttributes: string[];
 	private cssFilePath?: string;
 
 	// Legacy format support (for internal use by extractors)
@@ -82,6 +89,7 @@ export class PluginConfigService {
 		this.validationConfig = this.initializeValidation(config);
 		this.lintConfig = this.initializeLint(config);
 		this.editorConfig = this.initializeEditor(config);
+		this.classAttributes = this.initializeClassAttributes(config);
 
 		// Convert to legacy format for extractors
 		this.utilityFunctionsLegacy = this.convertToLegacyFormat(this.utilitiesConfig);
@@ -157,6 +165,14 @@ export class PluginConfigService {
 				enabled: editor.hover?.enabled !== false // default true
 			}
 		};
+	}
+
+	private initializeClassAttributes(config: IPluginConfig): string[] {
+		const userAttributes = config.classAttributes || [];
+
+		// Merge default attributes with user-provided ones
+		// Use Set to avoid duplicates
+		return [...new Set([...DEFAULT_CLASS_ATTRIBUTES, ...userAttributes])];
 	}
 
 	/**
@@ -277,5 +293,16 @@ export class PluginConfigService {
 
 	hasValidCssPath(): boolean {
 		return this.cssFilePath !== undefined && this.cssFilePath.length > 0;
+	}
+
+	// ---- Getters for class attributes ----
+
+	/**
+	 * Get the configured class attributes
+	 * Returns an array of attribute names that should be treated as class attributes
+	 * Includes default attributes (className, class, classList) plus user-configured ones
+	 */
+	getClassAttributes(): string[] {
+		return this.classAttributes;
 	}
 }

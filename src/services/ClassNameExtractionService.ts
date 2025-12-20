@@ -80,7 +80,8 @@ export class ClassNameExtractionService {
 		typescript: typeof ts,
 		sourceFile: ts.SourceFile,
 		utilityFunctions: UtilityFunction[],
-		typeChecker?: ts.TypeChecker
+		typeChecker?: ts.TypeChecker,
+		classAttributes?: string[]
 	): ClassNameInfo[] {
 		const classNames: ClassNameInfo[] = [];
 
@@ -97,7 +98,8 @@ export class ClassNameExtractionService {
 			sourceFile,
 			utilityFunctions,
 			typeChecker,
-			framework
+			framework,
+			classAttributes
 		};
 
 		// Get the appropriate extractor for this framework (lazy-loaded)
