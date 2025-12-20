@@ -2,7 +2,7 @@ import {
 	getClassNamesFromDiagnostics,
 	getInvalidClassDiagnostics,
 	runPlugin
-} from '../../../../test/folder-test-helpers';
+} from '../../../../../test/folder-test-helpers';
 
 describe('jsx/class-attributes', () => {
 	describe('error-04-custom-with-clsx-invalid', () => {

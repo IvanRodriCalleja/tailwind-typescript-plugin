@@ -1,0 +1,25 @@
+import {
+	getClassNamesFromDiagnostics,
+	getInvalidClassDiagnostics,
+	runPlugin
+} from '../../../../test/folder-test-helpers';
+
+describe('expression-variable', () => {
+	describe('error-02-mixed-valid-invalid', () => {
+		it('❌ Invalid: Variable with mix of valid and invalid classes', async () => {
+			const { diagnostics, sourceCode, plugin } = await runPlugin(__dirname);
+
+			try {
+				const invalidDiagnostics = getInvalidClassDiagnostics(diagnostics);
+				const invalidClassNames = getClassNamesFromDiagnostics(invalidDiagnostics, sourceCode);
+
+				expect(invalidClassNames).toContain('invalid-one');
+				expect(invalidClassNames).toContain('invalid-two');
+				expect(invalidClassNames).not.toContain('flex');
+				expect(invalidClassNames).not.toContain('items-center');
+			} finally {
+				plugin.dispose();
+			}
+		});
+	});
+});

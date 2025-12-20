@@ -1,0 +1,26 @@
+import {
+	getClassNamesFromDiagnostics,
+	getInvalidClassDiagnostics,
+	runPlugin
+} from '../../../../test/folder-test-helpers';
+
+describe('array-ternary', () => {
+	describe('error-07-mixed-static-ternary-invalid', () => {
+		it(`❌ Invalid: Mix with invalid in both static and ternary`, async () => {
+			const { diagnostics, sourceCode, plugin } = await runPlugin(__dirname);
+
+			try {
+				const invalidDiagnostics = getInvalidClassDiagnostics(diagnostics);
+				const invalidClassNames = getClassNamesFromDiagnostics(invalidDiagnostics, sourceCode);
+
+				expect(invalidClassNames).toContain('invalid-static');
+				expect(invalidClassNames).toContain('invalid-ternary');
+				expect(invalidClassNames).not.toContain('flex');
+				expect(invalidClassNames).not.toContain('items-center');
+				expect(invalidClassNames).not.toContain('bg-gray-500');
+			} finally {
+				plugin.dispose();
+			}
+		});
+	});
+});
