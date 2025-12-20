@@ -1,3 +1,9 @@
+## [1.4.0-beta.18](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.17...v1.4.0-beta.18) (2025-12-20)
+
+### ✨ Features
+
+* add Vue Single File Component support ([1d99210](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/1d99210ce1d4b206fcf4461a904af7adee24ab53))
+
 ## [1.4.0-beta.17](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.16...v1.4.0-beta.17) (2025-12-20)
 
 ### ✨ Features
