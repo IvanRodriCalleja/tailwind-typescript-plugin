@@ -152,7 +152,8 @@ export class VueAttributeExtractor extends BaseExtractor {
 						absoluteStart: stringContentStart + offset,
 						length: part.length,
 						line:
-							context.sourceFile.getLineAndCharacterOfPosition(stringContentStart + offset).line + 1,
+							context.sourceFile.getLineAndCharacterOfPosition(stringContentStart + offset).line +
+							1,
 						file: context.sourceFile.fileName,
 						attributeId
 					});
