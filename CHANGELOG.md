@@ -1,3 +1,9 @@
+## [1.4.0-beta.17](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.16...v1.4.0-beta.17) (2025-12-20)
+
+### ✨ Features
+
+* add configurable class attributes for custom JSX props ([701b133](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/701b13369f943893f2cdf054b4a1c9a80640398e))
+
 ## [1.4.0-beta.16](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.15...v1.4.0-beta.16) (2025-12-03)
 
 ### ✨ Features
