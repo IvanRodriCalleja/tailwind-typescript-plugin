@@ -15,13 +15,13 @@ export enum Framework {
  * @returns The detected framework or null if not supported
  */
 export function detectFramework(fileName: string): Framework | null {
-	// Vue Single File Components
-	if (fileName.endsWith('.vue')) {
+	// Vue Single File Components (including virtual .vue.ts files from Volar)
+	if (fileName.endsWith('.vue') || fileName.includes('.vue.')) {
 		return Framework.VUE;
 	}
 
-	// Svelte components
-	if (fileName.endsWith('.svelte')) {
+	// Svelte components (including virtual .svelte.ts files)
+	if (fileName.endsWith('.svelte') || fileName.includes('.svelte.')) {
 		return Framework.SVELTE;
 	}
 

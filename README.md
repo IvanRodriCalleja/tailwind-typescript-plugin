@@ -6,11 +6,11 @@
 [![TypeScript](https://img.shields.io/github/package-json/dependency-version/IvanRodriCalleja/tailwind-typescript-plugin/dev/typescript?label=TypeScript)](https://www.typescriptlang.org/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/blob/main/CONTRIBUTING.md)
 
-A TypeScript Language Service plugin that catches **typos and invalid Tailwind CSS class names** in your JSX/TSX files. When you write a class name that doesn't exist in Tailwind, it won't apply any styles—this plugin detects those mistakes and shows errors directly in your editor before you ship broken styles.
+A TypeScript Language Service plugin that catches **typos and invalid Tailwind CSS class names** in your JSX/TSX and Vue files. When you write a class name that doesn't exist in Tailwind, it won't apply any styles—this plugin detects those mistakes and shows errors directly in your editor before you ship broken styles.
 
 ## What does this plugin do?
 
-Ever written `className="flex itms-center"` instead of `"flex items-center"`? That typo silently fails—Tailwind ignores invalid classes and your component looks broken. This plugin prevents that by analyzing your JSX/TSX code and validating that all Tailwind classes used in `className` attributes actually exist in your Tailwind CSS configuration. It provides real-time feedback by showing TypeScript errors for invalid or misspelled Tailwind classes, catching styling mistakes before they reach production.
+Ever written `className="flex itms-center"` instead of `"flex items-center"`? That typo silently fails—Tailwind ignores invalid classes and your component looks broken. This plugin prevents that by analyzing your JSX/TSX and Vue code, validating that all Tailwind classes used in `className`/`class` attributes actually exist in your Tailwind CSS configuration. It provides real-time feedback by showing TypeScript errors for invalid or misspelled Tailwind classes, catching styling mistakes before they reach production.
 
 ## Table of Contents
 
@@ -37,6 +37,10 @@ Ever written `className="flex itms-center"` instead of `"flex items-center"`? Th
 - **Editor integration**: Works with any editor that supports TypeScript Language Service (VS Code, WebStorm, etc.)
 - **Supports Tailwind variants**: Validates responsive (`md:`, `lg:`), state (`hover:`, `focus:`), and other variants
 - **Arbitrary values**: Correctly handles Tailwind arbitrary values like `h-[50vh]` or `bg-[#ff0000]`
+- **Vue support**: Validates classes in Vue Single File Components (`.vue` files) when used with `@vue/typescript-plugin`
+  - Static class attributes: `<div class="flex items-center">`
+  - Dynamic class bindings: `<div :class="{ 'bg-red-500': isActive }">`
+  - Object and array syntax support
 - **Variant library support**:
   - **tailwind-variants**: Validates classes in `tv()` function calls including `base`, `variants`, `compoundVariants`, `slots`, and `class`/`className` override properties
   - **class-variance-authority**: Validates classes in `cva()` function calls including base classes, `variants`, `compoundVariants`, and `class`/`className` override properties
@@ -371,6 +375,49 @@ The plugin should work automatically if you have the TypeScript version from you
 You may need to restart the TypeScript server:
 - Open command palette
 - Type "TypeScript: Restart TS Server"
+
+#### Vue Projects
+
+For Vue Single File Components (`.vue` files), you need to configure `@vue/typescript-plugin` alongside this plugin:
+
+1. Install the Vue TypeScript plugin:
+```bash
+npm install -D @vue/typescript-plugin
+```
+
+2. Configure both plugins in your `tsconfig.json`:
+```json
+{
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@vue/typescript-plugin",
+        "languages": ["vue"]
+      },
+      {
+        "name": "tailwind-typescript-plugin",
+        "globalCss": "./src/global.css"
+      }
+    ]
+  }
+}
+```
+
+3. Ensure you have the [Vue - Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar) extension installed in VS Code.
+
+The plugin will then validate classes in your Vue templates:
+```vue
+<template>
+  <!-- ✅ Valid classes -->
+  <div class="flex items-center">Valid</div>
+
+  <!-- ❌ Invalid class detected -->
+  <div class="invalidclass">Error shown</div>
+
+  <!-- ✅ Dynamic class bindings -->
+  <div :class="{ 'bg-red-500': isActive }">Dynamic</div>
+</template>
+```
 
 #### Other Editors
 
