@@ -1,3 +1,13 @@
+## [1.4.0-beta.19](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.18...v1.4.0-beta.19) (2025-12-21)
+
+### ✨ Features
+
+* add Vue Single File Component test suite ([012e27e](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/012e27eb57756282f81bf7cb01352e6b8360dd47))
+
+### 🔧 Chores
+
+* move existing test to jsx folder ([89a93ec](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/89a93ec233f6550bf0c631d18c5c17a94021be47))
+
 ## [1.4.0-beta.18](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.17...v1.4.0-beta.18) (2025-12-20)
 
 ### ✨ Features
