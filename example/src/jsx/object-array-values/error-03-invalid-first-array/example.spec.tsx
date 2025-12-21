@@ -1,0 +1,25 @@
+import {
+	getClassNamesFromDiagnostics,
+	getInvalidClassDiagnostics,
+	runPlugin
+} from '../../../../test/folder-test-helpers';
+
+describe('object-array-values', () => {
+	describe('error-03-invalid-first-array', () => {
+		it('❌ Invalid: Multiple properties with array values, invalid in first', async () => {
+			const { diagnostics, sourceCode, plugin } = await runPlugin(__dirname);
+
+			try {
+				const invalidDiagnostics = getInvalidClassDiagnostics(diagnostics);
+				const invalidClassNames = getClassNamesFromDiagnostics(invalidDiagnostics, sourceCode);
+
+				expect(invalidClassNames).toContain('invalid-flex');
+				expect(invalidClassNames).not.toContain('items-center');
+				expect(invalidClassNames).not.toContain('bg-blue-500');
+				expect(invalidClassNames).not.toContain('text-white');
+			} finally {
+				plugin.dispose();
+			}
+		});
+	});
+});

@@ -1,0 +1,16 @@
+import { getInvalidClassDiagnostics, runPlugin } from '../../../../test/folder-test-helpers';
+
+describe('function-static', () => {
+	describe('valid-15-member-expression-valid', () => {
+		it('✅ Valid: Member expression with valid classes', async () => {
+			const { diagnostics, plugin } = await runPlugin(__dirname);
+
+			try {
+				const invalidDiagnostics = getInvalidClassDiagnostics(diagnostics);
+				expect(invalidDiagnostics).toHaveLength(0);
+			} finally {
+				plugin.dispose();
+			}
+		});
+	});
+});
