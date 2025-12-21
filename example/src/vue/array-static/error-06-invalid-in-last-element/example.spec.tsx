@@ -1,0 +1,24 @@
+import {
+	getClassNamesFromDiagnostics,
+	getInvalidClassDiagnostics,
+	runVuePlugin
+} from '../../../../test/vue-test-helpers';
+
+describe('array-static', () => {
+	describe('error-06-invalid-in-last-element', () => {
+		it(`❌ Invalid: Invalid in last element`, async () => {
+			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);
+
+			try {
+				const invalidDiagnostics = getInvalidClassDiagnostics(diagnostics);
+				const invalidClassNames = getClassNamesFromDiagnostics(invalidDiagnostics, generatedCode);
+
+				expect(invalidClassNames).toContain('invalid-last');
+				expect(invalidClassNames).not.toContain('flex');
+				expect(invalidClassNames).not.toContain('items-center');
+			} finally {
+				plugin.dispose();
+			}
+		});
+	});
+});

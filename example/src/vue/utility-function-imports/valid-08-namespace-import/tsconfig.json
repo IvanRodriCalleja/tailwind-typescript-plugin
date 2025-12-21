@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "strict": true,
+    "plugins": [
+      {
+        "name": "tailwind-typescript-plugin",
+        "globalCss": "./global.css",
+        "libraries": {
+          "utilities": {
+            "clsx": "clsx"
+          }
+        }
+      }
+    ]
+  },
+  "include": [
+    "*.tsx",
+    "*.vue"
+  ]
+}

@@ -1,0 +1,23 @@
+import {
+	getClassNamesFromDiagnostics,
+	getConflictClassDiagnostics,
+	runVuePlugin
+} from '../../../../test/vue-test-helpers';
+
+describe('conflicting-classes', () => {
+	describe('conflict-08-absolute-relative', () => {
+		it('⚠️ should detect conflicting classes', async () => {
+			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);
+
+			try {
+				const conflictDiagnostics = getConflictClassDiagnostics(diagnostics);
+				const conflictClasses = getClassNamesFromDiagnostics(conflictDiagnostics, generatedCode);
+
+				expect(conflictClasses).toContain('absolute');
+				expect(conflictClasses).toContain('relative');
+			} finally {
+				plugin.dispose();
+			}
+		});
+	});
+});

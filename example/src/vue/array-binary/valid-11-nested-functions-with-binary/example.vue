@@ -1,0 +1,15 @@
+<script setup lang="ts">
+import { clsx as cn } from 'clsx';
+import clsx from 'clsx';
+
+const isError = true;
+
+// ✅ Valid: Nested functions with binary in array
+// @validClasses [flex, text-red-500, items-center]
+</script>
+
+<template>
+  <div :class="clsx('flex', cn([isError && 'text-red-500', 'items-center']))">
+  			Nested with binary
+  		</div>
+</template>
