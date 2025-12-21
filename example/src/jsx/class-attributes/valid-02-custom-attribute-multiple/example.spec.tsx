@@ -1,4 +1,4 @@
-import { getInvalidClassDiagnostics, runPlugin } from '../../../../../test/folder-test-helpers';
+import { getInvalidClassDiagnostics, runPlugin } from '../../../../test/folder-test-helpers';
 
 describe('jsx/class-attributes', () => {
 	describe('valid-02-custom-attribute-multiple', () => {
