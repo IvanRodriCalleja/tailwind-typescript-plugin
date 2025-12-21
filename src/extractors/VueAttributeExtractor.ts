@@ -1,8 +1,8 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
-import { ClassNameInfo, ExtractionContext } from '../core/types';
+import { ClassNameInfo, ExtractionContext, UtilityFunction } from '../core/types';
 import { BaseExtractor } from './BaseExtractor';
-import { ExpressionExtractor } from './ExpressionExtractor';
+import { VueExpressionExtractor } from './VueExpressionExtractor';
 
 /**
  * Extracts class names from Vue template class attributes
@@ -26,11 +26,53 @@ import { ExpressionExtractor } from './ExpressionExtractor';
  * This extractor handles these patterns to extract class names.
  */
 export class VueAttributeExtractor extends BaseExtractor {
-	private expressionExtractor: ExpressionExtractor;
+	private expressionExtractor: VueExpressionExtractor;
 
 	constructor() {
 		super();
-		this.expressionExtractor = new ExpressionExtractor();
+		this.expressionExtractor = new VueExpressionExtractor();
+	}
+
+	/**
+	 * Override to handle Vue's __VLS_ctx pattern.
+	 *
+	 * Vue generates code like __VLS_ctx.clsx(...) for template expressions
+	 * where clsx is imported in the script section. We need to check if the
+	 * function name (not __VLS_ctx) is directly imported.
+	 */
+	protected override shouldValidateFunctionCall(
+		callExpression: ts.CallExpression,
+		utilityFunctions: UtilityFunction[],
+		context?: ExtractionContext
+	): boolean {
+		// First, check if this is a __VLS_ctx.functionName() pattern
+		if (context) {
+			const expr = callExpression.expression;
+			if (context.typescript.isPropertyAccessExpression(expr)) {
+				const objectExpr = expr.expression;
+				if (context.typescript.isIdentifier(objectExpr) && objectExpr.text === '__VLS_ctx') {
+					const functionName = expr.name.text;
+
+					// Check each utility function configuration
+					for (const utilityFunc of utilityFunctions) {
+						if (typeof utilityFunc === 'string') {
+							if (utilityFunc === functionName) {
+								return true;
+							}
+						} else if (utilityFunc.name === functionName) {
+							// Check if the function is directly imported from expected module
+							if (this.isImportedFrom(functionName, utilityFunc.from, context)) {
+								return true;
+							}
+						}
+					}
+					return false;
+				}
+			}
+		}
+
+		// Fall back to base implementation for non-Vue patterns
+		return super.shouldValidateFunctionCall(callExpression, utilityFunctions, context);
 	}
 
 	canHandle(node: ts.Node, context: ExtractionContext): boolean {
@@ -223,29 +265,63 @@ export class VueAttributeExtractor extends BaseExtractor {
 		}
 
 		// Array literal: class: ['flex', 'items-center']
+		// Vue wraps expressions in parentheses: class: (['flex', 'items-center'])
+		let arrayExpr: ts.ArrayLiteralExpression | undefined;
 		if (context.typescript.isArrayLiteralExpression(value)) {
+			arrayExpr = value;
+		} else if (context.typescript.isParenthesizedExpression(value)) {
+			const inner = value.expression;
+			if (context.typescript.isArrayLiteralExpression(inner)) {
+				arrayExpr = inner;
+			}
+		}
+
+		if (arrayExpr) {
 			const addAttributeId = (classes: ClassNameInfo[]): ClassNameInfo[] =>
 				classes.map(c => ({ ...c, attributeId }));
-			return addAttributeId(this.expressionExtractor.extract(value, context));
+			return addAttributeId(this.expressionExtractor.extract(arrayExpr, context));
 		}
 
 		// Template literal or other expressions - delegate to expression extractor
+		// Vue wraps expressions in parentheses: class: (`flex items-center`)
+		let templateExpr: ts.TemplateExpression | ts.NoSubstitutionTemplateLiteral | undefined;
 		if (
 			context.typescript.isTemplateExpression(value) ||
 			context.typescript.isNoSubstitutionTemplateLiteral(value)
 		) {
+			templateExpr = value;
+		} else if (context.typescript.isParenthesizedExpression(value)) {
+			const inner = value.expression;
+			if (
+				context.typescript.isTemplateExpression(inner) ||
+				context.typescript.isNoSubstitutionTemplateLiteral(inner)
+			) {
+				templateExpr = inner;
+			}
+		}
+
+		if (templateExpr) {
 			const addAttributeId = (classes: ClassNameInfo[]): ClassNameInfo[] =>
 				classes.map(c => ({ ...c, attributeId }));
-			return addAttributeId(this.expressionExtractor.extract(value, context));
+			return addAttributeId(this.expressionExtractor.extract(templateExpr, context));
 		}
 
 		// Call expression (utility functions like cn, clsx)
+		// Vue wraps expressions in parentheses: class: (__VLS_ctx.clsx(...))
+		let callExpr: ts.CallExpression | undefined;
 		if (context.typescript.isCallExpression(value)) {
-			if (this.shouldValidateFunctionCall(value, context.utilityFunctions, context)) {
-				const addAttributeId = (classes: ClassNameInfo[]): ClassNameInfo[] =>
-					classes.map(c => ({ ...c, attributeId }));
-				return addAttributeId(this.expressionExtractor.extract(value, context));
+			callExpr = value;
+		} else if (context.typescript.isParenthesizedExpression(value)) {
+			const inner = value.expression;
+			if (context.typescript.isCallExpression(inner)) {
+				callExpr = inner;
 			}
+		}
+
+		if (callExpr && this.shouldValidateFunctionCall(callExpr, context.utilityFunctions, context)) {
+			const addAttributeId = (classes: ClassNameInfo[]): ClassNameInfo[] =>
+				classes.map(c => ({ ...c, attributeId }));
+			return addAttributeId(this.expressionExtractor.extract(callExpr, context));
 		}
 
 		return classNames;

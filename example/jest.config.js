@@ -7,7 +7,6 @@ module.exports = {
 	// Passing categories (kept): allowed-classes-patterns, css-variables, expression-static, literal-static
 	testPathIgnorePatterns: [
 		'/node_modules/',
-		'/src/vue/allowed-classes/',
 		'/src/vue/array-binary/',
 		'/src/vue/array-nested/',
 		'/src/vue/array-static/',
