@@ -1,0 +1,16 @@
+import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
+
+describe('expression-binary', () => {
+	describe('valid-12-binary-resolves-to-boolean', () => {
+		it('✅ Valid: Binary that resolves to boolean (falsy case)', async () => {
+			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);
+
+			try {
+				const invalidDiagnostics = getInvalidClassDiagnostics(diagnostics);
+				expect(invalidDiagnostics).toHaveLength(0);
+			} finally {
+				plugin.dispose();
+			}
+		});
+	});
+});

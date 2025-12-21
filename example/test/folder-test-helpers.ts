@@ -31,23 +31,41 @@ export const DiagnosticCodes = {
 } as const;
 
 /**
+ * Supported file extensions for tests
+ */
+const SUPPORTED_EXTENSIONS = ['.tsx', '.vue'] as const;
+
+/**
+ * Find the example file in a test directory
+ */
+function findExampleFile(testDir: string): string | null {
+	for (const ext of SUPPORTED_EXTENSIONS) {
+		const filePath = path.join(testDir, `example${ext}`);
+		if (fs.existsSync(filePath)) {
+			return filePath;
+		}
+	}
+	return null;
+}
+
+/**
  * Run the plugin on a test folder.
  *
  * The folder should contain:
- * - example.tsx: The component to test
+ * - example.tsx or example.vue: The component to test
  * - tsconfig.json: Plugin configuration
  * - global.css: Tailwind CSS configuration
  *
  * @param testDir - The directory containing the test files (use __dirname)
  */
 export async function runPlugin(testDir: string): Promise<RunPluginResult> {
-	const exampleFile = path.join(testDir, 'example.tsx');
+	const exampleFile = findExampleFile(testDir);
 	const tsconfigFile = path.join(testDir, 'tsconfig.json');
 	const globalCssFile = path.join(testDir, 'global.css');
 
 	// Validate required files exist
-	if (!fs.existsSync(exampleFile)) {
-		throw new Error(`Missing example.tsx in ${testDir}`);
+	if (!exampleFile) {
+		throw new Error(`Missing example.tsx or example.vue in ${testDir}`);
 	}
 	if (!fs.existsSync(tsconfigFile)) {
 		throw new Error(`Missing tsconfig.json in ${testDir}`);

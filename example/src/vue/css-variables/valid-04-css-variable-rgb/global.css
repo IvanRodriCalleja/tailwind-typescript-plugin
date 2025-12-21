@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+:root {
+  --card-bg: #1e293b;
+  --primary-color: #3b82f6;
+  --secondary-color: #10b981;
+  --custom-size: 2rem;
+  --custom-width: 300px;
+  --custom-height: 200px;
+  --custom-padding: 1.5rem;
+  --custom-margin: 1rem;
+  --custom-radius: 0.5rem;
+}

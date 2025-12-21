@@ -1,0 +1,14 @@
+<script setup lang="ts">
+import { clsx } from 'clsx';
+
+const hasError = false;
+
+// ✅ Valid: Array value with binary expressions
+// @validClasses [flex, items-center, text-red-500]
+</script>
+
+<template>
+  <div :class="clsx({ flex: ['items-center', hasError && 'text-red-500'] })">
+  			Array with binary
+  		</div>
+</template>

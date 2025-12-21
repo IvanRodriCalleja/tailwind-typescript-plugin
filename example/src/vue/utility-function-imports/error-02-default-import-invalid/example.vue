@@ -1,0 +1,12 @@
+<script setup lang="ts">
+import styles from 'my-styles-pkg';
+
+// ❌ Invalid: Default import from correct package with invalid class
+// @utilityFunctions [{"name": "styles", "from": "my-styles-pkg"}]
+// @invalidClasses [not-a-valid-class]
+// @validClasses [p-4]
+</script>
+
+<template>
+  <div :class="styles('p-4', 'not-a-valid-class')">Default import with invalid class</div>
+</template>
