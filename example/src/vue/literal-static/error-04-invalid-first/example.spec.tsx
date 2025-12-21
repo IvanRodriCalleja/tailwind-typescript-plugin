@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('literal-static', () => {
+describe('[Vue] literal-static', () => {
 	describe('error-04-invalid-first', () => {
 		it('❌ Invalid: Invalid class at the beginning', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

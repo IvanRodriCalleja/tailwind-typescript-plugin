@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('function-ternary', () => {
+describe('[Vue] function-ternary', () => {
 	describe('valid-14-ternary-with-null-result', () => {
 		it('✅ Valid: Ternary with null/undefined (ignored)', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

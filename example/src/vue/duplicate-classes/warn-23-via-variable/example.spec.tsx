@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('duplicate-classes', () => {
+describe('[Vue] duplicate-classes', () => {
 	describe('warn-23-via-variable', () => {
 		it('⚠️ Warning: Duplicate via variable - variable contains duplicate of base', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-array-values', () => {
+describe('[Vue] object-array-values', () => {
 	describe('valid-07-empty-array', () => {
 		it('✅ Valid: Empty array as value', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

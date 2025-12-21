@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-array-values', () => {
+describe('[Vue] object-array-values', () => {
 	describe('error-01-invalid-in-array', () => {
 		it('❌ Invalid: Object with array value, invalid class in array', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

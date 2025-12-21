@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-ternary', () => {
+describe('[Vue] expression-ternary', () => {
 	describe('error-12-self-closing-ternary-invalid', () => {
 		it('❌ Invalid: Self-closing element with invalid in ternary', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('function-binary', () => {
+describe('[Vue] function-binary', () => {
 	describe('error-03-multiple-binary-args-invalid', () => {
 		it('❌ Invalid: Multiple binary arguments with invalid classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('cva-duplicate-classes', () => {
+describe('[Vue] cva-duplicate-classes', () => {
 	describe('warn-01-duplicate-in-base-string', () => {
 		it('⚠️ should detect duplicate classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-array-values', () => {
+describe('[Vue] object-array-values', () => {
 	describe('error-08-invalid-deeply-nested', () => {
 		it('❌ Invalid: Deeply nested arrays with invalid', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

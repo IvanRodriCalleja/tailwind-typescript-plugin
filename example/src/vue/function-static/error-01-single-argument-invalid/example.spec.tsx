@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('function-static', () => {
+describe('[Vue] function-static', () => {
 	describe('error-01-single-argument-invalid', () => {
 		it('❌ Invalid: Single argument with invalid class', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

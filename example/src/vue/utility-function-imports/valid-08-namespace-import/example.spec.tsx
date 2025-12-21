@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('utility-function-imports', () => {
+describe('[Vue] utility-function-imports', () => {
 	describe('valid-08-namespace-import', () => {
 		it('✅ valid 08 namespace import', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('mixed-complex', () => {
+describe('[Vue] mixed-complex', () => {
 	describe('error-02-mixed-strings-binary-arrays-invalid-nested', () => {
 		it('❌ Invalid: Mix with invalid in nested array', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

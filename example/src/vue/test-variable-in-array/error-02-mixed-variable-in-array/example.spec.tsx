@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('test-variable-in-array', () => {
+describe('[Vue] test-variable-in-array', () => {
 	describe('error-02-mixed-variable-in-array', () => {
 		it('❌ error 02 mixed variable in array', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

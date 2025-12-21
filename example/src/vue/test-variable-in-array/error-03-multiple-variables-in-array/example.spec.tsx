@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('test-variable-in-array', () => {
+describe('[Vue] test-variable-in-array', () => {
 	describe('error-03-multiple-variables-in-array', () => {
 		it('❌ error 03 multiple variables in array', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

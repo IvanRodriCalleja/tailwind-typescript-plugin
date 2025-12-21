@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('function-binary', () => {
+describe('[Vue] function-binary', () => {
 	describe('valid-11-nested-functions-with-binary', () => {
 		it('✅ Valid: Nested functions with binary expressions', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('cva-class-override', () => {
+describe('[Vue] cva-class-override', () => {
 	describe('valid-06-multiple-variants-with-override', () => {
 		it('✅ should not report errors', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

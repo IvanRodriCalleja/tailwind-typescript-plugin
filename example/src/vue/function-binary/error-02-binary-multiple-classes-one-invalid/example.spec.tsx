@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('function-binary', () => {
+describe('[Vue] function-binary', () => {
 	describe('error-02-binary-multiple-classes-one-invalid', () => {
 		it('❌ Invalid: Function with binary expression with multiple classes, one invalid', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

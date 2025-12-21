@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-variable', () => {
+describe('[Vue] template-variable', () => {
 	describe('valid-12-dark-mode-variants', () => {
 		it('✅ Valid: Dark mode variants with interpolation', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-nested', () => {
+describe('[Vue] array-nested', () => {
 	describe('error-02-two-groups-invalid-second', () => {
 		it(`❌ Invalid: Two nested arrays, invalid in second`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

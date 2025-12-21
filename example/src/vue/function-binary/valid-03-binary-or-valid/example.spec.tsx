@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('function-binary', () => {
+describe('[Vue] function-binary', () => {
 	describe('valid-03-binary-or-valid', () => {
 		it('✅ Valid: Function with OR binary expression', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

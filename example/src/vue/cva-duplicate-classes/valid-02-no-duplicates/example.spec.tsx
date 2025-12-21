@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('cva-duplicate-classes', () => {
+describe('[Vue] cva-duplicate-classes', () => {
 	describe('valid-02-no-duplicates', () => {
 		it('✅ should not report errors', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

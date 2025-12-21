@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes-patterns', () => {
+describe('[Vue] allowed-classes-patterns', () => {
 	describe('valid-07-exact-match', () => {
 		it(`✅ Valid: Exact match still works alongside patterns`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

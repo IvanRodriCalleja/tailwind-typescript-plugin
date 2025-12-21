@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-static', () => {
+describe('[Vue] expression-static', () => {
 	describe('valid-04-extra-spaces', () => {
 		it('✅ Valid: Classes with extra spaces', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

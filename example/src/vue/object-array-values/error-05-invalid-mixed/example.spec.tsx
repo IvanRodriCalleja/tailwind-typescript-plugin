@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-array-values', () => {
+describe('[Vue] object-array-values', () => {
 	describe('error-05-invalid-mixed', () => {
 		it('❌ Invalid: Mix of boolean and array values with invalid', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

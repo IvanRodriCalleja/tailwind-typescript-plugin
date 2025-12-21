@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('cva-static', () => {
+describe('[Vue] cva-static', () => {
 	describe('error-03-variants-array', () => {
 		it('❌ should detect invalid classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

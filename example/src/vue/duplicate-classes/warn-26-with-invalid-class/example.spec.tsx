@@ -5,7 +5,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('duplicate-classes', () => {
+describe('[Vue] duplicate-classes', () => {
 	describe('warn-26-with-invalid-class', () => {
 		it('❌⚠️ Both invalid class error AND duplicate warning', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('function-binary', () => {
+describe('[Vue] function-binary', () => {
 	describe('error-10-binary-and-ternary-invalid', () => {
 		it('❌ Invalid: Binary and ternary with invalid classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

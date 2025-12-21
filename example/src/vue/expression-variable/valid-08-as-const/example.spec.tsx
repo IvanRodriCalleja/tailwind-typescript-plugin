@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-variable', () => {
+describe('[Vue] expression-variable', () => {
 	describe('valid-08-as-const', () => {
 		it('✅ Valid: Variable with as const assertion', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('tv-class-override', () => {
+describe('[Vue] tv-class-override', () => {
 	describe('valid-04-utility-function-not-validated-2', () => {
 		it('✅ valid 04 utility function not validated 2', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

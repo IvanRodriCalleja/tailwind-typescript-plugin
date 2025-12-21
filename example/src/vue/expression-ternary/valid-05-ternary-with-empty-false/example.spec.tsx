@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-ternary', () => {
+describe('[Vue] expression-ternary', () => {
 	describe('valid-05-ternary-with-empty-false', () => {
 		it('✅ Valid: Ternary with empty string in false branch', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

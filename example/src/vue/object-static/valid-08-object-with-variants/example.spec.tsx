@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-static', () => {
+describe('[Vue] object-static', () => {
 	describe('valid-08-object-with-variants', () => {
 		it('✅ Valid: Object with variants', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

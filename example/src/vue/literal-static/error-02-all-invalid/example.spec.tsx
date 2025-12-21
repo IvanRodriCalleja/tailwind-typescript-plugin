@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('literal-static', () => {
+describe('[Vue] literal-static', () => {
 	describe('error-02-all-invalid', () => {
 		it('❌ Invalid: All classes are invalid', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

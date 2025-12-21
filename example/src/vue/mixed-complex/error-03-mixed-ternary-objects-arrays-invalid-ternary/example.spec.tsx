@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('mixed-complex', () => {
+describe('[Vue] mixed-complex', () => {
 	describe('error-03-mixed-ternary-objects-arrays-invalid-ternary', () => {
 		it('❌ Invalid: Mix with invalid in ternary', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

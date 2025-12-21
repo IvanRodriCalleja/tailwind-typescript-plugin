@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes-patterns', () => {
+describe('[Vue] allowed-classes-patterns', () => {
 	describe('error-02-wrong-prefix', () => {
 		it("❌ Invalid: Wrong prefix - mycustom doesn't match custom-*", async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

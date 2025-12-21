@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-parenthesized', () => {
+describe('[Vue] expression-parenthesized', () => {
 	describe('error-03-parenthesized-ternary-invalid', () => {
 		it('❌ Invalid: Parenthesized ternary with invalid class', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

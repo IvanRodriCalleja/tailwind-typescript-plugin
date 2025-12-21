@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('error-09-array-with-arbitrary-and-invalid', () => {
 		it(`❌ Invalid: Array with mix of arbitrary and invalid`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

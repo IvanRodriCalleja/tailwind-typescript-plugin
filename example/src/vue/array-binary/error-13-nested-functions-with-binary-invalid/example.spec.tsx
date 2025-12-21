@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-binary', () => {
+describe('[Vue] array-binary', () => {
 	describe('error-13-nested-functions-with-binary-invalid', () => {
 		it(`❌ Invalid: Nested functions with invalid binary in array`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

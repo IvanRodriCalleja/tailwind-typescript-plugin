@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes', () => {
+describe('[Vue] allowed-classes', () => {
 	describe('error-01-not-allowed-class', () => {
 		it('❌ Invalid: Custom class NOT in allowed list', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

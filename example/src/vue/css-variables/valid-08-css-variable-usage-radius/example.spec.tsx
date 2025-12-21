@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('css-variables', () => {
+describe('[Vue] css-variables', () => {
 	describe('valid-08-css-variable-usage-radius', () => {
 		it('✅ should not report errors', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

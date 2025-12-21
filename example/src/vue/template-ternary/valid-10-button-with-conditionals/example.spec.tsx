@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-ternary', () => {
+describe('[Vue] template-ternary', () => {
 	describe('valid-10-button-with-conditionals', () => {
 		it('✅ Valid: Button-like component with multiple conditionals', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

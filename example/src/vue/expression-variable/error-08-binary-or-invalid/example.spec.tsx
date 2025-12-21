@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-variable', () => {
+describe('[Vue] expression-variable', () => {
 	describe('error-08-binary-or-invalid', () => {
 		it('❌ Invalid: Variable assigned from binary OR expression with invalid', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

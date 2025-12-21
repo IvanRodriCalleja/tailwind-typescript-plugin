@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('duplicate-classes', () => {
+describe('[Vue] duplicate-classes', () => {
 	describe('warn-24-via-multiple-variables', () => {
 		it('⚠️ Warning: Duplicate via multiple variables', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

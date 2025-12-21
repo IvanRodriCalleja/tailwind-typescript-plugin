@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('jsx/class-attributes', () => {
+describe('[Vue] jsx/class-attributes', () => {
 	describe('valid-05-multiple-custom-attributes', () => {
 		it('should validate multiple different custom attributes on same element', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

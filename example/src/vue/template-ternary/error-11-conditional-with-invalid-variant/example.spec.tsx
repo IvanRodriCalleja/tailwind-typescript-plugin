@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-ternary', () => {
+describe('[Vue] template-ternary', () => {
 	describe('error-11-conditional-with-invalid-variant', () => {
 		it('❌ Invalid: Conditional with invalid variant', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

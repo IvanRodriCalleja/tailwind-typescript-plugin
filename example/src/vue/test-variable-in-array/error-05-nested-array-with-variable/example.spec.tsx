@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('test-variable-in-array', () => {
+describe('[Vue] test-variable-in-array', () => {
 	describe('error-05-nested-array-with-variable', () => {
 		it('❌ error 05 nested array with variable', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

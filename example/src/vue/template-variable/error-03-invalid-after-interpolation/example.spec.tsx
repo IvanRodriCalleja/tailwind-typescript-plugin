@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-variable', () => {
+describe('[Vue] template-variable', () => {
 	describe('error-03-invalid-after-interpolation', () => {
 		it('❌ Invalid: Template literal with interpolation, invalid class after interpolation', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

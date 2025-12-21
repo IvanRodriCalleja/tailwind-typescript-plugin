@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('test-spread-operator', () => {
+describe('[Vue] test-spread-operator', () => {
 	describe('valid-03-multiple-spreads', () => {
 		it('✅ valid 03 multiple spreads', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

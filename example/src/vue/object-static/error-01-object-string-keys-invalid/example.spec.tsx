@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-static', () => {
+describe('[Vue] object-static', () => {
 	describe('error-01-object-string-keys-invalid', () => {
 		it('❌ Invalid: Object with string literal key, invalid class', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -353,6 +353,9 @@ function convertSpecFile(content, category) {
 	// Replace sourceCode with generatedCode (for Vue diagnostics)
 	newContent = newContent.replace(/sourceCode/g, 'generatedCode');
 
+	// Add [Vue] prefix to the first describe block to differentiate from JSX tests
+	newContent = newContent.replace(/describe\('([^']+)'/, "describe('[Vue] $1'");
+
 	return newContent;
 }
 

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('duplicate-classes', () => {
+describe('[Vue] duplicate-classes', () => {
 	describe('valid-01-unique-classes', () => {
 		it('✅ Valid: No duplicates - all unique classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('tv-static', () => {
+describe('[Vue] tv-static', () => {
 	describe('error-02-variants', () => {
 		it('❌ error 02 variants', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

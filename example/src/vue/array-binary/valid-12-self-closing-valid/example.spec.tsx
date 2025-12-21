@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-binary', () => {
+describe('[Vue] array-binary', () => {
 	describe('valid-12-self-closing-valid', () => {
 		it(`✅ Valid: Self-closing with binary in array`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

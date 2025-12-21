@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-parenthesized', () => {
+describe('[Vue] expression-parenthesized', () => {
 	describe('error-07-type-assertion-mixed', () => {
 		it('❌ Invalid: Type assertion with mixed classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

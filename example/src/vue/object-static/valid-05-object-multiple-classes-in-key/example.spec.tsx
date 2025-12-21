@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-static', () => {
+describe('[Vue] object-static', () => {
 	describe('valid-05-object-multiple-classes-in-key', () => {
 		it('✅ Valid: Object key with multiple classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

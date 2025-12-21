@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-variable', () => {
+describe('[Vue] template-variable', () => {
 	describe('valid-03-multiple-interpolations-all-valid', () => {
 		it('✅ Valid: Multiple interpolations with valid static classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

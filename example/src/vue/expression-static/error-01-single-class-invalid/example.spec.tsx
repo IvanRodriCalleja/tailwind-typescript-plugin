@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-static', () => {
+describe('[Vue] expression-static', () => {
 	describe('error-01-single-class-invalid', () => {
 		it('❌ Invalid: Single invalid class', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

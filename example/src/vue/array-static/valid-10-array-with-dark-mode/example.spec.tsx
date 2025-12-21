@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('valid-10-array-with-dark-mode', () => {
 		it(`✅ Valid: Array with dark mode variants`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

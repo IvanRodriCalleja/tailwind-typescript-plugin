@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('duplicate-classes', () => {
+describe('[Vue] duplicate-classes', () => {
 	describe('valid-05-same-class-different-elements', () => {
 		it('✅ Valid: Same class in different elements', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

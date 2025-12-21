@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('utility-function-imports', () => {
+describe('[Vue] utility-function-imports', () => {
 	describe('error-01-invalid-class-with-correct-import', () => {
 		it('❌ error 01 invalid class with correct import', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

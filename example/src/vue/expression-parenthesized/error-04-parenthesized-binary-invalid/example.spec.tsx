@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-parenthesized', () => {
+describe('[Vue] expression-parenthesized', () => {
 	describe('error-04-parenthesized-binary-invalid', () => {
 		it('❌ Invalid: Parenthesized binary with invalid class', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

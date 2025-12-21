@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('tv-duplicate-classes', () => {
+describe('[Vue] tv-duplicate-classes', () => {
 	describe('warn-01-duplicate-in-base', () => {
 		it('⚠️ warn 01 duplicate in base', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

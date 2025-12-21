@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-ternary', () => {
+describe('[Vue] array-ternary', () => {
 	describe('error-09-invalid-variant', () => {
 		it(`❌ Invalid: Ternary with invalid variant in array`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

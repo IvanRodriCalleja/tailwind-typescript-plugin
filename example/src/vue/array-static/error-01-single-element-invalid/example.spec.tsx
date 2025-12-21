@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('error-01-single-element-invalid', () => {
 		it(`❌ Invalid: Single element array with invalid class`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

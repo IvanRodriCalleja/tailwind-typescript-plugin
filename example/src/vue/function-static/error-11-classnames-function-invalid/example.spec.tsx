@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('function-static', () => {
+describe('[Vue] function-static', () => {
 	describe('error-11-classnames-function-invalid', () => {
 		it('❌ Invalid: Using classNames() function with invalid class', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

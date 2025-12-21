@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-variable', () => {
+describe('[Vue] expression-variable', () => {
 	describe('valid-05-binary-and', () => {
 		it('✅ Valid: Variable assigned from binary AND expression', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

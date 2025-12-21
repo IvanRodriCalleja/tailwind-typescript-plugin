@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-ternary', () => {
+describe('[Vue] expression-ternary', () => {
 	describe('valid-02-nested-ternary-valid', () => {
 		it('✅ Valid: Nested ternary expressions', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

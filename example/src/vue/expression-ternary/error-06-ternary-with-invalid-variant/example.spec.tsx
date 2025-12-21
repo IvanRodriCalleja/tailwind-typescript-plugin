@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-ternary', () => {
+describe('[Vue] expression-ternary', () => {
 	describe('error-06-ternary-with-invalid-variant', () => {
 		it('❌ Invalid: Ternary with invalid variant', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

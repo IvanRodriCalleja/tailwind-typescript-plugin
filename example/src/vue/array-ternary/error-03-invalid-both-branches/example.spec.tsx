@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-ternary', () => {
+describe('[Vue] array-ternary', () => {
 	describe('error-03-invalid-both-branches', () => {
 		it(`❌ Invalid: Array with ternary, invalid in both branches`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

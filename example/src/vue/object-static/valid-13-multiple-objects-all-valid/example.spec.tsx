@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-static', () => {
+describe('[Vue] object-static', () => {
 	describe('valid-13-multiple-objects-all-valid', () => {
 		it('✅ Valid: Multiple objects, all valid', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

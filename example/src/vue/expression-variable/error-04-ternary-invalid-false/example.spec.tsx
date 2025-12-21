@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-variable', () => {
+describe('[Vue] expression-variable', () => {
 	describe('error-04-ternary-invalid-false', () => {
 		it('❌ Invalid: Variable assigned from ternary with invalid in false branch', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

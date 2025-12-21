@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('valid-15-array-with-static-strings', () => {
 		it(`✅ Valid: Array with static strings in function`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

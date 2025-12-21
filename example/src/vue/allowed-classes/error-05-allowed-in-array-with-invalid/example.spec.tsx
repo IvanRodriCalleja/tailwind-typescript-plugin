@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes', () => {
+describe('[Vue] allowed-classes', () => {
 	describe('error-05-allowed-in-array-with-invalid', () => {
 		it('❌ Invalid: Mix of allowed and invalid in array', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('function-static', () => {
+describe('[Vue] function-static', () => {
 	describe('valid-20-random-function-not-validated', () => {
 		it('✅ Valid: Another unknown function with invalid classes (ignored)', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

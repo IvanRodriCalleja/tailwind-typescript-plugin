@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-ternary', () => {
+describe('[Vue] array-ternary', () => {
 	describe('error-06-multiple-ternary-mixed', () => {
 		it(`❌ Invalid: Mix of valid and invalid ternary in array`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

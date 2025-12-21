@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes', () => {
+describe('[Vue] allowed-classes', () => {
 	describe('error-06-allowed-in-object-with-invalid', () => {
 		it('❌ Invalid: Invalid class as object key with allowed classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-variable', () => {
+describe('[Vue] template-variable', () => {
 	describe('error-08-invalid-variant', () => {
 		it('❌ Invalid: Invalid variant with interpolation', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

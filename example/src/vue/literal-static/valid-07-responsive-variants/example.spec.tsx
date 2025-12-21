@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('literal-static', () => {
+describe('[Vue] literal-static', () => {
 	describe('valid-07-responsive-variants', () => {
 		it('✅ Valid: Responsive variants', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

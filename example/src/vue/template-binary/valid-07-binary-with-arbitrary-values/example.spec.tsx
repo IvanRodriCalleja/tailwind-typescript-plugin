@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-binary', () => {
+describe('[Vue] template-binary', () => {
 	describe('valid-07-binary-with-arbitrary-values', () => {
 		it('✅ Valid: Binary expression with arbitrary values', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

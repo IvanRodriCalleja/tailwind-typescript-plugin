@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-binary', () => {
+describe('[Vue] expression-binary', () => {
 	describe('error-06-binary-with-arbitrary-and-invalid', () => {
 		it('❌ Invalid: Binary with mix of arbitrary and invalid', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

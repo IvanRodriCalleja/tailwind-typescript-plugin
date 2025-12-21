@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-ternary', () => {
+describe('[Vue] expression-ternary', () => {
 	describe('valid-08-complex-condition-valid', () => {
 		it('✅ Valid: Ternary with complex condition', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

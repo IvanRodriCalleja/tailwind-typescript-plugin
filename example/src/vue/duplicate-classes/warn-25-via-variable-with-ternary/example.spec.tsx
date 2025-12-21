@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('duplicate-classes', () => {
+describe('[Vue] duplicate-classes', () => {
 	describe('warn-25-via-variable-with-ternary', () => {
 		it("⚠️ Warning: Variable contains ternary - root 'flex' + variable's 'flex' = duplicate", async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

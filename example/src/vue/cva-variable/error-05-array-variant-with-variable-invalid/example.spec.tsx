@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('cva-variable', () => {
+describe('[Vue] cva-variable', () => {
 	describe('error-05-array-variant-with-variable-invalid', () => {
 		it('❌ should detect invalid classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

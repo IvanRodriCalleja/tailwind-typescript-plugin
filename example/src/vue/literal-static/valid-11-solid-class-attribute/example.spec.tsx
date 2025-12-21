@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('literal-static', () => {
+describe('[Vue] literal-static', () => {
 	describe('valid-11-solid-class-attribute', () => {
 		it('✅ Valid: Solid.js using class attribute instead of className', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

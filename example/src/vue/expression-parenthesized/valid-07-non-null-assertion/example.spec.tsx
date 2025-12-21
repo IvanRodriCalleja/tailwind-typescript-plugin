@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-parenthesized', () => {
+describe('[Vue] expression-parenthesized', () => {
 	describe('valid-07-non-null-assertion', () => {
 		it('✅ Valid: Non-null assertion', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

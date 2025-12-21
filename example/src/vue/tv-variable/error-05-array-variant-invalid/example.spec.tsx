@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('tv-variable', () => {
+describe('[Vue] tv-variable', () => {
 	describe('error-05-array-variant-invalid', () => {
 		it('❌ error 05 array variant invalid', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

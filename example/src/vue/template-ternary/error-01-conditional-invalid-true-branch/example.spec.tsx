@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-ternary', () => {
+describe('[Vue] template-ternary', () => {
 	describe('error-01-conditional-invalid-true-branch', () => {
 		it('❌ Invalid: Conditional with invalid class in true branch', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

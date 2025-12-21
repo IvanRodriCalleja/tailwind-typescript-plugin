@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('tv-variable', () => {
+describe('[Vue] tv-variable', () => {
 	describe('error-03-variant-variable-invalid', () => {
 		it('❌ error 03 variant variable invalid', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

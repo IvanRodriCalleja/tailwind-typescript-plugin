@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes', () => {
+describe('[Vue] allowed-classes', () => {
 	describe('error-03-allowed-with-clsx-invalid', () => {
 		it('❌ Invalid: Mix of allowed and invalid in clsx', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

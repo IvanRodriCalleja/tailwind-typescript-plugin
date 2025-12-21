@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-ternary', () => {
+describe('[Vue] template-ternary', () => {
 	describe('error-07-nested-conditional-invalid-inner', () => {
 		it('❌ Invalid: Nested conditional with invalid class in inner branch', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

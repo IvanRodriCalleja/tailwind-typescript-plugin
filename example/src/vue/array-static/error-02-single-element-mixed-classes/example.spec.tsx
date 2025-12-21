@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('error-02-single-element-mixed-classes', () => {
 		it(`❌ Invalid: Single element with mix of valid and invalid`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

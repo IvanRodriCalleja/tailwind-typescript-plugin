@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-nested', () => {
+describe('[Vue] array-nested', () => {
 	describe('valid-07-with-arbitrary', () => {
 		it(`✅ Valid: Nested arrays with arbitrary values`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

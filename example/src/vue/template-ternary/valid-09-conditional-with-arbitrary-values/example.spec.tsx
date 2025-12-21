@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-ternary', () => {
+describe('[Vue] template-ternary', () => {
 	describe('valid-09-conditional-with-arbitrary-values', () => {
 		it('✅ Valid: Conditional with arbitrary values', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-variable', () => {
+describe('[Vue] expression-variable', () => {
 	describe('error-11-parenthesized-invalid', () => {
 		it('❌ Invalid: Variable with parenthesized expression containing invalid', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

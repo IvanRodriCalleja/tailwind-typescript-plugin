@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('function-ternary', () => {
+describe('[Vue] function-ternary', () => {
 	describe('valid-02-multiple-ternary-args', () => {
 		it('✅ Valid: Multiple arguments with ternary expressions, all valid', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

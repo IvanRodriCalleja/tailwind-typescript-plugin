@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-array-values', () => {
+describe('[Vue] object-array-values', () => {
 	describe('error-12-invalid-nested-functions', () => {
 		it('❌ Invalid: Nested function calls with invalid in object array value', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

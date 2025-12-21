@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('mixed-complex', () => {
+describe('[Vue] mixed-complex', () => {
 	describe('error-08-multiple-objects-mixed-nesting-invalid', () => {
 		it('❌ Invalid: Multiple objects mixed nesting with invalid', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

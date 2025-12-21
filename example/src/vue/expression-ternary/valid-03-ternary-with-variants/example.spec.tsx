@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-ternary', () => {
+describe('[Vue] expression-ternary', () => {
 	describe('valid-03-ternary-with-variants', () => {
 		it('✅ Valid: Ternary with Tailwind variants', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

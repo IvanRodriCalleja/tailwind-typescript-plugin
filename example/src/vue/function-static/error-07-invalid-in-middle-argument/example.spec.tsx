@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('function-static', () => {
+describe('[Vue] function-static', () => {
 	describe('error-07-invalid-in-middle-argument', () => {
 		it('❌ Invalid: Invalid class in middle argument', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

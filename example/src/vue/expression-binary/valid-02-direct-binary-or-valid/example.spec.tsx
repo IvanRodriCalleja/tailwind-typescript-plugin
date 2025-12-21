@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-binary', () => {
+describe('[Vue] expression-binary', () => {
 	describe('valid-02-direct-binary-or-valid', () => {
 		it('✅ Valid: Direct OR binary expression', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

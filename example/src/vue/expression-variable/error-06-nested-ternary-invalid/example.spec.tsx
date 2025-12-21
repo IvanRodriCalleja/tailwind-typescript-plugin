@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-variable', () => {
+describe('[Vue] expression-variable', () => {
 	describe('error-06-nested-ternary-invalid', () => {
 		it('❌ Invalid: Nested ternary with invalid class in nested branch', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

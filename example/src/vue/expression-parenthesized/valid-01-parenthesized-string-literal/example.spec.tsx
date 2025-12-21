@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-parenthesized', () => {
+describe('[Vue] expression-parenthesized', () => {
 	describe('valid-01-parenthesized-string-literal', () => {
 		it('✅ Valid: Parenthesized string literal', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-ternary', () => {
+describe('[Vue] array-ternary', () => {
 	describe('error-08-nested-ternary-invalid', () => {
 		it(`❌ Invalid: Nested ternary with invalid class`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

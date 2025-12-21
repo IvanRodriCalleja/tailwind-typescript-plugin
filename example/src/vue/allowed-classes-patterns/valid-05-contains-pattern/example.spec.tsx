@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes-patterns', () => {
+describe('[Vue] allowed-classes-patterns', () => {
 	describe('valid-05-contains-pattern', () => {
 		it(`✅ Valid: Contains pattern *-component-* matches app-component-header`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

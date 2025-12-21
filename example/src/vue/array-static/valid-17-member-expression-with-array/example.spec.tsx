@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('valid-17-member-expression-with-array', () => {
 		it(`✅ Valid: Member expression with array`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

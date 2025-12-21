@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('function-static', () => {
+describe('[Vue] function-static', () => {
 	describe('valid-15-member-expression-valid', () => {
 		it('✅ Valid: Member expression with valid classes', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

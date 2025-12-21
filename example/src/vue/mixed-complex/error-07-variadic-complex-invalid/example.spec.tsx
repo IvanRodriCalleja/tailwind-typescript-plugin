@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('mixed-complex', () => {
+describe('[Vue] mixed-complex', () => {
 	describe('error-07-variadic-complex-invalid', () => {
 		it('❌ Invalid: Variadic complex with invalid', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

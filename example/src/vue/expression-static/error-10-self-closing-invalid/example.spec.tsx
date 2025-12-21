@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-static', () => {
+describe('[Vue] expression-static', () => {
 	describe('error-10-self-closing-invalid', () => {
 		it('❌ Invalid: Self-closing element with invalid class', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

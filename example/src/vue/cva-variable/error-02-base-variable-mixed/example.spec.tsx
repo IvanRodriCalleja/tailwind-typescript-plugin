@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('cva-variable', () => {
+describe('[Vue] cva-variable', () => {
 	describe('error-02-base-variable-mixed', () => {
 		it('❌ should detect invalid classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('valid-07-array-with-arbitrary-values', () => {
 		it(`✅ Valid: Array with arbitrary values`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

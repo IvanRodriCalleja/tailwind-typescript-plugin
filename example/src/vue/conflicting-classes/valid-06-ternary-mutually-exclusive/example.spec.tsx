@@ -1,6 +1,6 @@
 import { getClassNamesFromDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('conflicting-classes', () => {
+describe('[Vue] conflicting-classes', () => {
 	describe('valid-06-ternary-mutually-exclusive', () => {
 		it('✅ should not report errors', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

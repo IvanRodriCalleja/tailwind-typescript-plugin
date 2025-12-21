@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-static', () => {
+describe('[Vue] object-static', () => {
 	describe('valid-12-object-in-classnames-function', () => {
 		it('✅ Valid: Object in classNames() function', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

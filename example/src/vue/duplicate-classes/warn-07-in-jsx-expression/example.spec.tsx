@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('duplicate-classes', () => {
+describe('[Vue] duplicate-classes', () => {
 	describe('warn-07-in-jsx-expression', () => {
 		it('⚠️ Warning: Duplicate in JSX expression string', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

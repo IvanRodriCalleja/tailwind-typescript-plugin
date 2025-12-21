@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-ternary', () => {
+describe('[Vue] template-ternary', () => {
 	describe('error-14-self-closing-invalid-conditional', () => {
 		it('❌ Invalid: Self-closing element with invalid class in conditional', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

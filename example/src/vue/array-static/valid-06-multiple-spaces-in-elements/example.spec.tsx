@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('valid-06-multiple-spaces-in-elements', () => {
 		it(`✅ Valid: Elements with multiple spaces`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

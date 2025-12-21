@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes-patterns', () => {
+describe('[Vue] allowed-classes-patterns', () => {
 	describe('valid-09-multiple-patterns', () => {
 		it(`✅ Valid: Multiple pattern matches in one element`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

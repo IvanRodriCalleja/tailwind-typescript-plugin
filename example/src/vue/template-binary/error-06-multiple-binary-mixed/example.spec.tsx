@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-binary', () => {
+describe('[Vue] template-binary', () => {
 	describe('error-06-multiple-binary-mixed', () => {
 		it('❌ Invalid: Mix of valid and invalid binary expressions', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

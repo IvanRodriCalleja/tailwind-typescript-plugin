@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-array-values', () => {
+describe('[Vue] object-array-values', () => {
 	describe('valid-08-array-with-variants', () => {
 		it('✅ Valid: Array with Tailwind variants', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

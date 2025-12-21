@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('function-static', () => {
+describe('[Vue] function-static', () => {
 	describe('valid-03-multiple-arguments-all-valid', () => {
 		it('✅ Valid: Multiple arguments with valid classes', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

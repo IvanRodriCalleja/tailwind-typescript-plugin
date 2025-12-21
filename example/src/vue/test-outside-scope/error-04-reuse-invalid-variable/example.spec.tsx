@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('test-outside-scope', () => {
+describe('[Vue] test-outside-scope', () => {
 	describe('error-04-reuse-invalid-variable', () => {
 		it('❌ should report invalid-outside-class in reused variable', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

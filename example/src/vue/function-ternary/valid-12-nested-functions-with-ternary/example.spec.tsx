@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('function-ternary', () => {
+describe('[Vue] function-ternary', () => {
 	describe('valid-12-nested-functions-with-ternary', () => {
 		it('✅ Valid: Nested functions with ternary expressions', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

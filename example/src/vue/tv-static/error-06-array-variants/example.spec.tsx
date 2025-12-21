@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('tv-static', () => {
+describe('[Vue] tv-static', () => {
 	describe('error-06-array-variants', () => {
 		it('❌ error 06 array variants', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

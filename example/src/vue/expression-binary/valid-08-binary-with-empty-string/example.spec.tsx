@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('expression-binary', () => {
+describe('[Vue] expression-binary', () => {
 	describe('valid-08-binary-with-empty-string', () => {
 		it('✅ Valid: Binary with empty string (no classes to validate)', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

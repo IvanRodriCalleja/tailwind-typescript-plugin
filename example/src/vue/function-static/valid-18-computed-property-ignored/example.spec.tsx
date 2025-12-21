@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('function-static', () => {
+describe('[Vue] function-static', () => {
 	describe('valid-18-computed-property-ignored', () => {
 		it('✅ Valid: Computed property (should be ignored, not validated)', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

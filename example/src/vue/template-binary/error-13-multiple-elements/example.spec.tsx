@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-binary', () => {
+describe('[Vue] template-binary', () => {
 	describe('error-13-multiple-elements', () => {
 		it('❌ should report invalid classes in multiple elements', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

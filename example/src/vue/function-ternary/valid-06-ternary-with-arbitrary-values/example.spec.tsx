@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('function-ternary', () => {
+describe('[Vue] function-ternary', () => {
 	describe('valid-06-ternary-with-arbitrary-values', () => {
 		it('✅ Valid: Ternary with arbitrary values', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('tv-static', () => {
+describe('[Vue] tv-static', () => {
 	describe('valid-10-lite-variants', () => {
 		it('✅ valid 10 lite variants', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

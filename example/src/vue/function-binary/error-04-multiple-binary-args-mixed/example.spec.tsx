@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('function-binary', () => {
+describe('[Vue] function-binary', () => {
 	describe('error-04-multiple-binary-args-mixed', () => {
 		it('❌ Invalid: Mix of valid and invalid binary arguments', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

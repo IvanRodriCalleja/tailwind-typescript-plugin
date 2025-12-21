@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-variable', () => {
+describe('[Vue] template-variable', () => {
 	describe('valid-05-only-interpolation', () => {
 		it('✅ Valid: Empty static parts (only interpolation)', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

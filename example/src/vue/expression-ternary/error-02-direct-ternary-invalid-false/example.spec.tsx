@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-ternary', () => {
+describe('[Vue] expression-ternary', () => {
 	describe('error-02-direct-ternary-invalid-false', () => {
 		it('❌ Invalid: Direct ternary with invalid in false branch', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

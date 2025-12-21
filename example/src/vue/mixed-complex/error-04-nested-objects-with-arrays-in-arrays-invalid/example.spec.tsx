@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('mixed-complex', () => {
+describe('[Vue] mixed-complex', () => {
 	describe('error-04-nested-objects-with-arrays-in-arrays-invalid', () => {
 		it('❌ Invalid: Nested objects with arrays, invalid in nested array value', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

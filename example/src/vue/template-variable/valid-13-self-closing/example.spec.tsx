@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-variable', () => {
+describe('[Vue] template-variable', () => {
 	describe('valid-13-self-closing', () => {
 		it('✅ Valid: Self-closing element with template literal and interpolation', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

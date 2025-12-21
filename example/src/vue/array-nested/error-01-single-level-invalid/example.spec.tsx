@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-nested', () => {
+describe('[Vue] array-nested', () => {
 	describe('error-01-single-level-invalid', () => {
 		it(`❌ Invalid: Single level nested array, invalid class`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

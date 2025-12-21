@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-variable', () => {
+describe('[Vue] expression-variable', () => {
 	describe('valid-07-template-no-substitution', () => {
 		it('✅ Valid: Variable with no-substitution template literal', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

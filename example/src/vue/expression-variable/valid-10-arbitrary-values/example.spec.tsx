@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-variable', () => {
+describe('[Vue] expression-variable', () => {
 	describe('valid-10-arbitrary-values', () => {
 		it('✅ Valid: Variable with arbitrary values', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

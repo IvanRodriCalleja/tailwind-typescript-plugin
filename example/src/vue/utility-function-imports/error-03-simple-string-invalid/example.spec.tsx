@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('utility-function-imports', () => {
+describe('[Vue] utility-function-imports', () => {
 	describe('error-03-simple-string-invalid', () => {
 		it('❌ error 03 simple string invalid', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

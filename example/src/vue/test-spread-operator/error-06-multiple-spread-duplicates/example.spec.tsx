@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('test-spread-operator', () => {
+describe('[Vue] test-spread-operator', () => {
 	describe('error-06-multiple-spread-duplicates', () => {
 		it('⚠️ error 06 multiple spread duplicates', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

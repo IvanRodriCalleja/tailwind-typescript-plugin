@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('literal-static', () => {
+describe('[Vue] literal-static', () => {
 	describe('error-05-invalid-last', () => {
 		it('❌ Invalid: Invalid class at the end', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-variable', () => {
+describe('[Vue] expression-variable', () => {
 	describe('error-13-reused-invalid-first', () => {
 		it('❌ Invalid: Same invalid variable used multiple times - errors at declaration', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

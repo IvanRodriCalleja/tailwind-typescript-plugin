@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('duplicate-classes', () => {
+describe('[Vue] duplicate-classes', () => {
 	describe('warn-14-across-clsx-arguments', () => {
 		it('⚠️ Warning: Duplicate across clsx arguments', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

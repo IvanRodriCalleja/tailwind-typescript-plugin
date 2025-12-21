@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('error-04-multiple-elements-mixed', () => {
 		it('❌ should report invalid classes in multiple elements', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-ternary', () => {
+describe('[Vue] array-ternary', () => {
 	describe('error-13-complex-conditions', () => {
 		it(`❌ Invalid: Complex array with multiple conditions`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

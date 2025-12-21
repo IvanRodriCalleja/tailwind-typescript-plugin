@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-static', () => {
+describe('[Vue] expression-static', () => {
 	describe('valid-06-state-variants', () => {
 		it('✅ Valid: Classes with variants (hover, focus, etc.)', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

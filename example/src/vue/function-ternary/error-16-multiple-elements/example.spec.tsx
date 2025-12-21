@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('function-ternary', () => {
+describe('[Vue] function-ternary', () => {
 	describe('error-16-multiple-elements', () => {
 		it('❌ should report invalid classes in multiple elements', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

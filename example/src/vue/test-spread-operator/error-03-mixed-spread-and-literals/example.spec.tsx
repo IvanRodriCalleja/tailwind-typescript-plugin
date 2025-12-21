@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('test-spread-operator', () => {
+describe('[Vue] test-spread-operator', () => {
 	describe('error-03-mixed-spread-and-literals', () => {
 		it('❌ error 03 mixed spread and literals', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

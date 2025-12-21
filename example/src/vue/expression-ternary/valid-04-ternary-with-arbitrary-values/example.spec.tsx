@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-ternary', () => {
+describe('[Vue] expression-ternary', () => {
 	describe('valid-04-ternary-with-arbitrary-values', () => {
 		it('✅ Valid: Ternary with arbitrary values', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

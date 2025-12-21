@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('duplicate-classes', () => {
+describe('[Vue] duplicate-classes', () => {
 	describe('warn-08-in-template-literal', () => {
 		it('⚠️ Warning: Duplicate in template literal', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

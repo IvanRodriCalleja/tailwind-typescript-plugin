@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-array-values', () => {
+describe('[Vue] object-array-values', () => {
 	describe('valid-01-array-value', () => {
 		it('✅ Valid: Object with array value, all valid', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

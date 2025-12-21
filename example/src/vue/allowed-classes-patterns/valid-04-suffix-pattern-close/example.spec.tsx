@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes-patterns', () => {
+describe('[Vue] allowed-classes-patterns', () => {
 	describe('valid-04-suffix-pattern-close', () => {
 		it(`✅ Valid: Suffix pattern *-icon matches close-icon`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);
