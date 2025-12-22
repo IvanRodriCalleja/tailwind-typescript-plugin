@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('mixed-complex', () => {
+describe('[Vue] mixed-complex', () => {
 	describe('valid-08-multiple-objects-mixed-nesting', () => {
 		it('✅ Valid: Multiple objects with mixed nested structures', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

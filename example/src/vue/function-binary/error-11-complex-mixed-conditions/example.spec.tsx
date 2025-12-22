@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('function-binary', () => {
+describe('[Vue] function-binary', () => {
 	describe('error-11-complex-mixed-conditions', () => {
 		it('❌ Invalid: Complex mix with multiple conditions', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

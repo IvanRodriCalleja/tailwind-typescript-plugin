@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('error-05-invalid-in-first-element', () => {
 		it(`❌ Invalid: Invalid in first element`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('literal-static', () => {
+describe('[Vue] literal-static', () => {
 	describe('error-09-multiple-elements', () => {
 		it('❌ should report invalid classes in multiple elements', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

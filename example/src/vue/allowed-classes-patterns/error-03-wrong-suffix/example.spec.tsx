@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes-patterns', () => {
+describe('[Vue] allowed-classes-patterns', () => {
 	describe('error-03-wrong-suffix', () => {
 		it("❌ Invalid: Wrong suffix - icons doesn't match *-icon", async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

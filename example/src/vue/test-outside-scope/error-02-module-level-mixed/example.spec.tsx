@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('test-outside-scope', () => {
+describe('[Vue] test-outside-scope', () => {
 	describe('error-02-module-level-mixed', () => {
 		it('❌ should report invalid-mixed-outside but not valid classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

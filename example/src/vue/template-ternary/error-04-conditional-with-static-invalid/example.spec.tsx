@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-ternary', () => {
+describe('[Vue] template-ternary', () => {
 	describe('error-04-conditional-with-static-invalid', () => {
 		it('❌ Invalid: Conditional with static invalid class before conditional', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

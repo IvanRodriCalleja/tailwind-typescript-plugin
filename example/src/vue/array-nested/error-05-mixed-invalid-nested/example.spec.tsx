@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-nested', () => {
+describe('[Vue] array-nested', () => {
 	describe('error-05-mixed-invalid-nested', () => {
 		it(`❌ Invalid: Mixed flat and nested, invalid in nested`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

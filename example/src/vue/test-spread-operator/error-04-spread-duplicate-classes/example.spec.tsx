@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('test-spread-operator', () => {
+describe('[Vue] test-spread-operator', () => {
 	describe('error-04-spread-duplicate-classes', () => {
 		it('⚠️ error 04 spread duplicate classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

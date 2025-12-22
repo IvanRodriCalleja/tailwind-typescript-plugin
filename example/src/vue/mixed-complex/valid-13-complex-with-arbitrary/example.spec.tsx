@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('mixed-complex', () => {
+describe('[Vue] mixed-complex', () => {
 	describe('valid-13-complex-with-arbitrary', () => {
 		it('✅ Valid: With arbitrary values in complex nesting', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

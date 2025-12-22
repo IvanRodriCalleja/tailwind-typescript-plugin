@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('function-static', () => {
+describe('[Vue] function-static', () => {
 	describe('error-06-invalid-in-last-argument', () => {
 		it('❌ Invalid: Invalid class in last argument', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

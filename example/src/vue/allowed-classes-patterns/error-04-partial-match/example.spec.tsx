@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes-patterns', () => {
+describe('[Vue] allowed-classes-patterns', () => {
 	describe('error-04-partial-match', () => {
 		it("❌ Invalid: exact-match-extra doesn't match exact-match (exact matches are exact)", async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('mixed-complex', () => {
+describe('[Vue] mixed-complex', () => {
 	describe('error-11-nested-functions-complex-invalid', () => {
 		it('❌ should report invalid-nested-fn in nested function calls', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

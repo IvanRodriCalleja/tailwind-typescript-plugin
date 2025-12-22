@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-ternary', () => {
+describe('[Vue] array-ternary', () => {
 	describe('valid-15-null-result', () => {
 		it(`✅ Valid: Ternary with null result in array (ignored)`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

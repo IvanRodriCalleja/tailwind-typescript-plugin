@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('function-ternary', () => {
+describe('[Vue] function-ternary', () => {
 	describe('error-15-nested-functions-with-ternary-invalid', () => {
 		it('❌ Invalid: Nested functions with invalid in ternary', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

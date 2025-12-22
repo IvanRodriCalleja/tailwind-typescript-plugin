@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-array-values', () => {
+describe('[Vue] object-array-values', () => {
 	describe('valid-02-multiple-array-values', () => {
 		it('✅ Valid: Multiple properties with array values', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

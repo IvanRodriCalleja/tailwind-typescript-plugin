@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('test-outside-scope', () => {
+describe('[Vue] test-outside-scope', () => {
 	describe('error-01-module-level-invalid', () => {
 		it('❌ should report invalid-outside-class in module-level variable', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

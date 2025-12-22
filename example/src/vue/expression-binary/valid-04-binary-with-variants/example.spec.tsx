@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-binary', () => {
+describe('[Vue] expression-binary', () => {
 	describe('valid-04-binary-with-variants', () => {
 		it('✅ Valid: Binary with Tailwind variants', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

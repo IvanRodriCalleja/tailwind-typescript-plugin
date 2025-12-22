@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-binary', () => {
+describe('[Vue] template-binary', () => {
 	describe('error-04-binary-with-invalid-after', () => {
 		it('❌ Invalid: Static invalid class after binary expression', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

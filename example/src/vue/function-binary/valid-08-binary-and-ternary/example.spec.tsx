@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('function-binary', () => {
+describe('[Vue] function-binary', () => {
 	describe('valid-08-binary-and-ternary', () => {
 		it('✅ Valid: Binary and ternary combined in function', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

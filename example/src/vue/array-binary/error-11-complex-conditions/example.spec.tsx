@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-binary', () => {
+describe('[Vue] array-binary', () => {
 	describe('error-11-complex-conditions', () => {
 		it(`❌ Invalid: Complex array with multiple conditions`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

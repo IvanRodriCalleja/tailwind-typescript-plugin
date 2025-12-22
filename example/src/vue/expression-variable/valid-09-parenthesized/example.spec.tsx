@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-variable', () => {
+describe('[Vue] expression-variable', () => {
 	describe('valid-09-parenthesized', () => {
 		it('✅ Valid: Variable with parenthesized expression', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

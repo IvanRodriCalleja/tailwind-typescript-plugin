@@ -204,3 +204,18 @@ export function getClassNamesFromDiagnostics(
 ): string[] {
 	return diagnostics.map(d => getTextAtDiagnostic(d, sourceCode));
 }
+
+/**
+ * Get line and column from a position in source code
+ * Lines and columns are 1-indexed
+ */
+export function getLineAndColumn(
+	position: number,
+	sourceCode: string
+): { line: number; column: number } {
+	const lines = sourceCode.substring(0, position).split('\n');
+	return {
+		line: lines.length,
+		column: lines[lines.length - 1].length + 1
+	};
+}

@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('function-binary', () => {
+describe('[Vue] function-binary', () => {
 	describe('valid-04-mixed-static-and-binary', () => {
 		it('✅ Valid: Mix of static strings and binary expressions', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

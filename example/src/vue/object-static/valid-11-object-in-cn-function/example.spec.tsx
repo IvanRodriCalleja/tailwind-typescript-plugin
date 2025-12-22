@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-static', () => {
+describe('[Vue] object-static', () => {
 	describe('valid-11-object-in-cn-function', () => {
 		it('✅ Valid: Object in cn() function', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

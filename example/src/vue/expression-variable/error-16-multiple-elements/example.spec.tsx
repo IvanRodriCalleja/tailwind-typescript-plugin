@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-variable', () => {
+describe('[Vue] expression-variable', () => {
 	describe('error-16-multiple-elements', () => {
 		it('❌ Invalid: Multiple elements with different variables', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('function-static', () => {
+describe('[Vue] function-static', () => {
 	describe('valid-13-nested-function-calls', () => {
 		it('✅ Valid: Nested function calls', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

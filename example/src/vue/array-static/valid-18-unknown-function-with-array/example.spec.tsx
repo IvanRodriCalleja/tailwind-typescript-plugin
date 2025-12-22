@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('valid-18-unknown-function-with-array', () => {
 		it(`✅ Valid: Unknown function with array (ignored, not validated)`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

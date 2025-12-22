@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-static', () => {
+describe('[Vue] expression-static', () => {
 	describe('error-06-invalid-middle', () => {
 		it('❌ Invalid: Invalid class in the middle', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

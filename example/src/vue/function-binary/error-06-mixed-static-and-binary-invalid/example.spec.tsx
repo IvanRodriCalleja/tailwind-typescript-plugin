@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('function-binary', () => {
+describe('[Vue] function-binary', () => {
 	describe('error-06-mixed-static-and-binary-invalid', () => {
 		it('❌ Invalid: Mix with invalid in both static and binary', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

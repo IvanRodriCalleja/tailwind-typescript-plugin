@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-static', () => {
+describe('[Vue] object-static', () => {
 	describe('valid-21-object-custom-utility', () => {
 		it('✅ Valid: Custom utility function with object', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-static', () => {
+describe('[Vue] object-static', () => {
 	describe('valid-07-object-with-arbitrary-values', () => {
 		it('✅ Valid: Object with arbitrary values', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

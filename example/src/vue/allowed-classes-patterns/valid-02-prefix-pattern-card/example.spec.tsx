@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes-patterns', () => {
+describe('[Vue] allowed-classes-patterns', () => {
 	describe('valid-02-prefix-pattern-card', () => {
 		it(`✅ Valid: Prefix pattern custom-* matches custom-card`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

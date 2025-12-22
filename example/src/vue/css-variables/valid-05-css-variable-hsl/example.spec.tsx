@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('css-variables', () => {
+describe('[Vue] css-variables', () => {
 	describe('valid-05-css-variable-hsl', () => {
 		it('✅ should not report errors', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

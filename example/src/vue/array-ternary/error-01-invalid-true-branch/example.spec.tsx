@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-ternary', () => {
+describe('[Vue] array-ternary', () => {
 	describe('error-01-invalid-true-branch', () => {
 		it(`❌ Invalid: Array with ternary, invalid in true branch`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

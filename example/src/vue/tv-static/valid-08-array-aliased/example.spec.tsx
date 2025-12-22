@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('tv-static', () => {
+describe('[Vue] tv-static', () => {
 	describe('valid-08-array-aliased', () => {
 		it('✅ valid 08 array aliased', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

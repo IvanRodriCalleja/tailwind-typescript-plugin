@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('jsx/class-attributes', () => {
+describe('[Vue] jsx/class-attributes', () => {
 	describe('valid-01-custom-attribute-single', () => {
 		it('should validate classes in custom colorStyles attribute', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

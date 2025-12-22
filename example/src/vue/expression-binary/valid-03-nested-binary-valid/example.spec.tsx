@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-binary', () => {
+describe('[Vue] expression-binary', () => {
 	describe('valid-03-nested-binary-valid', () => {
 		it('✅ Valid: Nested binary expressions', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

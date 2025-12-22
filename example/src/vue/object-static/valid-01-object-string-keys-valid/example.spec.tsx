@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-static', () => {
+describe('[Vue] object-static', () => {
 	describe('valid-01-object-string-keys-valid', () => {
 		it('✅ Valid: Object with string literal keys, all valid', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

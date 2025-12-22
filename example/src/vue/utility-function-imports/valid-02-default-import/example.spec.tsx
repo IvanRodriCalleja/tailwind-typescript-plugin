@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('utility-function-imports', () => {
+describe('[Vue] utility-function-imports', () => {
 	describe('valid-02-default-import', () => {
 		it('✅ valid 02 default import', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

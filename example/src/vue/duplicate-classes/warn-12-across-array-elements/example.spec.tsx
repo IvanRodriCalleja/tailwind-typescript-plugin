@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('duplicate-classes', () => {
+describe('[Vue] duplicate-classes', () => {
 	describe('warn-12-across-array-elements', () => {
 		it('⚠️ Warning: Duplicate across array elements', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

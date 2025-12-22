@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes', () => {
+describe('[Vue] allowed-classes', () => {
 	describe('valid-09-allowed-in-template', () => {
 		it('✅ Valid: Allowed classes in template literal', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

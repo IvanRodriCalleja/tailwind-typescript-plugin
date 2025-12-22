@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('jsx/class-attributes', () => {
+describe('[Vue] jsx/class-attributes', () => {
 	describe('error-02-custom-attribute-mixed', () => {
 		it('should detect multiple invalid classes mixed with valid ones', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

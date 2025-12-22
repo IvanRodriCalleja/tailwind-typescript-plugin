@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-variable', () => {
+describe('[Vue] template-variable', () => {
 	describe('valid-06-interpolation-at-start', () => {
 		it('✅ Valid: Interpolation at start with trailing spaces', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

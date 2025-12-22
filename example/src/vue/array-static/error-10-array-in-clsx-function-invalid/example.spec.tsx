@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('error-10-array-in-clsx-function-invalid', () => {
 		it(`❌ Invalid: Array in clsx() with invalid class`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-variable', () => {
+describe('[Vue] expression-variable', () => {
 	describe('valid-04-nested-ternary', () => {
 		it('✅ Valid: Nested ternary variable assignment', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

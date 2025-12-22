@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-ternary', () => {
+describe('[Vue] template-ternary', () => {
 	describe('error-03-conditional-invalid-both-branches', () => {
 		it('❌ Invalid: Conditional with invalid classes in both branches', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

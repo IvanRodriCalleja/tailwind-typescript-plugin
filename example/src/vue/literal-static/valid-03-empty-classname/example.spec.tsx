@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('literal-static', () => {
+describe('[Vue] literal-static', () => {
 	describe('valid-03-empty-classname', () => {
 		it('✅ Valid: Empty className', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

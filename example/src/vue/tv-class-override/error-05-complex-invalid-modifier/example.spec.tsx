@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('tv-class-override', () => {
+describe('[Vue] tv-class-override', () => {
 	describe('error-05-complex-invalid-modifier', () => {
 		it('❌ error 05 complex invalid modifier', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('mixed-complex', () => {
+describe('[Vue] mixed-complex', () => {
 	describe('valid-07-variadic-complex', () => {
 		it('✅ Valid: Variadic arrays with objects and nested arrays (clsx docs pattern)', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

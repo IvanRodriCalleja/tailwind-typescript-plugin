@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-ternary', () => {
+describe('[Vue] array-ternary', () => {
 	describe('error-05-multiple-ternary-invalid', () => {
 		it(`❌ Invalid: Multiple ternary expressions with invalid classes`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

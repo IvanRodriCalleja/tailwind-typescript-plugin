@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes-patterns', () => {
+describe('[Vue] allowed-classes-patterns', () => {
 	describe('valid-08-mixed-patterns-tailwind', () => {
 		it(`✅ Valid: Patterns work alongside Tailwind classes`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-binary', () => {
+describe('[Vue] template-binary', () => {
 	describe('valid-04-binary-with-empty-string', () => {
 		it('✅ Valid: Binary expression that evaluates to empty string', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('duplicate-classes', () => {
+describe('[Vue] duplicate-classes', () => {
 	describe('warn-05-triple-duplicate', () => {
 		it('⚠️ Warning: Same class appears three times', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('tv-class-override', () => {
+describe('[Vue] tv-class-override', () => {
 	describe('error-03-multiple-invalid-classes', () => {
 		it('❌ error 03 multiple invalid classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

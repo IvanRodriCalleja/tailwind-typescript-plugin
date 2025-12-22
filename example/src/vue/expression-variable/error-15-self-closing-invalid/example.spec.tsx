@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-variable', () => {
+describe('[Vue] expression-variable', () => {
 	describe('error-15-self-closing-invalid', () => {
 		it('❌ Invalid: Self-closing element with invalid variable', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

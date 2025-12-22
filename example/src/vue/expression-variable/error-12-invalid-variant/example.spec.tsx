@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-variable', () => {
+describe('[Vue] expression-variable', () => {
 	describe('error-12-invalid-variant', () => {
 		it('❌ Invalid: Variable with invalid variant', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

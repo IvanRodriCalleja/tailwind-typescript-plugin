@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('valid-16-self-closing-with-array', () => {
 		it(`✅ Valid: Self-closing element with array`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

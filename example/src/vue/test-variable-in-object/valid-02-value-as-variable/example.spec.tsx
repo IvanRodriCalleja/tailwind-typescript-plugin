@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('test-variable-in-object', () => {
+describe('[Vue] test-variable-in-object', () => {
 	describe('valid-02-value-as-variable', () => {
 		it('✅ valid 02 value as variable', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

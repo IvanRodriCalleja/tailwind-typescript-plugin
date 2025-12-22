@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-binary', () => {
+describe('[Vue] expression-binary', () => {
 	describe('error-10-self-closing-binary-invalid', () => {
 		it('❌ Invalid: Self-closing element with invalid in binary', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

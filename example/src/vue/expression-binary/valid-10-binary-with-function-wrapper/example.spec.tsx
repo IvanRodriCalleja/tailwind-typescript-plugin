@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-binary', () => {
+describe('[Vue] expression-binary', () => {
 	describe('valid-10-binary-with-function-wrapper', () => {
 		it('✅ Valid: Binary in function call wrapper', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

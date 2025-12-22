@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('function-ternary', () => {
+describe('[Vue] function-ternary', () => {
 	describe('error-04-multiple-classes-invalid', () => {
 		it('❌ Invalid: Ternary with multiple classes, one invalid in true branch', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

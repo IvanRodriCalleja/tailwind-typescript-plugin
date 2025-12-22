@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('cva-class-override', () => {
+describe('[Vue] cva-class-override', () => {
 	describe('error-04-all-invalid-classes', () => {
 		it('❌ should detect invalid classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

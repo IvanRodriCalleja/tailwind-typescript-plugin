@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('duplicate-classes', () => {
+describe('[Vue] duplicate-classes', () => {
 	describe('warn-20-base-repeated-in-ternary', () => {
 		it('⚠️ Warning: Duplicate - base class repeated in ternary branch', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

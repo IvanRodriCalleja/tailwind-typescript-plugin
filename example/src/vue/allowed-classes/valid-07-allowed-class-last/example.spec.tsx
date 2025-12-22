@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes', () => {
+describe('[Vue] allowed-classes', () => {
 	describe('valid-07-allowed-class-last', () => {
 		it('✅ Valid: Allowed class at the end', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

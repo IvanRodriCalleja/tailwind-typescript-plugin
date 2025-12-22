@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('jsx/class-attributes', () => {
+describe('[Vue] jsx/class-attributes', () => {
 	describe('error-01-custom-attribute-invalid', () => {
 		it('should detect invalid class in custom attribute', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

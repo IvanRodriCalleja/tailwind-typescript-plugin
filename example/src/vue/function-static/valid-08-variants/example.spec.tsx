@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('function-static', () => {
+describe('[Vue] function-static', () => {
 	describe('valid-08-variants', () => {
 		it('✅ Valid: Function with variants', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

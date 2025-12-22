@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-static', () => {
+describe('[Vue] expression-static', () => {
 	describe('error-08-invalid-class-with-valid-variant', () => {
 		it('❌ Invalid: Invalid class with valid variant', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-variable', () => {
+describe('[Vue] template-variable', () => {
 	describe('valid-08-extra-spaces', () => {
 		it('✅ Valid: Extra spaces around interpolations', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

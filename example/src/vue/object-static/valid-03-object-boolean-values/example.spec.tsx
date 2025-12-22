@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-static', () => {
+describe('[Vue] object-static', () => {
 	describe('valid-03-object-boolean-values', () => {
 		it('✅ Valid: Object with boolean values', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

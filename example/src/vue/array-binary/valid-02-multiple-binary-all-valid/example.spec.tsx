@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-binary', () => {
+describe('[Vue] array-binary', () => {
 	describe('valid-02-multiple-binary-all-valid', () => {
 		it(`✅ Valid: Multiple binary expressions in array, all valid`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

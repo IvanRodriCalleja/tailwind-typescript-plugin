@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-array-values', () => {
+describe('[Vue] object-array-values', () => {
 	describe('error-03-invalid-first-array', () => {
 		it('❌ Invalid: Multiple properties with array values, invalid in first', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

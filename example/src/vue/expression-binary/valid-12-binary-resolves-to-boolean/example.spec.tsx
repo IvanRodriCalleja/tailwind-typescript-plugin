@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('expression-binary', () => {
+describe('[Vue] expression-binary', () => {
 	describe('valid-12-binary-resolves-to-boolean', () => {
 		it('✅ Valid: Binary that resolves to boolean (falsy case)', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

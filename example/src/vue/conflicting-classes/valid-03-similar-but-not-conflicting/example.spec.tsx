@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('conflicting-classes', () => {
+describe('[Vue] conflicting-classes', () => {
 	describe('valid-03-similar-but-not-conflicting', () => {
 		it('✅ should not report errors', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-ternary', () => {
+describe('[Vue] template-ternary', () => {
 	describe('error-09-conditional-invalid-with-empty-string', () => {
 		it('❌ Invalid: Conditional with invalid class and empty string', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-variable', () => {
+describe('[Vue] template-variable', () => {
 	describe('error-09-self-closing-invalid', () => {
 		it('❌ Invalid: Self-closing element with invalid class in template', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

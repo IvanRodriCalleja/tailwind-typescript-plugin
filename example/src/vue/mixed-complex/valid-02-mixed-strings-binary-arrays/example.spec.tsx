@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('mixed-complex', () => {
+describe('[Vue] mixed-complex', () => {
 	describe('valid-02-mixed-strings-binary-arrays', () => {
 		it('✅ Valid: Mix of strings, binary, and nested arrays', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

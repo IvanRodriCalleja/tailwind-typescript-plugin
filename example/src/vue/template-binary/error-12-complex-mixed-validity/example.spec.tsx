@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-binary', () => {
+describe('[Vue] template-binary', () => {
 	describe('error-12-complex-mixed-validity', () => {
 		it('❌ Invalid: Multiple conditions with mixed validity', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-ternary', () => {
+describe('[Vue] template-ternary', () => {
 	describe('error-12-complex-real-world-scenario', () => {
 		it('❌ Invalid: Complex example with static, dynamic, and conditional classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

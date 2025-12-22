@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes', () => {
+describe('[Vue] allowed-classes', () => {
 	describe('valid-03-allowed-with-tailwind', () => {
 		it('✅ Valid: Allowed custom class with Tailwind classes', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('object-static', () => {
+describe('[Vue] object-static', () => {
 	describe('valid-17-object-nested-functions', () => {
 		it('✅ Valid: Nested functions with objects', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

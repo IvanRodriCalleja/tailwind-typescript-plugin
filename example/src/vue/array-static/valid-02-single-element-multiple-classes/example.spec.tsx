@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('valid-02-single-element-multiple-classes', () => {
 		it(`✅ Valid: Single element with multiple classes`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('tv-variable', () => {
+describe('[Vue] tv-variable', () => {
 	describe('error-02-base-variable-mixed', () => {
 		it('❌ error 02 base variable mixed', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('error-06-invalid-in-last-element', () => {
 		it(`❌ Invalid: Invalid in last element`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

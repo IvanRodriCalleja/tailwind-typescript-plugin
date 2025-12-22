@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-static', () => {
+describe('[Vue] expression-static', () => {
 	describe('valid-07-responsive-variants', () => {
 		it('✅ Valid: Responsive variants', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-static', () => {
+describe('[Vue] array-static', () => {
 	describe('error-08-array-with-invalid-variant', () => {
 		it(`❌ Invalid: Array with invalid variant`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

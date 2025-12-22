@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('conflicting-classes', () => {
+describe('[Vue] conflicting-classes', () => {
 	describe('conflict-20-font-style', () => {
 		it('⚠️ should detect conflicting classes', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

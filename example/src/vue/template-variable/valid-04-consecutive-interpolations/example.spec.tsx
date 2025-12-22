@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-variable', () => {
+describe('[Vue] template-variable', () => {
 	describe('valid-04-consecutive-interpolations', () => {
 		it('✅ Valid: Consecutive interpolations with classes between', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

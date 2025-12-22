@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('expression-parenthesized', () => {
+describe('[Vue] expression-parenthesized', () => {
 	describe('valid-05-type-assertion-as-string', () => {
 		it("✅ Valid: Type assertion with 'as string'", async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

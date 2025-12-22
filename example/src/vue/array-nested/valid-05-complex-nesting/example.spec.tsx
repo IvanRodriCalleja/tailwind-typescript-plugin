@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-nested', () => {
+describe('[Vue] array-nested', () => {
 	describe('valid-05-complex-nesting', () => {
 		it(`✅ Valid: Complex nesting like clsx documentation`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

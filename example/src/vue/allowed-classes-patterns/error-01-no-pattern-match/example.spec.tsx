@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes-patterns', () => {
+describe('[Vue] allowed-classes-patterns', () => {
 	describe('error-01-no-pattern-match', () => {
 		it("❌ Invalid: Class doesn't match any pattern", async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

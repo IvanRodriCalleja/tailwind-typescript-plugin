@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-nested', () => {
+describe('[Vue] array-nested', () => {
 	describe('valid-04-mixed-flat-nested', () => {
 		it(`✅ Valid: Mixed flat and nested arrays`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

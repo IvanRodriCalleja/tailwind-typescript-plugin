@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('template-variable', () => {
+describe('[Vue] template-variable', () => {
 	describe('error-04-invalid-both-sides', () => {
 		it('❌ Invalid: Template literal with interpolation, invalid classes on both sides', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

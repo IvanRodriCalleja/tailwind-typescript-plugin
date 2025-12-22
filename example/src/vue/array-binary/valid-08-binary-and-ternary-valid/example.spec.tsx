@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('array-binary', () => {
+describe('[Vue] array-binary', () => {
 	describe('valid-08-binary-and-ternary-valid', () => {
 		it(`✅ Valid: Array with binary and ternary combined`, async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

@@ -4,7 +4,7 @@ import {
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
-describe('tv-class-override', () => {
+describe('[Vue] tv-class-override', () => {
 	describe('valid-05-empty-class-override', () => {
 		it('✅ valid 05 empty class override', async () => {
 			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);

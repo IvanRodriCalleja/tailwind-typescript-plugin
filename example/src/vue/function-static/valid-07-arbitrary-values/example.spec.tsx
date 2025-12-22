@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('function-static', () => {
+describe('[Vue] function-static', () => {
 	describe('valid-07-arbitrary-values', () => {
 		it('✅ Valid: Function with arbitrary values', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);

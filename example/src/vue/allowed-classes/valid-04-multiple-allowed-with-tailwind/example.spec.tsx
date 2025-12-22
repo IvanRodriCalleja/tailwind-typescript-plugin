@@ -1,6 +1,6 @@
 import { getInvalidClassDiagnostics, runVuePlugin } from '../../../../test/vue-test-helpers';
 
-describe('allowed-classes', () => {
+describe('[Vue] allowed-classes', () => {
 	describe('valid-04-multiple-allowed-with-tailwind', () => {
 		it('✅ Valid: Multiple allowed classes with Tailwind', async () => {
 			const { diagnostics, plugin } = await runVuePlugin(__dirname);
