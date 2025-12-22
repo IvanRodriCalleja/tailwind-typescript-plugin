@@ -7,8 +7,8 @@ import {
 } from '../../../../test/vue-test-helpers';
 
 describe('[Vue] allowed-classes-patterns', () => {
-	describe('error-04-partial-match', () => {
-		it("❌ Invalid: exact-match-extra doesn't match exact-match (exact matches are exact)", async () => {
+	describe('error-06-dynamic-string-invalid', () => {
+		it('should detect invalid class in dynamic string variable', async () => {
 			const { diagnostics, sourceCode, mappings, plugin } = await runVuePlugin(__dirname);
 
 			try {
@@ -16,22 +16,22 @@ describe('[Vue] allowed-classes-patterns', () => {
 				expect(invalidDiagnostics.length).toBeGreaterThan(0);
 
 				const invalidClasses = getClassNamesFromDiagnosticMessages(invalidDiagnostics);
-				expect(invalidClasses).toContain('exact-match-extra');
+				expect(invalidClasses).toContain('invalid-class');
 
-				// Verify position points to the invalid class in template
+				// Verify position points to the invalid class in script
 				const diagnostic = invalidDiagnostics[0];
 				const mappedPosition = mapGeneratedToVuePosition(diagnostic!.start!, mappings);
 				expect(mappedPosition).not.toBeNull();
 
 				const { line, column } = getLineAndColumn(mappedPosition!.vuePosition, sourceCode);
-				expect(line).toBe(7);
-				expect(column).toBe(15);
+				expect(line).toBe(5);
+				expect(column).toBe(32);
 
 				const vueText = sourceCode.substring(
 					mappedPosition!.vuePosition,
 					mappedPosition!.vuePosition + diagnostic!.length!
 				);
-				expect(vueText).toBe('exact-match-extra');
+				expect(vueText).toBe('invalid-class');
 			} finally {
 				plugin.dispose();
 			}
