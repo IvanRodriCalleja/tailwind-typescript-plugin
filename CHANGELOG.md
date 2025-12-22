@@ -1,3 +1,9 @@
+## [1.4.0-beta.20](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.19...v1.4.0-beta.20) (2025-12-22)
+
+### 🐛 Bug Fixes
+
+* add [Vue] prefix to Vue test describe blocks ([4ed74e0](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/4ed74e0471d1defbfbf13e64298f312942784e0a))
+
 ## [1.4.0-beta.19](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.18...v1.4.0-beta.19) (2025-12-21)
 
 ### ✨ Features
