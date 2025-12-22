@@ -8,13 +8,24 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import fs from 'fs';
 import path from 'path';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const vue = require('@vue/language-core');
-
 import pluginFactory from '../../src/index';
+
+const vue = require('@vue/language-core');
 
 export interface PluginInstance {
 	dispose: () => void;
+}
+
+export interface SourceMapping {
+	sourceOffsets: number[];
+	generatedOffsets: number[];
+	lengths: number[];
+	data: {
+		verification?: boolean;
+		completion?: boolean;
+		semantic?: boolean | Record<string, unknown>;
+		navigation?: boolean | Record<string, unknown>;
+	};
 }
 
 export interface VueRunPluginResult {
@@ -22,6 +33,7 @@ export interface VueRunPluginResult {
 	sourceCode: string;
 	generatedCode: string;
 	plugin: PluginInstance;
+	mappings: SourceMapping[];
 }
 
 export const DiagnosticCodes = {
@@ -71,8 +83,8 @@ export async function runVuePlugin(testDir: string): Promise<VueRunPluginResult>
 		throw new Error(`Missing tailwind-typescript-plugin in tsconfig.json plugins`);
 	}
 
-	// Create Vue compiler options
-	const vueCompilerOptions = vue.resolveVueCompilerOptions({});
+	// Create Vue compiler options (API changed in v3)
+	const vueCompilerOptions = vue.getDefaultCompilerOptions();
 
 	// Create the Vue language plugin
 	const languagePlugin = vue.createVueLanguagePlugin(
@@ -94,12 +106,14 @@ export async function runVuePlugin(testDir: string): Promise<VueRunPluginResult>
 
 	// Find the generated TypeScript code (script_ts)
 	let generatedTsCode = '';
-	let scriptEmbeddedCode: { snapshot: ts.IScriptSnapshot } | null = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	let scriptEmbeddedCode: any = null;
 
 	for (const code of vue.forEachEmbeddedCode(virtualCode) as Iterable<{
 		id: string;
 		languageId: string;
 		snapshot: ts.IScriptSnapshot;
+		mappings?: SourceMapping[];
 	}>) {
 		if (code.id === 'script_ts' || code.id.startsWith('script_')) {
 			if (code.languageId === 'typescript' || code.languageId === 'tsx') {
@@ -113,6 +127,9 @@ export async function runVuePlugin(testDir: string): Promise<VueRunPluginResult>
 	if (!generatedTsCode || !scriptEmbeddedCode) {
 		throw new Error('No TypeScript code generated from Vue file');
 	}
+
+	// Extract source mappings for position verification
+	const mappings: SourceMapping[] = scriptEmbeddedCode.mappings || [];
 
 	// Create a virtual .vue file name - we'll handle it specially
 	// The key insight: we need TypeScript to see this as a valid TS file
@@ -190,7 +207,8 @@ export async function runVuePlugin(testDir: string): Promise<VueRunPluginResult>
 		diagnostics,
 		sourceCode: vueSourceCode,
 		generatedCode: generatedTsCode,
-		plugin
+		plugin,
+		mappings
 	};
 }
 
@@ -233,11 +251,73 @@ export function getConflictClassDiagnostics(diagnostics: ts.Diagnostic[]): ts.Di
 }
 
 /**
- * Extract class names from diagnostics
+ * Extract class names from diagnostics (using position text)
  */
 export function getClassNamesFromDiagnostics(
 	diagnostics: ts.Diagnostic[],
 	sourceCode: string
 ): string[] {
 	return diagnostics.map(d => getTextAtDiagnostic(d, sourceCode));
+}
+
+/**
+ * Extract class names from diagnostic messages.
+ * Parses messages like: 'The class "invalid-class" is not a valid Tailwind class'
+ * This is useful for resolved references where the position points to the
+ * variable/expression in the template, not the actual class string.
+ */
+export function getClassNamesFromDiagnosticMessages(diagnostics: ts.Diagnostic[]): string[] {
+	const classNames: string[] = [];
+	const classPattern = /The class "([^"]+)"/;
+
+	for (const diagnostic of diagnostics) {
+		const message =
+			typeof diagnostic.messageText === 'string'
+				? diagnostic.messageText
+				: diagnostic.messageText.messageText;
+		const match = classPattern.exec(message);
+		if (match) {
+			classNames.push(match[1]);
+		}
+	}
+
+	return classNames;
+}
+
+/**
+ * Map a position from generated TypeScript to Vue source.
+ * Returns null if no mapping is found or if the mapping doesn't have semantic data.
+ */
+export function mapGeneratedToVuePosition(
+	generatedPosition: number,
+	mappings: SourceMapping[]
+): { vuePosition: number; hasSemantic: boolean } | null {
+	for (const mapping of mappings) {
+		const genStart = mapping.generatedOffsets[0];
+		const genEnd = genStart + mapping.lengths[0];
+
+		if (generatedPosition >= genStart && generatedPosition < genEnd) {
+			const offset = generatedPosition - genStart;
+			const vuePosition = mapping.sourceOffsets[0] + offset;
+			const hasSemantic = mapping.data.semantic === true;
+			return { vuePosition, hasSemantic };
+		}
+	}
+	return null;
+}
+
+/**
+ * Get line and column from a position in source code.
+ * Returns 1-based line and column numbers.
+ */
+export function getLineAndColumn(
+	position: number,
+	sourceCode: string
+): { line: number; column: number } {
+	const textBefore = sourceCode.substring(0, position);
+	const lines = textBefore.split('\n');
+	return {
+		line: lines.length,
+		column: lines[lines.length - 1].length + 1
+	};
 }

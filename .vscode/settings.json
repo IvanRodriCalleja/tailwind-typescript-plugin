@@ -1,4 +1,7 @@
 {
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"typescript.enablePromptUseWorkspaceTsdk": true,
+	"vue.server.hybridMode": true,
 	"editor.formatOnSave": false,
 	"editor.autoIndent": "full",
 	"editor.formatOnPaste": false,
@@ -29,7 +32,7 @@
 	},
 	"typescript.disableAutomaticTypeAcquisition": true,
 	"files.watcherExclude": {
-		"**/example/src/**": true
+		"**/node_modules/**": true
 	},
 	"search.exclude": {
 		"**/example/src/**": false

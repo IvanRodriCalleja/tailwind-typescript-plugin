@@ -1,25 +1,43 @@
 import {
-	getClassNamesFromDiagnostics,
+	getClassNamesFromDiagnosticMessages,
 	getInvalidClassDiagnostics,
+	getLineAndColumn,
+	mapGeneratedToVuePosition,
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
 describe('[Vue] allowed-classes', () => {
 	describe('error-18-computed-invalid', () => {
-		/**
-		 * KNOWN LIMITATION: Classes in computed properties cannot be validated at template level.
-		 * Vue generates `class: (__VLS_ctx.classes)` - only the computed ref is visible,
-		 * not the actual computed value at compile time.
-		 */
-		it('cannot detect invalid class in computed property (known limitation)', async () => {
-			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);
+		it('should detect invalid class in computed property and report at script position', async () => {
+			const { diagnostics, sourceCode, mappings, plugin } = await runVuePlugin(__dirname);
 
 			try {
 				const invalidDiagnostics = getInvalidClassDiagnostics(diagnostics);
-				const invalidClasses = getClassNamesFromDiagnostics(invalidDiagnostics, generatedCode);
 
-				// Known limitation: computed refs in template don't expose class values
-				expect(invalidClasses).toHaveLength(0);
+				// Should detect the invalid class
+				expect(invalidDiagnostics.length).toBeGreaterThan(0);
+
+				// Extract class names from diagnostic messages
+				const invalidClasses = getClassNamesFromDiagnosticMessages(invalidDiagnostics);
+				expect(invalidClasses).toContain('invalid-computed');
+
+				// Verify the diagnostic position maps to the script section
+				const diagnostic = invalidDiagnostics[0];
+				expect(diagnostic).toBeDefined();
+
+				const mappedPosition = mapGeneratedToVuePosition(diagnostic!.start!, mappings);
+				expect(mappedPosition).not.toBeNull();
+
+				// The diagnostic points directly to 'invalid-computed' in the script (line 11)
+				const { line } = getLineAndColumn(mappedPosition!.vuePosition, sourceCode);
+				expect(line).toBe(11);
+
+				// Verify the text at the Vue position is 'invalid-computed'
+				const vueText = sourceCode.substring(
+					mappedPosition!.vuePosition,
+					mappedPosition!.vuePosition + diagnostic!.length!
+				);
+				expect(vueText).toBe('invalid-computed');
 			} finally {
 				plugin.dispose();
 			}
