@@ -1,3 +1,9 @@
+## [1.4.0-beta.21](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.20...v1.4.0-beta.21) (2025-12-23)
+
+### ✨ Features
+
+* enhance allowed-classes-patterns tests with line/column verification ([99a7022](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/99a70222bd213320e42e0a556401c2b6b06683f9))
+
 ## [1.4.0-beta.20](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.19...v1.4.0-beta.20) (2025-12-22)
 
 ### 🐛 Bug Fixes
