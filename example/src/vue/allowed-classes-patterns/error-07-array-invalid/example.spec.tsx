@@ -7,8 +7,8 @@ import {
 } from '../../../../test/vue-test-helpers';
 
 describe('[Vue] allowed-classes-patterns', () => {
-	describe('error-04-partial-match', () => {
-		it("❌ Invalid: exact-match-extra doesn't match exact-match (exact matches are exact)", async () => {
+	describe('error-07-array-invalid', () => {
+		it('should detect invalid class in array syntax', async () => {
 			const { diagnostics, sourceCode, mappings, plugin } = await runVuePlugin(__dirname);
 
 			try {
@@ -16,7 +16,7 @@ describe('[Vue] allowed-classes-patterns', () => {
 				expect(invalidDiagnostics.length).toBeGreaterThan(0);
 
 				const invalidClasses = getClassNamesFromDiagnosticMessages(invalidDiagnostics);
-				expect(invalidClasses).toContain('exact-match-extra');
+				expect(invalidClasses).toContain('invalid-array-class');
 
 				// Verify position points to the invalid class in template
 				const diagnostic = invalidDiagnostics[0];
@@ -24,14 +24,14 @@ describe('[Vue] allowed-classes-patterns', () => {
 				expect(mappedPosition).not.toBeNull();
 
 				const { line, column } = getLineAndColumn(mappedPosition!.vuePosition, sourceCode);
-				expect(line).toBe(7);
-				expect(column).toBe(15);
+				expect(line).toBe(8);
+				expect(column).toBe(35);
 
 				const vueText = sourceCode.substring(
 					mappedPosition!.vuePosition,
 					mappedPosition!.vuePosition + diagnostic!.length!
 				);
-				expect(vueText).toBe('exact-match-extra');
+				expect(vueText).toBe('invalid-array-class');
 			} finally {
 				plugin.dispose();
 			}
