@@ -7,8 +7,8 @@ import {
 } from '../../../../test/vue-test-helpers';
 
 describe('[Vue] array-binary', () => {
-	describe('error-03-multiple-binary-invalid', () => {
-		it(`❌ Invalid: Multiple binary expressions with invalid classes`, async () => {
+	describe('error-17-combined-class-array-invalid', () => {
+		it(`❌ Invalid: Combined static class + :class array with binary`, async () => {
 			const { diagnostics, generatedCode, sourceCode, mappings, plugin } =
 				await runVuePlugin(__dirname);
 
@@ -16,17 +16,16 @@ describe('[Vue] array-binary', () => {
 				const invalidDiagnostics = getInvalidClassDiagnostics(diagnostics);
 				const invalidClassNames = getClassNamesFromDiagnostics(invalidDiagnostics, generatedCode);
 
-				expect(invalidClassNames).toContain('invalid-error');
-				expect(invalidClassNames).toContain('invalid-warning');
+				expect(invalidClassNames).toContain('invalid-combined');
 				expect(invalidClassNames).not.toContain('flex');
 
-				// Verify position points to the first invalid class in Vue source
+				// Verify position points to the invalid class in Vue source
 				const diagnostic = invalidDiagnostics[0];
 				const mappedPosition = mapGeneratedToVuePosition(diagnostic.start!, mappings);
 				expect(mappedPosition).not.toBeNull();
 				const { line, column } = getLineAndColumn(mappedPosition!.vuePosition, sourceCode);
-				expect(line).toBe(13);
-				expect(column).toBe(40);
+				expect(line).toBe(10);
+				expect(column).toBe(49);
 			} finally {
 				plugin.dispose();
 			}
