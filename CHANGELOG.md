@@ -1,3 +1,9 @@
+## [1.4.0-beta.23](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.22...v1.4.0-beta.23) (2025-12-29)
+
+### ✨ Features
+
+* **vue:** add support for advanced Vue patterns ([abf1863](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/abf1863cb0ae392f5b08109a84bd7832b140af31))
+
 ## [1.4.0-beta.22](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.21...v1.4.0-beta.22) (2025-12-29)
 
 ### ✨ Features
