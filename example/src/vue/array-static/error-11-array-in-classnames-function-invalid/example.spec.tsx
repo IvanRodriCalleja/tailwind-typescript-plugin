@@ -1,13 +1,15 @@
 import {
 	getClassNamesFromDiagnostics,
 	getInvalidClassDiagnostics,
+	getLineAndColumn,
+	mapGeneratedToVuePosition,
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
 describe('[Vue] array-static', () => {
 	describe('error-11-array-in-classnames-function-invalid', () => {
 		it(`❌ Invalid: Array in classNames() with invalid`, async () => {
-			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);
+			const { diagnostics, sourceCode, generatedCode, mappings, plugin } = await runVuePlugin(__dirname);
 
 			try {
 				const invalidDiagnostics = getInvalidClassDiagnostics(diagnostics);
@@ -16,6 +18,14 @@ describe('[Vue] array-static', () => {
 				expect(invalidClassNames).toContain('invalid-class');
 				expect(invalidClassNames).not.toContain('flex');
 				expect(invalidClassNames).not.toContain('items-center');
+
+				// Verify position points to the invalid class in Vue source
+				const diagnostic = invalidDiagnostics[0];
+				const mappedPosition = mapGeneratedToVuePosition(diagnostic.start!, mappings);
+				expect(mappedPosition).not.toBeNull();
+				const { line, column } = getLineAndColumn(mappedPosition!.vuePosition, sourceCode);
+				expect(line).toBe(10);
+				expect(column).toBe(37);
 			} finally {
 				plugin.dispose();
 			}

@@ -5,10 +5,10 @@ const button = cva(['font-semibold'], {
 		variants: {
 			intent: { primary: 'bg-blue-500' }
 		},
-		compoundVariants: [
+		compoundVariants: [{
 				intent: 'primary',
 				class: 'hover:bg-blue-600 invalid-compound-class'
-		]
+		}]
 	});
 
 // ❌ Invalid: Compound variant with invalid class

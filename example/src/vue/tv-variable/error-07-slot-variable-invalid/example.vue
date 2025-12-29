@@ -5,6 +5,12 @@ const invalidBase = 'invalid-tv-base-var';
 
 // ❌ Invalid: Slot with invalid variable value
 // @invalidClasses [invalid-tv-base-var]
+
+const component = tv({
+	slots: {
+		base: invalidBase
+	}
+});
 </script>
 
 <template>

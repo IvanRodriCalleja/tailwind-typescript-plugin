@@ -2,6 +2,14 @@
 import { cva } from 'class-variance-authority';
 
 const invalidBase = 'invalid-cva-base-var';
+const button = cva(['font-semibold'], {
+	variants: {
+		active: {
+			false: null,
+			true: invalidBase
+		}
+	}
+});
 
 // ❌ Invalid: Boolean variant with invalid variable for true
 // @invalidClasses [invalid-cva-base-var]
