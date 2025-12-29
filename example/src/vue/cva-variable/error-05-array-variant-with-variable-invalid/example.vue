@@ -2,6 +2,13 @@
 import { cva } from 'class-variance-authority';
 
 const invalidVariant = 'invalid-cva-variant-var';
+const button = cva(['font-semibold'], {
+	variants: {
+		color: {
+			primary: [invalidVariant, 'text-sm']
+		}
+	}
+});
 
 // ❌ Invalid: Array variant with invalid variable element
 // @invalidClasses [invalid-cva-variant-var]

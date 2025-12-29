@@ -1,19 +1,43 @@
 import {
-	getClassNamesFromDiagnostics,
+	getClassNamesFromDiagnosticMessages,
 	getInvalidClassDiagnostics,
+	getLineAndColumn,
+	mapGeneratedToVuePosition,
 	runVuePlugin
 } from '../../../../test/vue-test-helpers';
 
 describe('[Vue] test-variable-in-array', () => {
 	describe('error-04-ternary-variable-in-array', () => {
-		it('❌ error 04 ternary variable in array', async () => {
-			const { diagnostics, generatedCode, plugin } = await runVuePlugin(__dirname);
+		it('should detect invalid class in ternary variable used in array and report at script position', async () => {
+			const { diagnostics, sourceCode, mappings, plugin } = await runVuePlugin(__dirname);
 
 			try {
 				const invalidDiagnostics = getInvalidClassDiagnostics(diagnostics);
-				const invalidClasses = getClassNamesFromDiagnostics(invalidDiagnostics, generatedCode);
 
+				// Should detect the invalid class
+				expect(invalidDiagnostics.length).toBeGreaterThan(0);
+
+				// Extract class names from diagnostic messages
+				const invalidClasses = getClassNamesFromDiagnosticMessages(invalidDiagnostics);
 				expect(invalidClasses).toContain('invalid-ternary-array');
+
+				// Verify the diagnostic position maps to the script section
+				const diagnostic = invalidDiagnostics[0];
+				expect(diagnostic).toBeDefined();
+
+				const mappedPosition = mapGeneratedToVuePosition(diagnostic!.start!, mappings);
+				expect(mappedPosition).not.toBeNull();
+
+				// The diagnostic points directly to 'invalid-ternary-array' in the script (line 3)
+				const { line } = getLineAndColumn(mappedPosition!.vuePosition, sourceCode);
+				expect(line).toBe(3);
+
+				// Verify the text at the Vue position is 'invalid-ternary-array' (the actual invalid class)
+				const vueText = sourceCode.substring(
+					mappedPosition!.vuePosition,
+					mappedPosition!.vuePosition + diagnostic!.length!
+				);
+				expect(vueText).toBe('invalid-ternary-array');
 			} finally {
 				plugin.dispose();
 			}

@@ -2,6 +2,14 @@
 import { tv } from 'tailwind-variants';
 
 const invalidVariant = 'invalid-tv-variant-var';
+const button = tv({
+  base: 'font-semibold',
+  variants: {
+    color: {
+      primary: [invalidVariant, 'text-sm']
+    }
+  }
+});
 
 // ❌ Invalid: Array variant with invalid variable element
 // @invalidClasses [invalid-tv-variant-var]

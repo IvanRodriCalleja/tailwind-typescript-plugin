@@ -8,7 +8,7 @@ const isActive = true;
 </script>
 
 <template>
-  <View colorStyles={clsx('bg-blue-500', isActive && 'invalid-class', { 'font-bold': true })}>
-  			Hello
-  		</View>
+  <View :colorStyles="clsx('bg-blue-500', isActive && 'invalid-class', { 'font-bold': true })">
+    Hello
+  </View>
 </template>

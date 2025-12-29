@@ -39,17 +39,21 @@ export class VueAttributeExtractor extends BaseExtractor {
 	 * Vue generates code like __VLS_ctx.clsx(...) for template expressions
 	 * where clsx is imported in the script section. We need to check if the
 	 * function name (not __VLS_ctx) is directly imported.
+	 *
+	 * Also handles namespace imports: __VLS_ctx.utils.clsx(...) for `import * as utils from 'clsx'`
 	 */
 	protected override shouldValidateFunctionCall(
 		callExpression: ts.CallExpression,
 		utilityFunctions: UtilityFunction[],
 		context?: ExtractionContext
 	): boolean {
-		// First, check if this is a __VLS_ctx.functionName() pattern
+		// First, check if this is a __VLS_ctx.functionName() or __VLS_ctx.namespace.functionName() pattern
 		if (context) {
 			const expr = callExpression.expression;
 			if (context.typescript.isPropertyAccessExpression(expr)) {
 				const objectExpr = expr.expression;
+
+				// Pattern 1: __VLS_ctx.functionName() - direct import
 				if (context.typescript.isIdentifier(objectExpr) && objectExpr.text === '__VLS_ctx') {
 					const functionName = expr.name.text;
 
@@ -68,6 +72,31 @@ export class VueAttributeExtractor extends BaseExtractor {
 					}
 					return false;
 				}
+
+				// Pattern 2: __VLS_ctx.namespace.functionName() - namespace import
+				// e.g., import * as utils from 'clsx' -> __VLS_ctx.utils.clsx()
+				if (context.typescript.isPropertyAccessExpression(objectExpr)) {
+					const namespaceRoot = objectExpr.expression;
+					if (context.typescript.isIdentifier(namespaceRoot) && namespaceRoot.text === '__VLS_ctx') {
+						const namespaceName = objectExpr.name.text; // e.g., 'utils'
+						const functionName = expr.name.text; // e.g., 'clsx'
+
+						// Check each utility function configuration
+						for (const utilityFunc of utilityFunctions) {
+							if (typeof utilityFunc === 'string') {
+								if (utilityFunc === functionName) {
+									return true;
+								}
+							} else if (utilityFunc.name === functionName) {
+								// Check if namespace is imported from expected module
+								if (this.isNamespaceImportedFrom(namespaceName, utilityFunc.from, context)) {
+									return true;
+								}
+							}
+						}
+						return false;
+					}
+				}
 			}
 		}
 
@@ -77,19 +106,13 @@ export class VueAttributeExtractor extends BaseExtractor {
 
 	canHandle(node: ts.Node, context: ExtractionContext): boolean {
 		// We handle call expressions that look like Vue's generated element calls
-		// Pattern: __VLS_asFunctionalElement(...)({ ...{ class: ... } })
+		// Pattern 1 (intrinsic elements): __VLS_asFunctionalElement(...)({ ...{ class: ... } })
+		// Pattern 2 (custom components): __VLS_1({ colorStyles: ... }, ...)
 		if (!context.typescript.isCallExpression(node)) {
 			return false;
 		}
 
-		// Check if this is a chained call (the outer call to the element function)
-		// The pattern is: func(...)({...}) where the result of func(...) is called again
-		const expression = node.expression;
-		if (!context.typescript.isCallExpression(expression)) {
-			return false;
-		}
-
-		// Check if the arguments contain an object with spread that has a 'class' property
+		// Check if the arguments contain an object with class properties
 		if (node.arguments.length === 0) {
 			return false;
 		}
@@ -99,14 +122,36 @@ export class VueAttributeExtractor extends BaseExtractor {
 			return false;
 		}
 
-		// Look for spread assignments with 'class' property
-		return this.hasClassSpreadProperty(firstArg, context);
+		const expression = node.expression;
+
+		// Pattern 1: Chained call (intrinsic elements)
+		// func(...)({...}) where the result of func(...) is called again
+		if (context.typescript.isCallExpression(expression)) {
+			// Look for spread assignments with class property
+			return this.hasClassSpreadProperty(firstArg, context);
+		}
+
+		// Pattern 2: Identifier call (custom components)
+		// __VLS_N({ classAttribute: ... }, ...)
+		if (context.typescript.isIdentifier(expression)) {
+			const name = expression.text;
+			// Vue generates __VLS_0, __VLS_1, etc. for component instances
+			if (name.startsWith('__VLS_')) {
+				// Check for direct class attribute properties
+				return this.hasClassDirectProperty(firstArg, context);
+			}
+		}
+
+		return false;
 	}
 
 	private hasClassSpreadProperty(
 		obj: ts.ObjectLiteralExpression,
 		context: ExtractionContext
 	): boolean {
+		// Build set of class attribute names to check
+		const classAttributeNames = new Set(['class', ...(context.classAttributes || [])]);
+
 		for (const prop of obj.properties) {
 			if (context.typescript.isSpreadAssignment(prop)) {
 				const spreadExpr = prop.expression;
@@ -114,11 +159,35 @@ export class VueAttributeExtractor extends BaseExtractor {
 					for (const innerProp of spreadExpr.properties) {
 						if (context.typescript.isPropertyAssignment(innerProp)) {
 							const name = innerProp.name;
-							if (context.typescript.isIdentifier(name) && name.text === 'class') {
+							if (
+								context.typescript.isIdentifier(name) &&
+								classAttributeNames.has(name.text)
+							) {
 								return true;
 							}
 						}
 					}
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Check if an object has direct class attribute properties (for custom components).
+	 * Vue generates direct properties like: { colorStyles: "bg-blue-500" }
+	 */
+	private hasClassDirectProperty(
+		obj: ts.ObjectLiteralExpression,
+		context: ExtractionContext
+	): boolean {
+		const classAttributeNames = new Set(['class', ...(context.classAttributes || [])]);
+
+		for (const prop of obj.properties) {
+			if (context.typescript.isPropertyAssignment(prop)) {
+				const name = prop.name;
+				if (context.typescript.isIdentifier(name) && classAttributeNames.has(name.text)) {
+					return true;
 				}
 			}
 		}
@@ -137,31 +206,50 @@ export class VueAttributeExtractor extends BaseExtractor {
 			return classNames;
 		}
 
-		// Find spread assignments with 'class' property
+		// Build set of class attribute names to check
+		const classAttributeNames = new Set(['class', ...(context.classAttributes || [])]);
+
+		// Process all properties in the object literal
 		for (const prop of firstArg.properties) {
-			if (!context.typescript.isSpreadAssignment(prop)) {
-				continue;
-			}
+			// Handle spread assignments: ...{ class: "..." }
+			if (context.typescript.isSpreadAssignment(prop)) {
+				const spreadExpr = prop.expression;
+				if (context.typescript.isObjectLiteralExpression(spreadExpr)) {
+					for (const innerProp of spreadExpr.properties) {
+						if (!context.typescript.isPropertyAssignment(innerProp)) {
+							continue;
+						}
 
-			const spreadExpr = prop.expression;
-			if (!context.typescript.isObjectLiteralExpression(spreadExpr)) {
-				continue;
-			}
+						const name = innerProp.name;
+						if (!context.typescript.isIdentifier(name)) {
+							continue;
+						}
 
-			for (const innerProp of spreadExpr.properties) {
-				if (!context.typescript.isPropertyAssignment(innerProp)) {
+						// Check if this is a class attribute
+						if (!classAttributeNames.has(name.text)) {
+							continue;
+						}
+
+						const value = innerProp.initializer;
+						const attributeId = `${innerProp.getStart()}-${innerProp.getEnd()}`;
+						classNames.push(...this.extractClassesFromValue(value, context, attributeId));
+					}
+				}
+			}
+			// Handle direct property assignments: colorStyles: "..."
+			else if (context.typescript.isPropertyAssignment(prop)) {
+				const name = prop.name;
+				if (!context.typescript.isIdentifier(name)) {
 					continue;
 				}
 
-				const name = innerProp.name;
-				if (!context.typescript.isIdentifier(name) || name.text !== 'class') {
+				// Check if this is a class attribute (custom attributes like colorStyles)
+				if (!classAttributeNames.has(name.text)) {
 					continue;
 				}
 
-				const value = innerProp.initializer;
-				const attributeId = `${innerProp.getStart()}-${innerProp.getEnd()}`;
-
-				// Handle different class value types
+				const value = prop.initializer;
+				const attributeId = `${prop.getStart()}-${prop.getEnd()}`;
 				classNames.push(...this.extractClassesFromValue(value, context, attributeId));
 			}
 		}
@@ -219,49 +307,8 @@ export class VueAttributeExtractor extends BaseExtractor {
 		}
 
 		if (objectExpr) {
-			for (const prop of objectExpr.properties) {
-				if (context.typescript.isPropertyAssignment(prop)) {
-					const propName = prop.name;
-					let className: string | undefined;
-					let start: number | undefined;
-
-					// Handle string literal keys: { 'bg-red-500': true }
-					if (context.typescript.isStringLiteral(propName)) {
-						className = propName.text;
-						start = propName.getStart() + 1; // Skip opening quote
-					}
-					// Handle identifier keys: { flex: true }
-					else if (context.typescript.isIdentifier(propName)) {
-						className = propName.text;
-						start = propName.getStart();
-					}
-
-					if (className && start !== undefined) {
-						classNames.push({
-							className,
-							absoluteStart: start,
-							length: className.length,
-							line: context.sourceFile.getLineAndCharacterOfPosition(start).line + 1,
-							file: context.sourceFile.fileName,
-							attributeId
-						});
-					}
-				}
-				// Handle shorthand properties: { flex }
-				else if (context.typescript.isShorthandPropertyAssignment(prop)) {
-					const className = prop.name.text;
-					const start = prop.name.getStart();
-					classNames.push({
-						className,
-						absoluteStart: start,
-						length: className.length,
-						line: context.sourceFile.getLineAndCharacterOfPosition(start).line + 1,
-						file: context.sourceFile.fileName,
-						attributeId
-					});
-				}
-			}
-			return classNames;
+			// Use extractFromObjectExpression which handles computed property names
+			return this.extractFromObjectExpression(objectExpr, context, attributeId);
 		}
 
 		// Array literal: class: ['flex', 'items-center']
@@ -277,9 +324,8 @@ export class VueAttributeExtractor extends BaseExtractor {
 		}
 
 		if (arrayExpr) {
-			const addAttributeId = (classes: ClassNameInfo[]): ClassNameInfo[] =>
-				classes.map(c => ({ ...c, attributeId }));
-			return addAttributeId(this.expressionExtractor.extract(arrayExpr, context));
+			// Process array elements directly to handle __VLS_ctx references
+			return this.extractFromArrayExpression(arrayExpr, context, attributeId);
 		}
 
 		// Template literal or other expressions - delegate to expression extractor
@@ -318,10 +364,94 @@ export class VueAttributeExtractor extends BaseExtractor {
 			}
 		}
 
-		if (callExpr && this.shouldValidateFunctionCall(callExpr, context.utilityFunctions, context)) {
-			const addAttributeId = (classes: ClassNameInfo[]): ClassNameInfo[] =>
-				classes.map(c => ({ ...c, attributeId }));
-			return addAttributeId(this.expressionExtractor.extract(callExpr, context));
+		if (callExpr) {
+			// Check if it's a utility function (clsx, cn, etc.) - extract all arguments
+			if (this.shouldValidateFunctionCall(callExpr, context.utilityFunctions, context)) {
+				const addAttributeId = (classes: ClassNameInfo[]): ClassNameInfo[] =>
+					classes.map(c => ({ ...c, attributeId }));
+				return addAttributeId(this.expressionExtractor.extract(callExpr, context));
+			}
+
+			// Check for CVA/TV function calls with class override: button({ class: '...' })
+			// These are __VLS_ctx.functionName({ class: '...' }) patterns
+			const classOverrideClasses = this.extractFromCvaTvClassOverride(
+				callExpr,
+				context,
+				attributeId
+			);
+			if (classOverrideClasses.length > 0) {
+				return classOverrideClasses;
+			}
+		}
+
+		// Handle conditional (ternary) expressions: class: (isActive ? 'flex' : 'hidden')
+		// Vue wraps expressions in parentheses: class: (__VLS_ctx.isActive ? 'active' : 'inactive')
+		let conditionalExpr: ts.ConditionalExpression | undefined;
+		if (context.typescript.isConditionalExpression(value)) {
+			conditionalExpr = value;
+		} else if (context.typescript.isParenthesizedExpression(value)) {
+			const inner = value.expression;
+			if (context.typescript.isConditionalExpression(inner)) {
+				conditionalExpr = inner;
+			}
+		}
+
+		if (conditionalExpr) {
+			return this.extractFromConditionalExpression(conditionalExpr, context, attributeId);
+		}
+
+		// Handle binary expressions: class: (isActive && 'flex')
+		// Vue wraps expressions in parentheses: class: (__VLS_ctx.isActive && 'active')
+		let binaryExpr: ts.BinaryExpression | undefined;
+		if (context.typescript.isBinaryExpression(value)) {
+			binaryExpr = value;
+		} else if (context.typescript.isParenthesizedExpression(value)) {
+			const inner = value.expression;
+			if (context.typescript.isBinaryExpression(inner)) {
+				binaryExpr = inner;
+			}
+		}
+
+		if (binaryExpr) {
+			return this.extractFromBinaryExpression(binaryExpr, context, attributeId);
+		}
+
+		// Handle type assertions: class: ('invalid-class' as string)
+		// Vue wraps expressions: class: (('invalid-class' as string))
+		let asExpr: ts.AsExpression | undefined;
+		if (context.typescript.isAsExpression(value)) {
+			asExpr = value;
+		} else if (context.typescript.isParenthesizedExpression(value)) {
+			let inner = value.expression;
+			// Double unwrap for nested parentheses
+			if (context.typescript.isParenthesizedExpression(inner)) {
+				inner = inner.expression;
+			}
+			if (context.typescript.isAsExpression(inner)) {
+				asExpr = inner;
+			}
+		}
+
+		if (asExpr) {
+			return this.extractClassesFromValue(asExpr.expression, context, attributeId);
+		}
+
+		// Handle non-null assertions: class: (someClass!)
+		let nonNullExpr: ts.NonNullExpression | undefined;
+		if (context.typescript.isNonNullExpression(value)) {
+			nonNullExpr = value;
+		} else if (context.typescript.isParenthesizedExpression(value)) {
+			let inner = value.expression;
+			if (context.typescript.isParenthesizedExpression(inner)) {
+				inner = inner.expression;
+			}
+			if (context.typescript.isNonNullExpression(inner)) {
+				nonNullExpr = inner;
+			}
+		}
+
+		if (nonNullExpr) {
+			return this.extractClassesFromValue(nonNullExpr.expression, context, attributeId);
 		}
 
 		// Handle __VLS_ctx.propertyName patterns for variable/computed/function references
@@ -329,6 +459,484 @@ export class VueAttributeExtractor extends BaseExtractor {
 		const resolvedClasses = this.extractFromVlsCtxReference(value, context, attributeId);
 		if (resolvedClasses.length > 0) {
 			return resolvedClasses;
+		}
+
+		return classNames;
+	}
+
+	/**
+	 * Extract classes from an array expression, handling __VLS_ctx references.
+	 * This method processes array elements directly to support variable references.
+	 */
+	private extractFromArrayExpression(
+		arrayExpr: ts.ArrayLiteralExpression,
+		context: ExtractionContext,
+		attributeId: string
+	): ClassNameInfo[] {
+		const { typescript } = context;
+		const classNames: ClassNameInfo[] = [];
+
+		for (const element of arrayExpr.elements) {
+			if (element === undefined) continue;
+
+			// String literal: 'flex'
+			if (typescript.isStringLiteral(element)) {
+				const fullText = element.text;
+				if (fullText.length > 0) {
+					const stringContentStart = element.getStart() + 1;
+					let offset = 0;
+					const parts = fullText.split(/(\s+)/);
+					for (const part of parts) {
+						if (part && !/^\s+$/.test(part)) {
+							classNames.push({
+								className: part,
+								absoluteStart: stringContentStart + offset,
+								length: part.length,
+								line:
+									context.sourceFile.getLineAndCharacterOfPosition(stringContentStart + offset)
+										.line + 1,
+								file: context.sourceFile.fileName,
+								attributeId
+							});
+						}
+						offset += part.length;
+					}
+				}
+			}
+			// Object literal: { 'bg-red-500': isActive }
+			else if (typescript.isObjectLiteralExpression(element)) {
+				classNames.push(...this.extractFromObjectExpression(element, context, attributeId));
+			}
+			// Spread element: ...classes
+			else if (typescript.isSpreadElement(element)) {
+				// Try to resolve __VLS_ctx reference
+				const vlsResults = this.extractFromVlsCtxReference(element.expression, context, attributeId);
+				if (vlsResults.length > 0) {
+					classNames.push(...vlsResults);
+				}
+			}
+			// Handle __VLS_ctx.variable references: __VLS_ctx.myClass
+			else if (typescript.isPropertyAccessExpression(element)) {
+				const vlsResults = this.extractFromVlsCtxReference(element, context, attributeId);
+				if (vlsResults.length > 0) {
+					classNames.push(...vlsResults);
+				}
+			}
+			// Handle parenthesized expressions: (__VLS_ctx.myVar)
+			else if (typescript.isParenthesizedExpression(element)) {
+				const inner = element.expression;
+				if (typescript.isPropertyAccessExpression(inner)) {
+					const vlsResults = this.extractFromVlsCtxReference(inner, context, attributeId);
+					if (vlsResults.length > 0) {
+						classNames.push(...vlsResults);
+					}
+				} else if (typescript.isArrayLiteralExpression(inner)) {
+					// Nested array in parentheses
+					classNames.push(...this.extractFromArrayExpression(inner, context, attributeId));
+				}
+			}
+			// Handle nested arrays recursively
+			else if (typescript.isArrayLiteralExpression(element)) {
+				classNames.push(...this.extractFromArrayExpression(element, context, attributeId));
+			}
+			// Handle ternary/conditional expressions
+			else if (typescript.isConditionalExpression(element)) {
+				// Extract from both branches
+				classNames.push(...this.extractFromConditionalElement(element, context, attributeId));
+			}
+		}
+
+		return classNames;
+	}
+
+	/**
+	 * Extract classes from an object expression, handling computed property names.
+	 */
+	private extractFromObjectExpression(
+		objExpr: ts.ObjectLiteralExpression,
+		context: ExtractionContext,
+		attributeId: string
+	): ClassNameInfo[] {
+		const { typescript } = context;
+		const classNames: ClassNameInfo[] = [];
+
+		for (const prop of objExpr.properties) {
+			if (typescript.isPropertyAssignment(prop)) {
+				const propName = prop.name;
+				let className: string | undefined;
+				let start: number | undefined;
+
+				if (typescript.isStringLiteral(propName)) {
+					className = propName.text;
+					start = propName.getStart() + 1;
+				} else if (typescript.isIdentifier(propName)) {
+					className = propName.text;
+					start = propName.getStart();
+				}
+				// Handle computed property names: { [__VLS_ctx.myVar]: true }
+				else if (typescript.isComputedPropertyName(propName)) {
+					let computedExpr = propName.expression;
+					// Unwrap parentheses
+					if (typescript.isParenthesizedExpression(computedExpr)) {
+						computedExpr = computedExpr.expression;
+					}
+					// Resolve __VLS_ctx.variable pattern
+					if (typescript.isPropertyAccessExpression(computedExpr)) {
+						const vlsResults = this.extractFromVlsCtxReference(computedExpr, context, attributeId);
+						if (vlsResults.length > 0) {
+							classNames.push(...vlsResults);
+							continue;
+						}
+					}
+				}
+
+				if (className && start !== undefined) {
+					classNames.push({
+						className,
+						absoluteStart: start,
+						length: className.length,
+						line: context.sourceFile.getLineAndCharacterOfPosition(start).line + 1,
+						file: context.sourceFile.fileName,
+						attributeId
+					});
+				}
+			} else if (typescript.isShorthandPropertyAssignment(prop)) {
+				const className = prop.name.text;
+				const start = prop.name.getStart();
+				classNames.push({
+					className,
+					absoluteStart: start,
+					length: className.length,
+					line: context.sourceFile.getLineAndCharacterOfPosition(start).line + 1,
+					file: context.sourceFile.fileName,
+					attributeId
+				});
+			}
+		}
+
+		return classNames;
+	}
+
+	/**
+	 * Extract classes from a conditional (ternary) expression in array context.
+	 */
+	private extractFromConditionalElement(
+		conditional: ts.ConditionalExpression,
+		context: ExtractionContext,
+		attributeId: string
+	): ClassNameInfo[] {
+		return this.extractFromConditionalExpression(conditional, context, attributeId);
+	}
+
+	/**
+	 * Extract classes from a conditional (ternary) expression.
+	 * Handles: isActive ? 'flex' : 'hidden'
+	 */
+	private extractFromConditionalExpression(
+		conditional: ts.ConditionalExpression,
+		context: ExtractionContext,
+		attributeId: string
+	): ClassNameInfo[] {
+		const classNames: ClassNameInfo[] = [];
+
+		// Use the ternary's position as a unique identifier (like ExpressionExtractor)
+		const ternaryId = conditional.getStart();
+
+		// Extract from true branch with conditionalBranchId
+		const whenTrue = conditional.whenTrue;
+		classNames.push(
+			...this.extractFromBranchExpression(whenTrue, context, attributeId, `ternary:true:${ternaryId}`)
+		);
+
+		// Extract from false branch with conditionalBranchId
+		const whenFalse = conditional.whenFalse;
+		classNames.push(
+			...this.extractFromBranchExpression(whenFalse, context, attributeId, `ternary:false:${ternaryId}`)
+		);
+
+		return classNames;
+	}
+
+	/**
+	 * Extract classes from a binary expression.
+	 * Handles: isActive && 'flex', isDisabled || 'fallback'
+	 */
+	private extractFromBinaryExpression(
+		binary: ts.BinaryExpression,
+		context: ExtractionContext,
+		attributeId: string
+	): ClassNameInfo[] {
+		const { typescript } = context;
+		const classNames: ClassNameInfo[] = [];
+
+		// Extract from left operand (for patterns like: 'flex' || fallback)
+		classNames.push(...this.extractFromBranchExpression(binary.left, context, attributeId));
+
+		// Extract from right operand (for patterns like: isActive && 'flex')
+		classNames.push(...this.extractFromBranchExpression(binary.right, context, attributeId));
+
+		return classNames;
+	}
+
+	/**
+	 * Extract classes from a branch expression (ternary branch or binary operand).
+	 * Handles string literals, nested ternaries, nested binaries, and VLS references.
+	 */
+	private extractFromBranchExpression(
+		expr: ts.Expression,
+		context: ExtractionContext,
+		attributeId: string,
+		conditionalBranchId?: string
+	): ClassNameInfo[] {
+		const { typescript } = context;
+		const classNames: ClassNameInfo[] = [];
+
+		// Helper to add conditionalBranchId to extracted classes
+		const addBranchId = (classes: ClassNameInfo[]): ClassNameInfo[] =>
+			conditionalBranchId ? classes.map(c => ({ ...c, conditionalBranchId })) : classes;
+
+		// String literal: 'flex items-center'
+		if (typescript.isStringLiteral(expr)) {
+			classNames.push(...addBranchId(this.extractClassesFromStringLiteral(expr, context, attributeId)));
+		}
+		// Nested ternary: condition ? 'a' : (nested ? 'b' : 'c')
+		else if (typescript.isConditionalExpression(expr)) {
+			classNames.push(...this.extractFromConditionalExpression(expr, context, attributeId));
+		}
+		// Nested binary: isA && isB && 'class'
+		else if (typescript.isBinaryExpression(expr)) {
+			classNames.push(...addBranchId(this.extractFromBinaryExpression(expr, context, attributeId)));
+		}
+		// Parenthesized expression
+		else if (typescript.isParenthesizedExpression(expr)) {
+			classNames.push(...this.extractFromBranchExpression(expr.expression, context, attributeId, conditionalBranchId));
+		}
+		// VLS ctx reference: __VLS_ctx.myClass
+		else if (typescript.isPropertyAccessExpression(expr)) {
+			const vlsResults = this.extractFromVlsCtxReference(expr, context, attributeId);
+			classNames.push(...addBranchId(vlsResults));
+		}
+		// Template literal: `flex ${something}`
+		else if (
+			typescript.isTemplateExpression(expr) ||
+			typescript.isNoSubstitutionTemplateLiteral(expr)
+		) {
+			const addAttributeId = (classes: ClassNameInfo[]): ClassNameInfo[] =>
+				classes.map(c => ({ ...c, attributeId }));
+			classNames.push(...addBranchId(addAttributeId(this.expressionExtractor.extract(expr, context))));
+		}
+
+		return classNames;
+	}
+
+	/**
+	 * Extract classes from CVA/TV function calls with class override.
+	 * Handles patterns like: button({ color: 'primary', class: 'invalid-class' })
+	 *
+	 * Only extracts from functions that are defined using cva() or tv(),
+	 * not from arbitrary custom functions.
+	 */
+	private extractFromCvaTvClassOverride(
+		callExpr: ts.CallExpression,
+		context: ExtractionContext,
+		attributeId: string
+	): ClassNameInfo[] {
+		const { typescript, typeChecker } = context;
+		const classNames: ClassNameInfo[] = [];
+
+		// Check if this is a __VLS_ctx.functionName pattern
+		const calleeExpr = callExpr.expression;
+		if (!typescript.isPropertyAccessExpression(calleeExpr)) {
+			return classNames;
+		}
+
+		const objectExpr = calleeExpr.expression;
+		if (!typescript.isIdentifier(objectExpr) || objectExpr.text !== '__VLS_ctx') {
+			return classNames;
+		}
+
+		const functionName = calleeExpr.name;
+		if (!typescript.isIdentifier(functionName)) {
+			return classNames;
+		}
+
+		// Check if this function is defined using cva() or tv()
+		// by looking at its definition
+		if (!this.isCvaTvFunction(functionName, context)) {
+			return classNames;
+		}
+
+		// Look for object argument with class/className property
+		if (callExpr.arguments.length === 0) {
+			return classNames;
+		}
+
+		const firstArg = callExpr.arguments[0];
+		if (!typescript.isObjectLiteralExpression(firstArg)) {
+			return classNames;
+		}
+
+		// Find class or className property
+		for (const prop of firstArg.properties) {
+			if (!typescript.isPropertyAssignment(prop)) {
+				continue;
+			}
+
+			const propName = prop.name;
+			if (!typescript.isIdentifier(propName)) {
+				continue;
+			}
+
+			if (propName.text !== 'class' && propName.text !== 'className') {
+				continue;
+			}
+
+			// Extract classes from the property value
+			const value = prop.initializer;
+			if (typescript.isStringLiteral(value)) {
+				classNames.push(...this.extractClassesFromStringLiteral(value, context, attributeId));
+			} else if (typescript.isArrayLiteralExpression(value)) {
+				classNames.push(...this.extractFromArrayExpression(value, context, attributeId));
+			} else if (typescript.isTemplateExpression(value) || typescript.isNoSubstitutionTemplateLiteral(value)) {
+				const addAttrId = (classes: ClassNameInfo[]): ClassNameInfo[] =>
+					classes.map(c => ({ ...c, attributeId }));
+				classNames.push(...addAttrId(this.expressionExtractor.extract(value, context)));
+			}
+		}
+
+		return classNames;
+	}
+
+	/**
+	 * Check if a function is defined using cva() or tv().
+	 * Resolves the function symbol and checks if its initializer is a cva/tv call.
+	 */
+	private isCvaTvFunction(functionName: ts.Identifier, context: ExtractionContext): boolean {
+		const { typescript, typeChecker } = context;
+
+		if (!typeChecker) {
+			return false;
+		}
+
+		// Get the symbol for the function name
+		const symbol = typeChecker.getSymbolAtLocation(functionName);
+		if (!symbol) {
+			return false;
+		}
+
+		const declarations = symbol.getDeclarations();
+		if (!declarations || declarations.length === 0) {
+			return false;
+		}
+
+		for (const declaration of declarations) {
+			// Check PropertySignature -> typeof reference in Volar 3.x
+			if (typescript.isPropertySignature(declaration) && declaration.type) {
+				if (typescript.isTypeQueryNode(declaration.type)) {
+					const exprName = declaration.type.exprName;
+					if (typescript.isIdentifier(exprName)) {
+						// Resolve the actual variable
+						const varSymbol = typeChecker.getSymbolAtLocation(exprName);
+						if (varSymbol) {
+							const varDeclarations = varSymbol.getDeclarations();
+							if (varDeclarations) {
+								for (const varDecl of varDeclarations) {
+									if (typescript.isVariableDeclaration(varDecl) && varDecl.initializer) {
+										if (this.isCallToCvaOrTv(varDecl.initializer, context)) {
+											return true;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			// Check direct variable declaration
+			else if (typescript.isVariableDeclaration(declaration) && declaration.initializer) {
+				if (this.isCallToCvaOrTv(declaration.initializer, context)) {
+					return true;
+				}
+			}
+			// Check property assignment in Vue's return
+			else if (typescript.isPropertyAssignment(declaration)) {
+				let expr = declaration.initializer;
+				if (typescript.isAsExpression(expr)) {
+					expr = expr.expression;
+				}
+				if (typescript.isIdentifier(expr)) {
+					const refSymbol = typeChecker.getSymbolAtLocation(expr);
+					if (refSymbol) {
+						const refDeclarations = refSymbol.getDeclarations();
+						if (refDeclarations) {
+							for (const refDecl of refDeclarations) {
+								if (typescript.isVariableDeclaration(refDecl) && refDecl.initializer) {
+									if (this.isCallToCvaOrTv(refDecl.initializer, context)) {
+										return true;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check if an expression is a call to cva() or tv().
+	 */
+	private isCallToCvaOrTv(expr: ts.Expression, context: ExtractionContext): boolean {
+		const { typescript } = context;
+
+		if (!typescript.isCallExpression(expr)) {
+			return false;
+		}
+
+		const callee = expr.expression;
+
+		// Direct call: cva(...) or tv(...)
+		if (typescript.isIdentifier(callee)) {
+			const name = callee.text;
+			return name === 'cva' || name === 'tv' || name === 'tvLite';
+		}
+
+		return false;
+	}
+
+	/**
+	 * Extract classes from a string literal with attributeId.
+	 */
+	private extractClassesFromStringLiteral(
+		literal: ts.StringLiteral,
+		context: ExtractionContext,
+		attributeId: string
+	): ClassNameInfo[] {
+		const classNames: ClassNameInfo[] = [];
+		const fullText = literal.text;
+
+		if (fullText.length === 0) {
+			return classNames;
+		}
+
+		const stringContentStart = literal.getStart() + 1;
+		let offset = 0;
+
+		const parts = fullText.split(/(\s+)/);
+		for (const part of parts) {
+			if (part && !/^\s+$/.test(part)) {
+				classNames.push({
+					className: part,
+					absoluteStart: stringContentStart + offset,
+					length: part.length,
+					line: context.sourceFile.getLineAndCharacterOfPosition(stringContentStart + offset).line + 1,
+					file: context.sourceFile.fileName,
+					attributeId
+				});
+			}
+			offset += part.length;
 		}
 
 		return classNames;
@@ -1129,8 +1737,15 @@ export class VueAttributeExtractor extends BaseExtractor {
 
 	/**
 	 * Extract classes from an expression (array, object, string, etc.)
+	 * @param expr The expression to extract from
+	 * @param context The extraction context
+	 * @param attributeId Optional attribute ID for tracking
 	 */
-	private extractFromExpression(expr: ts.Expression, context: ExtractionContext): ClassNameInfo[] {
+	private extractFromExpression(
+		expr: ts.Expression,
+		context: ExtractionContext,
+		attributeId?: string
+	): ClassNameInfo[] {
 		const { typescript } = context;
 		const classNames: ClassNameInfo[] = [];
 
@@ -1168,11 +1783,34 @@ export class VueAttributeExtractor extends BaseExtractor {
 				if (element === undefined) continue;
 
 				if (typescript.isStringLiteral(element)) {
-					classNames.push(...this.extractFromExpression(element, context));
+					classNames.push(...this.extractFromExpression(element, context, attributeId));
 				} else if (typescript.isObjectLiteralExpression(element)) {
-					classNames.push(...this.extractFromExpression(element, context));
+					classNames.push(...this.extractFromExpression(element, context, attributeId));
 				} else if (typescript.isSpreadElement(element)) {
-					classNames.push(...this.extractFromExpression(element.expression, context));
+					classNames.push(...this.extractFromExpression(element.expression, context, attributeId));
+				}
+				// Handle __VLS_ctx.variable references in arrays
+				else if (typescript.isPropertyAccessExpression(element)) {
+					if (attributeId) {
+						const vlsResults = this.extractFromVlsCtxReference(element, context, attributeId);
+						if (vlsResults.length > 0) {
+							classNames.push(...vlsResults);
+						}
+					}
+				}
+				// Handle parenthesized expressions: (__VLS_ctx.myVar)
+				else if (typescript.isParenthesizedExpression(element)) {
+					const inner = element.expression;
+					if (typescript.isPropertyAccessExpression(inner) && attributeId) {
+						const vlsResults = this.extractFromVlsCtxReference(inner, context, attributeId);
+						if (vlsResults.length > 0) {
+							classNames.push(...vlsResults);
+						}
+					}
+				}
+				// Handle nested arrays recursively
+				else if (typescript.isArrayLiteralExpression(element)) {
+					classNames.push(...this.extractFromExpression(element, context, attributeId));
 				}
 			}
 			return classNames;
@@ -1193,6 +1831,26 @@ export class VueAttributeExtractor extends BaseExtractor {
 						className = propName.text;
 						start = propName.getStart();
 					}
+					// Handle computed property names: { [__VLS_ctx.myVar]: true }
+					else if (typescript.isComputedPropertyName(propName)) {
+						let computedExpr = propName.expression;
+						// Unwrap parentheses: { [(__VLS_ctx.myVar)]: true }
+						if (typescript.isParenthesizedExpression(computedExpr)) {
+							computedExpr = computedExpr.expression;
+						}
+						// Resolve __VLS_ctx.variable pattern
+						if (typescript.isPropertyAccessExpression(computedExpr) && attributeId) {
+							const vlsResults = this.extractFromVlsCtxReference(
+								computedExpr,
+								context,
+								attributeId
+							);
+							if (vlsResults.length > 0) {
+								classNames.push(...vlsResults);
+								continue;
+							}
+						}
+					}
 
 					if (className && start !== undefined) {
 						classNames.push({
@@ -1200,7 +1858,8 @@ export class VueAttributeExtractor extends BaseExtractor {
 							absoluteStart: start,
 							length: className.length,
 							line: context.sourceFile.getLineAndCharacterOfPosition(start).line + 1,
-							file: context.sourceFile.fileName
+							file: context.sourceFile.fileName,
+							attributeId
 						});
 					}
 				} else if (typescript.isShorthandPropertyAssignment(prop)) {
@@ -1211,11 +1870,49 @@ export class VueAttributeExtractor extends BaseExtractor {
 						absoluteStart: start,
 						length: className.length,
 						line: context.sourceFile.getLineAndCharacterOfPosition(start).line + 1,
-						file: context.sourceFile.fileName
+						file: context.sourceFile.fileName,
+						attributeId
 					});
 				}
 			}
 			return classNames;
+		}
+
+		// Handle conditional (ternary) expressions: isActive ? 'flex' : 'hidden'
+		if (typescript.isConditionalExpression(expr)) {
+			// Extract from both branches recursively
+			classNames.push(...this.extractFromExpression(expr.whenTrue, context, attributeId));
+			classNames.push(...this.extractFromExpression(expr.whenFalse, context, attributeId));
+			return classNames;
+		}
+
+		// Handle binary expressions: isActive && 'flex', isDisabled || 'fallback'
+		if (typescript.isBinaryExpression(expr)) {
+			classNames.push(...this.extractFromExpression(expr.left, context, attributeId));
+			classNames.push(...this.extractFromExpression(expr.right, context, attributeId));
+			return classNames;
+		}
+
+		// Handle parenthesized expressions: ('flex items-center')
+		if (typescript.isParenthesizedExpression(expr)) {
+			return this.extractFromExpression(expr.expression, context, attributeId);
+		}
+
+		// Handle type assertions: 'flex' as string, 'flex' as const
+		if (typescript.isAsExpression(expr)) {
+			return this.extractFromExpression(expr.expression, context, attributeId);
+		}
+
+		// Handle non-null assertions: someValue!
+		if (typescript.isNonNullExpression(expr)) {
+			return this.extractFromExpression(expr.expression, context, attributeId);
+		}
+
+		// Handle template literals
+		if (typescript.isTemplateExpression(expr) || typescript.isNoSubstitutionTemplateLiteral(expr)) {
+			const addAttrId = (classes: ClassNameInfo[]): ClassNameInfo[] =>
+				attributeId ? classes.map(c => ({ ...c, attributeId })) : classes;
+			return addAttrId(this.expressionExtractor.extract(expr, context));
 		}
 
 		return classNames;

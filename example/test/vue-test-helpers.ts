@@ -251,6 +251,13 @@ export function getConflictClassDiagnostics(diagnostics: ts.Diagnostic[]): ts.Di
 }
 
 /**
+ * Get extractable class diagnostics
+ */
+export function getExtractableClassDiagnostics(diagnostics: ts.Diagnostic[]): ts.Diagnostic[] {
+	return filterDiagnostics(diagnostics, DiagnosticCodes.EXTRACTABLE_CLASS);
+}
+
+/**
  * Extract class names from diagnostics (using position text)
  */
 export function getClassNamesFromDiagnostics(
