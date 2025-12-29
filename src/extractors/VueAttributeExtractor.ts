@@ -461,6 +461,13 @@ export class VueAttributeExtractor extends BaseExtractor {
 			return resolvedClasses;
 		}
 
+		// Handle props.propertyName patterns with default values from withDefaults
+		// Vue generates: class: (props.buttonClass) for :class="props.buttonClass"
+		const propsDefaultClasses = this.extractFromPropsWithDefaults(value, context, attributeId);
+		if (propsDefaultClasses.length > 0) {
+			return propsDefaultClasses;
+		}
+
 		return classNames;
 	}
 
@@ -1034,6 +1041,105 @@ export class VueAttributeExtractor extends BaseExtractor {
 		}
 
 		const objectExpr = expr.expression;
+
+		// Handle nested property access: __VLS_ctx.obj.property
+		// e.g., __VLS_ctx.slotProps.buttonClass
+		if (typescript.isPropertyAccessExpression(objectExpr)) {
+			const nestedObject = objectExpr.expression;
+			if (typescript.isIdentifier(nestedObject) && nestedObject.text === '__VLS_ctx') {
+				// This is __VLS_ctx.something.somethingElse
+				const middlePropName = objectExpr.name;
+				const finalPropName = expr.name;
+
+				if (typescript.isIdentifier(middlePropName) && typescript.isIdentifier(finalPropName)) {
+					// Use the final property name position for diagnostics
+					const templatePosition = finalPropName.getStart();
+					const templateLength = finalPropName.text.length;
+
+					// Resolve the middle property (e.g., slotProps) to get its type/value
+					const middleSymbol = typeChecker.getSymbolAtLocation(middlePropName);
+					if (middleSymbol) {
+						const middleDeclarations = middleSymbol.getDeclarations();
+						if (middleDeclarations) {
+							for (const middleDecl of middleDeclarations) {
+								// Handle variable declaration: const slotProps = { buttonClass: '...' }
+								if (typescript.isVariableDeclaration(middleDecl) && middleDecl.initializer) {
+									if (typescript.isObjectLiteralExpression(middleDecl.initializer)) {
+										// Find the property in the object literal
+										for (const prop of middleDecl.initializer.properties) {
+											if (typescript.isPropertyAssignment(prop)) {
+												const propName = prop.name;
+												if (
+													typescript.isIdentifier(propName) &&
+													propName.text === finalPropName.text
+												) {
+													// Found the property, extract classes from its value
+													// Keep original positions from the class string
+													const classes = this.extractFromExpression(
+														prop.initializer,
+														context,
+														attributeId
+													);
+													return classes.map(c => ({
+														...c,
+														attributeId
+													}));
+												}
+											}
+										}
+									}
+								}
+								// Handle property signature in Volar's generated types
+								else if (typescript.isPropertySignature(middleDecl) && middleDecl.type) {
+									if (typescript.isTypeQueryNode(middleDecl.type)) {
+										const exprName = middleDecl.type.exprName;
+										if (typescript.isIdentifier(exprName)) {
+											const varSymbol = typeChecker.getSymbolAtLocation(exprName);
+											if (varSymbol) {
+												const varDeclarations = varSymbol.getDeclarations();
+												if (varDeclarations) {
+													for (const varDecl of varDeclarations) {
+														if (
+															typescript.isVariableDeclaration(varDecl) &&
+															varDecl.initializer &&
+															typescript.isObjectLiteralExpression(varDecl.initializer)
+														) {
+															// Find the property
+															for (const prop of varDecl.initializer.properties) {
+																if (typescript.isPropertyAssignment(prop)) {
+																	const pName = prop.name;
+																	if (
+																		typescript.isIdentifier(pName) &&
+																		pName.text === finalPropName.text
+																	) {
+																		// Keep original positions from the class string
+																		const classes = this.extractFromExpression(
+																			prop.initializer,
+																			context,
+																			attributeId
+																		);
+																		return classes.map(c => ({
+																			...c,
+																			attributeId
+																		}));
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			return [];
+		}
+
 		if (!typescript.isIdentifier(objectExpr) || objectExpr.text !== '__VLS_ctx') {
 			return [];
 		}
@@ -1075,8 +1181,9 @@ export class VueAttributeExtractor extends BaseExtractor {
 			if (typescript.isVariableDeclaration(declaration)) {
 				const initializer = declaration.initializer;
 				if (initializer) {
-					// Check if this is a computed() call
+					// Check if this is a computed() or inject() call
 					if (typescript.isCallExpression(initializer)) {
+						// Handle computed() calls
 						const computedClasses = this.extractFromComputedCall(
 							initializer,
 							context,
@@ -1086,6 +1193,17 @@ export class VueAttributeExtractor extends BaseExtractor {
 						);
 						if (computedClasses.length > 0) {
 							classNames.push(...computedClasses);
+							continue;
+						}
+
+						// Handle inject() calls with default value: inject('key', 'default-classes')
+						const injectClasses = this.extractFromInjectCall(
+							initializer,
+							context,
+							attributeId
+						);
+						if (injectClasses.length > 0) {
+							classNames.push(...injectClasses);
 							continue;
 						}
 					}
@@ -1194,7 +1312,7 @@ export class VueAttributeExtractor extends BaseExtractor {
 									if (varDeclarations) {
 										for (const varDecl of varDeclarations) {
 											if (typescript.isVariableDeclaration(varDecl) && varDecl.initializer) {
-												// Check if it's a computed() call - use ORIGINAL position
+												// Check if it's a computed() or inject() call - use ORIGINAL position
 												// so errors point to actual class strings in script
 												if (typescript.isCallExpression(varDecl.initializer)) {
 													const computedClasses = this.extractFromComputedCall(
@@ -1205,6 +1323,16 @@ export class VueAttributeExtractor extends BaseExtractor {
 													);
 													if (computedClasses.length > 0) {
 														return computedClasses;
+													}
+
+													// Check for inject() calls with default value
+													const injectClasses = this.extractFromInjectCall(
+														varDecl.initializer,
+														context,
+														attributeId
+													);
+													if (injectClasses.length > 0) {
+														return injectClasses;
 													}
 												}
 												// For string literals, use ORIGINAL position from script
@@ -1267,6 +1395,15 @@ export class VueAttributeExtractor extends BaseExtractor {
 							);
 							if (computedClasses.length > 0) {
 								return computedClasses;
+							}
+							// Check for inject() calls with default value
+							const injectClasses = this.extractFromInjectCall(
+								decl.initializer,
+								context,
+								attributeId
+							);
+							if (injectClasses.length > 0) {
+								return injectClasses;
 							}
 						}
 						// Otherwise extract from the initializer directly
@@ -1606,7 +1743,7 @@ export class VueAttributeExtractor extends BaseExtractor {
 			if (typescript.isVariableDeclaration(declaration)) {
 				const init = declaration.initializer;
 				if (init) {
-					// Check for computed() calls
+					// Check for computed() or inject() calls
 					if (typescript.isCallExpression(init)) {
 						const computedClasses = this.extractFromComputedCall(
 							init,
@@ -1617,6 +1754,13 @@ export class VueAttributeExtractor extends BaseExtractor {
 						);
 						if (computedClasses.length > 0) {
 							classNames.push(...computedClasses);
+							continue;
+						}
+
+						// Check for inject() calls with default value
+						const injectClasses = this.extractFromInjectCall(init, context, attributeId);
+						if (injectClasses.length > 0) {
+							classNames.push(...injectClasses);
 							continue;
 						}
 					}
@@ -1690,6 +1834,36 @@ export class VueAttributeExtractor extends BaseExtractor {
 		}
 
 		return [];
+	}
+
+	/**
+	 * Extract classes from an inject() call with a default value.
+	 * Handles: const classes = inject('key', 'flex items-center')
+	 */
+	private extractFromInjectCall(
+		callExpr: ts.CallExpression,
+		context: ExtractionContext,
+		attributeId: string
+	): ClassNameInfo[] {
+		const { typescript } = context;
+
+		// Check if this is a call to 'inject'
+		const calleeExpr = callExpr.expression;
+		if (!typescript.isIdentifier(calleeExpr) || calleeExpr.text !== 'inject') {
+			return [];
+		}
+
+		// inject() needs at least 2 arguments for us to extract the default value
+		// inject(key, defaultValue) or inject(key, defaultValue, treatDefaultAsFactory)
+		if (callExpr.arguments.length < 2) {
+			return [];
+		}
+
+		const defaultValue = callExpr.arguments[1];
+
+		// Extract classes from the default value
+		const classes = this.extractFromExpression(defaultValue, context, attributeId);
+		return classes.map(c => ({ ...c, attributeId }));
 	}
 
 	/**
@@ -1944,5 +2118,104 @@ export class VueAttributeExtractor extends BaseExtractor {
 		}
 
 		return classNames;
+	}
+
+	/**
+	 * Extract classes from props.propertyName patterns with default values.
+	 * Vue generates __VLS_defaults for withDefaults() calls.
+	 *
+	 * Generated code pattern:
+	 * const __VLS_defaults = { buttonClass: 'flex items-center' };
+	 * ...{ class: (props.buttonClass) }
+	 */
+	private extractFromPropsWithDefaults(
+		value: ts.Expression,
+		context: ExtractionContext,
+		attributeId: string
+	): ClassNameInfo[] {
+		const { typescript, typeChecker, sourceFile } = context;
+
+		if (!typeChecker) {
+			return [];
+		}
+
+		// Unwrap parentheses: (props.buttonClass) -> props.buttonClass
+		let expr = value;
+		if (typescript.isParenthesizedExpression(expr)) {
+			expr = expr.expression;
+		}
+
+		// Check for props.propertyName pattern
+		if (!typescript.isPropertyAccessExpression(expr)) {
+			return [];
+		}
+
+		const objectExpr = expr.expression;
+		if (!typescript.isIdentifier(objectExpr) || objectExpr.text !== 'props') {
+			return [];
+		}
+
+		const propertyName = expr.name;
+		if (!typescript.isIdentifier(propertyName)) {
+			return [];
+		}
+
+		// Look for __VLS_defaults in the source file
+		const defaultsValue = this.findVlsDefaultsProperty(
+			propertyName.text,
+			context
+		);
+
+		if (defaultsValue) {
+			return this.extractFromExpression(defaultsValue, context, attributeId);
+		}
+
+		return [];
+	}
+
+	/**
+	 * Find a property value in __VLS_defaults object.
+	 */
+	private findVlsDefaultsProperty(
+		propertyName: string,
+		context: ExtractionContext
+	): ts.Expression | undefined {
+		const { typescript, sourceFile } = context;
+
+		// Walk through the source file to find __VLS_defaults
+		let result: ts.Expression | undefined;
+
+		const visitor = (node: ts.Node): void => {
+			if (result) return;
+
+			if (typescript.isVariableDeclaration(node)) {
+				const name = node.name;
+				if (
+					typescript.isIdentifier(name) &&
+					name.text === '__VLS_defaults' &&
+					node.initializer &&
+					typescript.isObjectLiteralExpression(node.initializer)
+				) {
+					// Found __VLS_defaults, look for the property
+					for (const prop of node.initializer.properties) {
+						if (typescript.isPropertyAssignment(prop)) {
+							const propName = prop.name;
+							if (
+								typescript.isIdentifier(propName) &&
+								propName.text === propertyName
+							) {
+								result = prop.initializer;
+								return;
+							}
+						}
+					}
+				}
+			}
+
+			typescript.forEachChild(node, visitor);
+		};
+
+		typescript.forEachChild(sourceFile, visitor);
+		return result;
 	}
 }
