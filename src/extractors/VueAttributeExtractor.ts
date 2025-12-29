@@ -77,7 +77,10 @@ export class VueAttributeExtractor extends BaseExtractor {
 				// e.g., import * as utils from 'clsx' -> __VLS_ctx.utils.clsx()
 				if (context.typescript.isPropertyAccessExpression(objectExpr)) {
 					const namespaceRoot = objectExpr.expression;
-					if (context.typescript.isIdentifier(namespaceRoot) && namespaceRoot.text === '__VLS_ctx') {
+					if (
+						context.typescript.isIdentifier(namespaceRoot) &&
+						namespaceRoot.text === '__VLS_ctx'
+					) {
 						const namespaceName = objectExpr.name.text; // e.g., 'utils'
 						const functionName = expr.name.text; // e.g., 'clsx'
 
@@ -159,10 +162,7 @@ export class VueAttributeExtractor extends BaseExtractor {
 					for (const innerProp of spreadExpr.properties) {
 						if (context.typescript.isPropertyAssignment(innerProp)) {
 							const name = innerProp.name;
-							if (
-								context.typescript.isIdentifier(name) &&
-								classAttributeNames.has(name.text)
-							) {
+							if (context.typescript.isIdentifier(name) && classAttributeNames.has(name.text)) {
 								return true;
 							}
 						}
@@ -510,7 +510,11 @@ export class VueAttributeExtractor extends BaseExtractor {
 			// Spread element: ...classes
 			else if (typescript.isSpreadElement(element)) {
 				// Try to resolve __VLS_ctx reference
-				const vlsResults = this.extractFromVlsCtxReference(element.expression, context, attributeId);
+				const vlsResults = this.extractFromVlsCtxReference(
+					element.expression,
+					context,
+					attributeId
+				);
 				if (vlsResults.length > 0) {
 					classNames.push(...vlsResults);
 				}
@@ -645,13 +649,23 @@ export class VueAttributeExtractor extends BaseExtractor {
 		// Extract from true branch with conditionalBranchId
 		const whenTrue = conditional.whenTrue;
 		classNames.push(
-			...this.extractFromBranchExpression(whenTrue, context, attributeId, `ternary:true:${ternaryId}`)
+			...this.extractFromBranchExpression(
+				whenTrue,
+				context,
+				attributeId,
+				`ternary:true:${ternaryId}`
+			)
 		);
 
 		// Extract from false branch with conditionalBranchId
 		const whenFalse = conditional.whenFalse;
 		classNames.push(
-			...this.extractFromBranchExpression(whenFalse, context, attributeId, `ternary:false:${ternaryId}`)
+			...this.extractFromBranchExpression(
+				whenFalse,
+				context,
+				attributeId,
+				`ternary:false:${ternaryId}`
+			)
 		);
 
 		return classNames;
@@ -666,7 +680,6 @@ export class VueAttributeExtractor extends BaseExtractor {
 		context: ExtractionContext,
 		attributeId: string
 	): ClassNameInfo[] {
-		const { typescript } = context;
 		const classNames: ClassNameInfo[] = [];
 
 		// Extract from left operand (for patterns like: 'flex' || fallback)
@@ -697,7 +710,9 @@ export class VueAttributeExtractor extends BaseExtractor {
 
 		// String literal: 'flex items-center'
 		if (typescript.isStringLiteral(expr)) {
-			classNames.push(...addBranchId(this.extractClassesFromStringLiteral(expr, context, attributeId)));
+			classNames.push(
+				...addBranchId(this.extractClassesFromStringLiteral(expr, context, attributeId))
+			);
 		}
 		// Nested ternary: condition ? 'a' : (nested ? 'b' : 'c')
 		else if (typescript.isConditionalExpression(expr)) {
@@ -709,7 +724,14 @@ export class VueAttributeExtractor extends BaseExtractor {
 		}
 		// Parenthesized expression
 		else if (typescript.isParenthesizedExpression(expr)) {
-			classNames.push(...this.extractFromBranchExpression(expr.expression, context, attributeId, conditionalBranchId));
+			classNames.push(
+				...this.extractFromBranchExpression(
+					expr.expression,
+					context,
+					attributeId,
+					conditionalBranchId
+				)
+			);
 		}
 		// VLS ctx reference: __VLS_ctx.myClass
 		else if (typescript.isPropertyAccessExpression(expr)) {
@@ -723,7 +745,9 @@ export class VueAttributeExtractor extends BaseExtractor {
 		) {
 			const addAttributeId = (classes: ClassNameInfo[]): ClassNameInfo[] =>
 				classes.map(c => ({ ...c, attributeId }));
-			classNames.push(...addBranchId(addAttributeId(this.expressionExtractor.extract(expr, context))));
+			classNames.push(
+				...addBranchId(addAttributeId(this.expressionExtractor.extract(expr, context)))
+			);
 		}
 
 		return classNames;
@@ -741,7 +765,7 @@ export class VueAttributeExtractor extends BaseExtractor {
 		context: ExtractionContext,
 		attributeId: string
 	): ClassNameInfo[] {
-		const { typescript, typeChecker } = context;
+		const { typescript } = context;
 		const classNames: ClassNameInfo[] = [];
 
 		// Check if this is a __VLS_ctx.functionName pattern
@@ -797,7 +821,10 @@ export class VueAttributeExtractor extends BaseExtractor {
 				classNames.push(...this.extractClassesFromStringLiteral(value, context, attributeId));
 			} else if (typescript.isArrayLiteralExpression(value)) {
 				classNames.push(...this.extractFromArrayExpression(value, context, attributeId));
-			} else if (typescript.isTemplateExpression(value) || typescript.isNoSubstitutionTemplateLiteral(value)) {
+			} else if (
+				typescript.isTemplateExpression(value) ||
+				typescript.isNoSubstitutionTemplateLiteral(value)
+			) {
 				const addAttrId = (classes: ClassNameInfo[]): ClassNameInfo[] =>
 					classes.map(c => ({ ...c, attributeId }));
 				classNames.push(...addAttrId(this.expressionExtractor.extract(value, context)));
@@ -931,7 +958,8 @@ export class VueAttributeExtractor extends BaseExtractor {
 					className: part,
 					absoluteStart: stringContentStart + offset,
 					length: part.length,
-					line: context.sourceFile.getLineAndCharacterOfPosition(stringContentStart + offset).line + 1,
+					line:
+						context.sourceFile.getLineAndCharacterOfPosition(stringContentStart + offset).line + 1,
 					file: context.sourceFile.fileName,
 					attributeId
 				});

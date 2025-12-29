@@ -22,7 +22,7 @@ export class VueExpressionExtractor extends ExpressionExtractor {
 		context: ExtractionContext,
 		conditionalBranchId?: string
 	): ClassNameInfo[] {
-		const { typescript, typeChecker } = context;
+		const { typescript } = context;
 
 		// Handle __VLS_ctx.propertyName patterns (Vue variable references)
 		if (typescript.isPropertyAccessExpression(expression)) {
@@ -163,7 +163,10 @@ export class VueExpressionExtractor extends ExpressionExtractor {
 				// e.g., import * as utils from 'clsx' -> __VLS_ctx.utils.clsx()
 				if (context.typescript.isPropertyAccessExpression(objectExpr)) {
 					const namespaceRoot = objectExpr.expression;
-					if (context.typescript.isIdentifier(namespaceRoot) && namespaceRoot.text === '__VLS_ctx') {
+					if (
+						context.typescript.isIdentifier(namespaceRoot) &&
+						namespaceRoot.text === '__VLS_ctx'
+					) {
 						const namespaceName = objectExpr.name.text; // e.g., 'utils'
 						const functionName = expr.name.text; // e.g., 'clsx'
 
