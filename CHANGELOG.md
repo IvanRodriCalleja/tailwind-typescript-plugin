@@ -1,3 +1,9 @@
+## [1.4.0-beta.22](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.21...v1.4.0-beta.22) (2025-12-29)
+
+### ✨ Features
+
+* **vue:** add extractable class detection and namespace import support ([ad87dc5](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/ad87dc53eca9a05501da5a313a89a8b2fa690b2e))
+
 ## [1.4.0-beta.21](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.20...v1.4.0-beta.21) (2025-12-23)
 
 ### ✨ Features
