@@ -1052,10 +1052,6 @@ export class VueAttributeExtractor extends BaseExtractor {
 				const finalPropName = expr.name;
 
 				if (typescript.isIdentifier(middlePropName) && typescript.isIdentifier(finalPropName)) {
-					// Use the final property name position for diagnostics
-					const templatePosition = finalPropName.getStart();
-					const templateLength = finalPropName.text.length;
-
 					// Resolve the middle property (e.g., slotProps) to get its type/value
 					const middleSymbol = typeChecker.getSymbolAtLocation(middlePropName);
 					if (middleSymbol) {
@@ -1197,11 +1193,7 @@ export class VueAttributeExtractor extends BaseExtractor {
 						}
 
 						// Handle inject() calls with default value: inject('key', 'default-classes')
-						const injectClasses = this.extractFromInjectCall(
-							initializer,
-							context,
-							attributeId
-						);
+						const injectClasses = this.extractFromInjectCall(initializer, context, attributeId);
 						if (injectClasses.length > 0) {
 							classNames.push(...injectClasses);
 							continue;
@@ -2133,7 +2125,7 @@ export class VueAttributeExtractor extends BaseExtractor {
 		context: ExtractionContext,
 		attributeId: string
 	): ClassNameInfo[] {
-		const { typescript, typeChecker, sourceFile } = context;
+		const { typescript, typeChecker } = context;
 
 		if (!typeChecker) {
 			return [];
@@ -2161,10 +2153,7 @@ export class VueAttributeExtractor extends BaseExtractor {
 		}
 
 		// Look for __VLS_defaults in the source file
-		const defaultsValue = this.findVlsDefaultsProperty(
-			propertyName.text,
-			context
-		);
+		const defaultsValue = this.findVlsDefaultsProperty(propertyName.text, context);
 
 		if (defaultsValue) {
 			return this.extractFromExpression(defaultsValue, context, attributeId);
@@ -2200,10 +2189,7 @@ export class VueAttributeExtractor extends BaseExtractor {
 					for (const prop of node.initializer.properties) {
 						if (typescript.isPropertyAssignment(prop)) {
 							const propName = prop.name;
-							if (
-								typescript.isIdentifier(propName) &&
-								propName.text === propertyName
-							) {
+							if (typescript.isIdentifier(propName) && propName.text === propertyName) {
 								result = prop.initializer;
 								return;
 							}
