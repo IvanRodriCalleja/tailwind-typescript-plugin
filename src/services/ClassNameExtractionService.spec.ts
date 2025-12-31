@@ -50,7 +50,6 @@ describe('ClassNameExtractionService', () => {
 
 			expect(classNames).toHaveLength(0);
 		});
-
 	});
 
 	describe('Lazy initialization', () => {
