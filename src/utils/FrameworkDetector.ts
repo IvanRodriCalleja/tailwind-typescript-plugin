@@ -3,8 +3,7 @@
  */
 export enum Framework {
 	JSX = 'jsx',
-	VUE = 'vue',
-	SVELTE = 'svelte'
+	VUE = 'vue'
 }
 
 /**
@@ -18,11 +17,6 @@ export function detectFramework(fileName: string): Framework | null {
 	// Vue Single File Components (including virtual .vue.ts files from Volar)
 	if (fileName.endsWith('.vue') || fileName.includes('.vue.')) {
 		return Framework.VUE;
-	}
-
-	// Svelte components (including virtual .svelte.ts files)
-	if (fileName.endsWith('.svelte') || fileName.includes('.svelte.')) {
-		return Framework.SVELTE;
 	}
 
 	// JSX/TSX files (React, Solid, etc.)

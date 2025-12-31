@@ -378,7 +378,7 @@ export class TailwindTypescriptPlugin {
 			return false;
 		}
 
-		// Process supported framework files (.ts, .tsx, .js, .jsx, .vue, .svelte)
+		// Process supported framework files (.ts, .tsx, .js, .jsx, .vue)
 		if (!isSupportedFile(fileName)) {
 			return false;
 		}

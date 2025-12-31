@@ -51,20 +51,6 @@ describe('ClassNameExtractionService', () => {
 			expect(classNames).toHaveLength(0);
 		});
 
-		it('should handle Svelte files with stub extractor', () => {
-			const sourceCode = '<div class="flex">Hello</div>';
-			const sourceFile = ts.createSourceFile(
-				'App.svelte',
-				sourceCode,
-				ts.ScriptTarget.Latest,
-				true
-			);
-
-			// Svelte extractor is a stub, should return empty array
-			const classNames = service.extractFromSourceFile(ts, sourceFile, []);
-
-			expect(classNames).toHaveLength(0);
-		});
 	});
 
 	describe('Lazy initialization', () => {
