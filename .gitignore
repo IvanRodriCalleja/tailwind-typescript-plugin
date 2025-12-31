@@ -4,7 +4,11 @@ dist/
 *.log
 *.tsbuildinfo
 .DS_Store
+.eslintcache
 example/node_modules/
 example/dist/
 example/src/tsconfig.json
+
+# Test coverage
+coverage/
 
