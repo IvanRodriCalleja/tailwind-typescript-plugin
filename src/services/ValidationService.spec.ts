@@ -2,7 +2,11 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { IClassNameValidator } from '../core/interfaces';
 import { ClassNameExtractionService } from './ClassNameExtractionService';
-import { DiagnosticService, TAILWIND_DIAGNOSTIC_CODE, TAILWIND_DUPLICATE_CODE } from './DiagnosticService';
+import {
+	DiagnosticService,
+	TAILWIND_DIAGNOSTIC_CODE,
+	TAILWIND_DUPLICATE_CODE
+} from './DiagnosticService';
 import { PluginConfigService } from './PluginConfigService';
 import { ValidationService } from './ValidationService';
 
@@ -83,9 +87,7 @@ describe('ValidationService', () => {
 		});
 
 		it('should detect multiple invalid classes', () => {
-			const sourceFile = createSourceFile(
-				'<div className="invalid1 flex invalid2">Hello</div>'
-			);
+			const sourceFile = createSourceFile('<div className="invalid1 flex invalid2">Hello</div>');
 			const diagnostics = validationService.validateFile(ts, sourceFile, []);
 
 			const validationErrors = diagnostics.filter(d => d.code === TAILWIND_DIAGNOSTIC_CODE);
@@ -253,9 +255,7 @@ describe('ValidationService', () => {
 				customConfigService
 			);
 
-			const sourceFile = createSourceFile(
-				'<View colorStyles="invalid-custom-class">Hello</View>'
-			);
+			const sourceFile = createSourceFile('<View colorStyles="invalid-custom-class">Hello</View>');
 			const diagnostics = service.validateFile(ts, sourceFile, []);
 
 			const validationErrors = diagnostics.filter(d => d.code === TAILWIND_DIAGNOSTIC_CODE);

@@ -21,7 +21,9 @@ describe('JsxAttributeExtractor', () => {
 		return ts.createSourceFile('test.tsx', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 	};
 
-	const findJsxElement = (sourceFile: ts.SourceFile): ts.JsxOpeningElement | ts.JsxSelfClosingElement | undefined => {
+	const findJsxElement = (
+		sourceFile: ts.SourceFile
+	): ts.JsxOpeningElement | ts.JsxSelfClosingElement | undefined => {
 		let result: ts.JsxOpeningElement | ts.JsxSelfClosingElement | undefined;
 		const visit = (node: ts.Node): void => {
 			if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
@@ -78,7 +80,9 @@ describe('JsxAttributeExtractor', () => {
 		});
 
 		it('should extract multiple classes from string literal', () => {
-			const sourceFile = createSourceFile('<div className="flex items-center justify-between">Hello</div>');
+			const sourceFile = createSourceFile(
+				'<div className="flex items-center justify-between">Hello</div>'
+			);
 			const context = createContext(sourceFile);
 			const element = findJsxElement(sourceFile)!;
 
@@ -139,8 +143,18 @@ describe('JsxAttributeExtractor', () => {
 			const classes = extractor.extract(element, context);
 
 			// First class should start after the opening quote
-			expect(sourceFile.text.substring(classes[0].absoluteStart, classes[0].absoluteStart + classes[0].length)).toBe('flex');
-			expect(sourceFile.text.substring(classes[1].absoluteStart, classes[1].absoluteStart + classes[1].length)).toBe('items-center');
+			expect(
+				sourceFile.text.substring(
+					classes[0].absoluteStart,
+					classes[0].absoluteStart + classes[0].length
+				)
+			).toBe('flex');
+			expect(
+				sourceFile.text.substring(
+					classes[1].absoluteStart,
+					classes[1].absoluteStart + classes[1].length
+				)
+			).toBe('items-center');
 		});
 	});
 
@@ -180,7 +194,9 @@ describe('JsxAttributeExtractor', () => {
 		});
 
 		it('should extract classes around template expressions', () => {
-			const sourceFile = createSourceFile('<div className={`flex ${dynamic} items-center`}>Hello</div>');
+			const sourceFile = createSourceFile(
+				'<div className={`flex ${dynamic} items-center`}>Hello</div>'
+			);
 			const context = createContext(sourceFile);
 			const element = findJsxElement(sourceFile)!;
 
@@ -205,7 +221,9 @@ describe('JsxAttributeExtractor', () => {
 		});
 
 		it('should extract multiple classes from ternary branches', () => {
-			const sourceFile = createSourceFile("<div className={active ? 'flex items-center' : 'hidden'}>Hello</div>");
+			const sourceFile = createSourceFile(
+				"<div className={active ? 'flex items-center' : 'hidden'}>Hello</div>"
+			);
 			const context = createContext(sourceFile);
 			const element = findJsxElement(sourceFile)!;
 
@@ -245,7 +263,9 @@ describe('JsxAttributeExtractor', () => {
 		});
 
 		it('should extract multiple classes from logical AND expression', () => {
-			const sourceFile = createSourceFile("<div className={active && 'flex items-center'}>Hello</div>");
+			const sourceFile = createSourceFile(
+				"<div className={active && 'flex items-center'}>Hello</div>"
+			);
 			const context = createContext(sourceFile);
 			const element = findJsxElement(sourceFile)!;
 
@@ -258,7 +278,9 @@ describe('JsxAttributeExtractor', () => {
 
 	describe('extract - utility functions', () => {
 		it('should extract classes from clsx call', () => {
-			const sourceFile = createSourceFile("<div className={clsx('flex', 'items-center')}>Hello</div>");
+			const sourceFile = createSourceFile(
+				"<div className={clsx('flex', 'items-center')}>Hello</div>"
+			);
 			const context = createContext(sourceFile, {
 				utilityFunctions: ['clsx']
 			});
@@ -271,7 +293,9 @@ describe('JsxAttributeExtractor', () => {
 		});
 
 		it('should extract classes from cn call', () => {
-			const sourceFile = createSourceFile("<div className={cn('flex', 'items-center')}>Hello</div>");
+			const sourceFile = createSourceFile(
+				"<div className={cn('flex', 'items-center')}>Hello</div>"
+			);
 			const context = createContext(sourceFile, {
 				utilityFunctions: ['cn']
 			});
@@ -283,7 +307,9 @@ describe('JsxAttributeExtractor', () => {
 		});
 
 		it('should not extract from unknown function calls', () => {
-			const sourceFile = createSourceFile("<div className={unknownFn('flex', 'items-center')}>Hello</div>");
+			const sourceFile = createSourceFile(
+				"<div className={unknownFn('flex', 'items-center')}>Hello</div>"
+			);
 			const context = createContext(sourceFile, {
 				utilityFunctions: ['clsx']
 			});
@@ -295,7 +321,9 @@ describe('JsxAttributeExtractor', () => {
 		});
 
 		it('should extract classes from utility function with object argument', () => {
-			const sourceFile = createSourceFile("<div className={clsx({ flex: true, hidden: false })}>Hello</div>");
+			const sourceFile = createSourceFile(
+				'<div className={clsx({ flex: true, hidden: false })}>Hello</div>'
+			);
 			const context = createContext(sourceFile, {
 				utilityFunctions: ['clsx']
 			});
@@ -308,7 +336,9 @@ describe('JsxAttributeExtractor', () => {
 		});
 
 		it('should extract classes from utility function with array argument', () => {
-			const sourceFile = createSourceFile("<div className={clsx(['flex', 'items-center'])}>Hello</div>");
+			const sourceFile = createSourceFile(
+				"<div className={clsx(['flex', 'items-center'])}>Hello</div>"
+			);
 			const context = createContext(sourceFile, {
 				utilityFunctions: ['clsx']
 			});
@@ -415,7 +445,9 @@ describe('JsxAttributeExtractor', () => {
 
 	describe('extract - object literals', () => {
 		it('should extract class names from object keys', () => {
-			const sourceFile = createSourceFile("<div className={{ flex: true, 'items-center': active }}>Hello</div>");
+			const sourceFile = createSourceFile(
+				"<div className={{ flex: true, 'items-center': active }}>Hello</div>"
+			);
 			const context = createContext(sourceFile);
 			const element = findJsxElement(sourceFile)!;
 
@@ -428,7 +460,9 @@ describe('JsxAttributeExtractor', () => {
 
 	describe('extract - type assertions', () => {
 		it('should extract classes through as expression', () => {
-			const sourceFile = createSourceFile("<div className={'flex items-center' as string}>Hello</div>");
+			const sourceFile = createSourceFile(
+				"<div className={'flex items-center' as string}>Hello</div>"
+			);
 			const context = createContext(sourceFile);
 			const element = findJsxElement(sourceFile)!;
 
@@ -438,7 +472,7 @@ describe('JsxAttributeExtractor', () => {
 		});
 
 		it('should extract classes through non-null assertion', () => {
-			const sourceFile = createSourceFile("<div className={className!}>Hello</div>");
+			const sourceFile = createSourceFile('<div className={className!}>Hello</div>');
 			const context = createContext(sourceFile);
 
 			// This should not crash
@@ -493,7 +527,9 @@ describe('JsxAttributeExtractor', () => {
 		});
 
 		it('should handle special characters in class names', () => {
-			const sourceFile = createSourceFile('<div className="w-1/2 -mt-4 hover:bg-blue-500">Hello</div>');
+			const sourceFile = createSourceFile(
+				'<div className="w-1/2 -mt-4 hover:bg-blue-500">Hello</div>'
+			);
 			const context = createContext(sourceFile);
 			const element = findJsxElement(sourceFile)!;
 

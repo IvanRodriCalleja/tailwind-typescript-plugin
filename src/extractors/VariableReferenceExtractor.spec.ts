@@ -7,11 +7,17 @@ describe('VariableReferenceExtractor', () => {
 	let extractor: VariableReferenceExtractor;
 
 	const createContextWithoutTypeChecker = (code: string): ExtractionContext => {
-		const sourceFile = ts.createSourceFile('test.tsx', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+		const sourceFile = ts.createSourceFile(
+			'test.tsx',
+			code,
+			ts.ScriptTarget.Latest,
+			true,
+			ts.ScriptKind.TSX
+		);
 		return {
 			typescript: ts,
 			sourceFile,
-			utilityFunctions: [],
+			utilityFunctions: []
 		};
 	};
 

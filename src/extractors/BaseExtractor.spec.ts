@@ -5,7 +5,7 @@ import { BaseExtractor } from './BaseExtractor';
 
 // Create a concrete implementation for testing
 class TestExtractor extends BaseExtractor {
-	canHandle(node: ts.Node, context: ExtractionContext): boolean {
+	canHandle(node: ts.Node): boolean {
 		return ts.isStringLiteral(node);
 	}
 
@@ -181,8 +181,18 @@ describe('BaseExtractor', () => {
 
 			const classes = extractor.extract(literal, context);
 
-			expect(context.sourceFile.text.substring(classes[0].absoluteStart, classes[0].absoluteStart + classes[0].length)).toBe('flex');
-			expect(context.sourceFile.text.substring(classes[1].absoluteStart, classes[1].absoluteStart + classes[1].length)).toBe('items-center');
+			expect(
+				context.sourceFile.text.substring(
+					classes[0].absoluteStart,
+					classes[0].absoluteStart + classes[0].length
+				)
+			).toBe('flex');
+			expect(
+				context.sourceFile.text.substring(
+					classes[1].absoluteStart,
+					classes[1].absoluteStart + classes[1].length
+				)
+			).toBe('items-center');
 		});
 
 		it('should set correct line number', () => {

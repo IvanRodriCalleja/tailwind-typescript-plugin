@@ -147,7 +147,7 @@ describe('TemplateExpressionExtractor', () => {
 		});
 
 		it('should handle multiple substitutions', () => {
-			const code = "const x = `flex ${first} items-center ${second} justify-between`;";
+			const code = 'const x = `flex ${first} items-center ${second} justify-between`;';
 			const context = createContext(code);
 			const expr = findTemplateExpression(context.sourceFile)!;
 

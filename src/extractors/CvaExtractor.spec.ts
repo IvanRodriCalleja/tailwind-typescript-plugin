@@ -66,13 +66,17 @@ describe('CvaExtractor', () => {
 		};
 
 		// Create a program
-		const program = ts.createProgram([fileName], {
-			target: ts.ScriptTarget.Latest,
-			module: ts.ModuleKind.ESNext,
-			jsx: ts.JsxEmit.React,
-			strict: true,
-			moduleResolution: ts.ModuleResolutionKind.NodeJs
-		}, compilerHost);
+		const program = ts.createProgram(
+			[fileName],
+			{
+				target: ts.ScriptTarget.Latest,
+				module: ts.ModuleKind.ESNext,
+				jsx: ts.JsxEmit.React,
+				strict: true,
+				moduleResolution: ts.ModuleResolutionKind.NodeJs
+			},
+			compilerHost
+		);
 
 		const sourceFile = program.getSourceFile(fileName)!;
 		const typeChecker = program.getTypeChecker();
@@ -1283,8 +1287,13 @@ describe('CvaExtractor', () => {
 				getSourceFile: (name: string, languageVersion: ts.ScriptTarget) => {
 					const content = files[name];
 					if (content !== undefined) {
-						return ts.createSourceFile(name, content, languageVersion, true,
-							name.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+						return ts.createSourceFile(
+							name,
+							content,
+							languageVersion,
+							true,
+							name.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS
+						);
 					}
 					return undefined;
 				},
@@ -1300,12 +1309,16 @@ describe('CvaExtractor', () => {
 				getDirectories: () => []
 			};
 
-			const program = ts.createProgram([fileName], {
-				target: ts.ScriptTarget.Latest,
-				module: ts.ModuleKind.ESNext,
-				strict: true,
-				moduleResolution: ts.ModuleResolutionKind.NodeJs
-			}, compilerHost);
+			const program = ts.createProgram(
+				[fileName],
+				{
+					target: ts.ScriptTarget.Latest,
+					module: ts.ModuleKind.ESNext,
+					strict: true,
+					moduleResolution: ts.ModuleResolutionKind.NodeJs
+				},
+				compilerHost
+			);
 
 			const sourceFile = program.getSourceFile(fileName)!;
 			const context: ExtractionContext = {
