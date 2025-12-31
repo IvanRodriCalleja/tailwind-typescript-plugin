@@ -4,7 +4,6 @@ import { IClassNameExtractor } from '../core/interfaces';
 import { ClassNameInfo, ExtractionContext, UtilityFunction } from '../core/types';
 import { CvaExtractor } from '../extractors/CvaExtractor';
 import { JsxAttributeExtractor } from '../extractors/JsxAttributeExtractor';
-import { SvelteAttributeExtractor } from '../extractors/SvelteAttributeExtractor';
 import { TailwindVariantsExtractor } from '../extractors/TailwindVariantsExtractor';
 import { VueAttributeExtractor } from '../extractors/VueAttributeExtractor';
 import { Framework, detectFramework } from '../utils/FrameworkDetector';
@@ -55,8 +54,6 @@ export class ClassNameExtractionService {
 				return new JsxAttributeExtractor();
 			case Framework.VUE:
 				return new VueAttributeExtractor();
-			case Framework.SVELTE:
-				return new SvelteAttributeExtractor();
 			default:
 				throw new Error(`Unsupported framework: ${framework}`);
 		}

@@ -27,11 +27,6 @@ describe('FrameworkDetector', () => {
 			expect(detectFramework('/src/components/Button.vue')).toBe(Framework.VUE);
 		});
 
-		it('should detect Svelte framework for .svelte files', () => {
-			expect(detectFramework('App.svelte')).toBe(Framework.SVELTE);
-			expect(detectFramework('/src/components/Button.svelte')).toBe(Framework.SVELTE);
-		});
-
 		it('should return null for unsupported file types', () => {
 			expect(detectFramework('styles.css')).toBeNull();
 			expect(detectFramework('index.html')).toBeNull();
@@ -48,7 +43,6 @@ describe('FrameworkDetector', () => {
 		it('should handle absolute paths', () => {
 			expect(detectFramework('/Users/dev/project/src/App.tsx')).toBe(Framework.JSX);
 			expect(detectFramework('/Users/dev/project/src/App.vue')).toBe(Framework.VUE);
-			expect(detectFramework('/Users/dev/project/src/App.svelte')).toBe(Framework.SVELTE);
 		});
 
 		it('should handle Windows paths', () => {
@@ -70,17 +64,13 @@ describe('FrameworkDetector', () => {
 			expect(isSupportedFile('/src/components/Button.vue')).toBe(true);
 		});
 
-		it('should return true for Svelte files', () => {
-			expect(isSupportedFile('App.svelte')).toBe(true);
-			expect(isSupportedFile('/src/components/Button.svelte')).toBe(true);
-		});
-
 		it('should return false for unsupported files', () => {
 			expect(isSupportedFile('styles.css')).toBe(false);
 			expect(isSupportedFile('index.html')).toBe(false);
 			expect(isSupportedFile('config.json')).toBe(false);
 			expect(isSupportedFile('README.md')).toBe(false);
 			expect(isSupportedFile('image.png')).toBe(false);
+			expect(isSupportedFile('App.svelte')).toBe(false);
 		});
 	});
 });
