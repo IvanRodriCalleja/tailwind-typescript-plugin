@@ -8,6 +8,11 @@ import {
 	ValidationConfig,
 	VariantsConfig
 } from '../core/types';
+import {
+	ConfigSchemaValidator,
+	ConfigValidationError,
+	ConfigValidationResult
+} from './ConfigSchemaValidator';
 
 /**
  * Default utilities configuration
@@ -80,7 +85,15 @@ export class PluginConfigService {
 	// Legacy format support (for internal use by extractors)
 	private utilityFunctionsLegacy: UtilityFunction[];
 
+	// Schema validation
+	private readonly schemaValidator: ConfigSchemaValidator;
+	private configValidationResult: ConfigValidationResult;
+
 	constructor(config: IPluginConfig) {
+		// Validate configuration schema first
+		this.schemaValidator = new ConfigSchemaValidator();
+		this.configValidationResult = this.schemaValidator.validate(config);
+
 		this.cssFilePath = config.globalCss;
 
 		// Initialize configuration with backwards compatibility
@@ -304,5 +317,35 @@ export class PluginConfigService {
 	 */
 	getClassAttributes(): string[] {
 		return this.classAttributes;
+	}
+
+	// ---- Configuration validation ----
+
+	/**
+	 * Check if the configuration is valid according to the schema
+	 */
+	isConfigValid(): boolean {
+		return this.configValidationResult.valid;
+	}
+
+	/**
+	 * Get configuration validation errors
+	 */
+	getConfigValidationErrors(): ConfigValidationError[] {
+		return this.configValidationResult.errors;
+	}
+
+	/**
+	 * Get formatted validation error messages
+	 */
+	getFormattedConfigErrors(): string[] {
+		return this.schemaValidator.formatErrors(this.configValidationResult.errors);
+	}
+
+	/**
+	 * Get a summary of all validation errors for logging
+	 */
+	getConfigErrorSummary(): string {
+		return this.schemaValidator.getErrorSummary(this.configValidationResult.errors);
 	}
 }
