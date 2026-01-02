@@ -1,0 +1,12 @@
+/**
+ * Warning: Nested prefixes with same prefix - conflict
+ * sm:hover:text-left and sm:hover:text-center have the same prefix
+ * @conflictClasses [sm:hover:text-left, sm:hover:text-center]
+ */
+export function NestedSamePrefixConflict() {
+	return (
+		<div className="sm:hover:text-left sm:hover:text-center">
+			Same nested prefix - conflict
+		</div>
+	);
+}

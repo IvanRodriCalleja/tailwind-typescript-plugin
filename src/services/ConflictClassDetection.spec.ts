@@ -427,6 +427,109 @@ describe('Conflicting Class Detection', () => {
 			// Different prefixes mean different media queries, so no conflict
 			expect(conflicts.length).toBe(0);
 		});
+
+		it('should NOT flag nested prefixes with different breakpoints as conflict', () => {
+			// sm:hover: and md:hover: are different prefixes
+			const sourceCode = '<div className="sm:hover:text-left md:hover:text-center">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+
+			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
+			expect(conflicts.length).toBe(0);
+		});
+
+		it('should NOT flag nested prefixes with different states as conflict', () => {
+			// sm:hover: and sm:focus: are different prefixes
+			const sourceCode = '<div className="sm:hover:text-left sm:focus:text-center">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+
+			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
+			expect(conflicts.length).toBe(0);
+		});
+
+		it('should NOT flag base state vs responsive state as conflict', () => {
+			// hover: and md:hover: are different prefixes
+			const sourceCode = '<div className="hover:text-left md:hover:text-center">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+
+			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
+			expect(conflicts.length).toBe(0);
+		});
+
+		it('should detect conflicts with nested prefixes having same prefix', () => {
+			// sm:hover:text-left and sm:hover:text-center have the same prefix
+			const sourceCode = '<div className="sm:hover:text-left sm:hover:text-center">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+
+			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
+			expect(conflicts.length).toBe(2);
+		});
+
+		it('should NOT flag base class vs responsive class as conflict', () => {
+			// text-left (no prefix) and md:text-center (md: prefix) are different
+			const sourceCode = '<div className="text-left md:text-center">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+
+			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
+			expect(conflicts.length).toBe(0);
+		});
+
+		it('should handle triple nested prefixes correctly', () => {
+			// md:hover:focus: prefix - same prefix should conflict
+			const sourceCode =
+				'<div className="md:hover:focus:text-left md:hover:focus:text-center">Hello</div>';
+			const sourceFile = ts.createSourceFile(
+				'test.tsx',
+				sourceCode,
+				ts.ScriptTarget.Latest,
+				true,
+				ts.ScriptKind.TSX
+			);
+
+			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+
+			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
+			expect(conflicts.length).toBe(2);
+		});
 	});
 
 	describe('overflow conflicts', () => {
