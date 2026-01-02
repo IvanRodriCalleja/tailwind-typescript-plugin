@@ -1,5 +1,6 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
+import { NodeFilterFn } from '../core/interfaces';
 import { ClassNameInfo, ExtractionContext } from '../core/types';
 import { BaseExtractor } from './BaseExtractor';
 import { ExpressionExtractor } from './ExpressionExtractor';
@@ -24,6 +25,14 @@ export class JsxAttributeExtractor extends BaseExtractor {
 		// Create once, reuse (avoid recreation overhead)
 		this.expressionExtractor = new ExpressionExtractor();
 		this.templateExtractor = new TemplateExpressionExtractor();
+	}
+
+	/**
+	 * Fast filter: only JSX opening/self-closing elements (~98% node skip rate)
+	 */
+	getNodeFilter(): NodeFilterFn {
+		return (node, typescript) =>
+			typescript.isJsxOpeningElement(node) || typescript.isJsxSelfClosingElement(node);
 	}
 
 	canHandle(node: ts.Node, context: ExtractionContext): boolean {

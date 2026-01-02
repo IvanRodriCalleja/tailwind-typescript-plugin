@@ -1,6 +1,6 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
-import { IClassNameExtractor } from '../core/interfaces';
+import { IClassNameExtractor, NodeFilterFn } from '../core/interfaces';
 import { ClassNameInfo, ExtractionContext, UtilityFunction } from '../core/types';
 import { CvaExtractor } from '../extractors/CvaExtractor';
 import { JsxAttributeExtractor } from '../extractors/JsxAttributeExtractor';
@@ -12,23 +12,26 @@ import { Framework, detectFramework } from '../utils/FrameworkDetector';
  * OPTIMIZED: Service responsible for orchestrating class name extraction
  *
  * Performance improvements:
- * 1. Fast path for framework-specific elements (skip non-matching nodes early)
+ * 1. Fast path via extractor's getNodeFilter() (skips ~95-98% of nodes)
  * 2. Fast path for tv() calls (check only call expressions)
  * 3. Fast path for cva() calls (check only call expressions)
  * 4. Lazy initialization - only creates extractors when needed (memory efficient)
- * 5. Direct node type checking (faster than polymorphic calls)
+ * 5. Cached node filter functions (avoids repeated polymorphic calls)
  * 6. Reduced function call overhead
  * 7. Conditional extractor execution (skip disabled extractors)
  * 8. Framework detection per file (route to appropriate extractor)
  *
  * SOLID Principles:
  * - Single Responsibility: Only orchestrates extraction, doesn't own all extractors
- * - Open/Closed: Can add new frameworks without modifying constructor
+ * - Open/Closed: Can add new frameworks without modifying this service
  * - Dependency Inversion: Uses IClassNameExtractor interface
  */
 export class ClassNameExtractionService {
 	// Cache for framework extractors (lazy initialization)
 	private frameworkExtractors = new Map<Framework, IClassNameExtractor>();
+
+	// Cache for node filter functions (avoids repeated getNodeFilter() calls)
+	private nodeFilters = new Map<Framework, NodeFilterFn>();
 
 	// Variant extractors (always initialized as they work across all frameworks)
 	private tvExtractor: TailwindVariantsExtractor | null;
@@ -65,9 +68,21 @@ export class ClassNameExtractionService {
 	 */
 	private getFrameworkExtractor(framework: Framework): IClassNameExtractor {
 		if (!this.frameworkExtractors.has(framework)) {
-			this.frameworkExtractors.set(framework, this.createFrameworkExtractor(framework));
+			const extractor = this.createFrameworkExtractor(framework);
+			this.frameworkExtractors.set(framework, extractor);
+			// Cache the node filter function to avoid repeated getNodeFilter() calls
+			this.nodeFilters.set(framework, extractor.getNodeFilter());
 		}
 		return this.frameworkExtractors.get(framework)!;
+	}
+
+	/**
+	 * Gets the cached node filter function for a framework
+	 */
+	private getNodeFilter(framework: Framework): NodeFilterFn {
+		// Ensure extractor is created (which also caches the filter)
+		this.getFrameworkExtractor(framework);
+		return this.nodeFilters.get(framework)!;
 	}
 
 	/**
@@ -102,24 +117,17 @@ export class ClassNameExtractionService {
 		// Get the appropriate extractor for this framework (lazy-loaded)
 		const frameworkExtractor = this.getFrameworkExtractor(framework);
 
-		// OPTIMIZATION: Direct node type checking in visit function
-		// Avoids canHandle() overhead for every node
+		// Get the cached node filter function for fast pre-screening
+		// Each extractor defines its own filter (JSX: ~98% skip, Vue: ~95% skip)
+		const nodeFilter = this.getNodeFilter(framework);
+
+		// OPTIMIZATION: Use cached filter function for fast node pre-screening
+		// This avoids polymorphic canHandle() calls for ~95-98% of nodes
 		const visit = (node: ts.Node): void => {
-			// FAST PATH 1: Framework-specific extraction
-			// For JSX, we can optimize by checking node type directly
-			if (framework === Framework.JSX) {
-				// Only process JSX opening/self-closing elements
-				// This skips ~98% of nodes immediately
-				if (typescript.isJsxOpeningElement(node) || typescript.isJsxSelfClosingElement(node)) {
-					// Direct extraction without canHandle() check
-					const extracted = frameworkExtractor.extract(node, context);
-					if (extracted.length > 0) {
-						classNames.push(...extracted);
-					}
-				}
-			} else {
-				// For Vue and Svelte, use canHandle() since we can't optimize with TS type guards
-				// TODO: Optimize Vue/Svelte with direct node type checks when implementing
+			// FAST PATH 1: Framework-specific extraction using extractor's filter
+			// The filter is a cached function that each extractor defines
+			if (nodeFilter(node, typescript)) {
+				// Node passed the fast filter, now do the full canHandle check
 				if (frameworkExtractor.canHandle(node, context)) {
 					const extracted = frameworkExtractor.extract(node, context);
 					if (extracted.length > 0) {
