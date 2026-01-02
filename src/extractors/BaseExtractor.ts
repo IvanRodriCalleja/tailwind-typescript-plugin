@@ -1,6 +1,6 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
-import { IClassNameExtractor } from '../core/interfaces';
+import { IClassNameExtractor, NodeFilterFn } from '../core/interfaces';
 import { ClassNameInfo, ExtractionContext, UtilityFunction } from '../core/types';
 
 /**
@@ -31,6 +31,17 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 	 * Maps filename -> (namespace identifier -> module specifier)
 	 */
 	private namespaceImportCache = new Map<string, NamespaceImportMap>();
+
+	/**
+	 * Returns a fast filter function to pre-screen nodes.
+	 * Default implementation accepts all nodes (no filtering).
+	 * Framework-specific extractors should override this for optimization.
+	 */
+	getNodeFilter(): NodeFilterFn {
+		// Default: accept all nodes (no pre-filtering)
+		// Framework extractors (JSX, Vue) override this for ~95-98% skip rates
+		return () => true;
+	}
 
 	abstract canHandle(node: ts.Node, context: ExtractionContext): boolean;
 	abstract extract(node: ts.Node, context: ExtractionContext): ClassNameInfo[];

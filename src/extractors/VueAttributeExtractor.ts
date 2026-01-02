@@ -1,5 +1,6 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
+import { NodeFilterFn } from '../core/interfaces';
 import { ClassNameInfo, ExtractionContext, UtilityFunction } from '../core/types';
 import { BaseExtractor } from './BaseExtractor';
 import { VueExpressionExtractor } from './VueExpressionExtractor';
@@ -31,6 +32,14 @@ export class VueAttributeExtractor extends BaseExtractor {
 	constructor() {
 		super();
 		this.expressionExtractor = new VueExpressionExtractor();
+	}
+
+	/**
+	 * Fast filter: Vue patterns are always CallExpression nodes (~95% node skip rate)
+	 * Volar transforms templates into: __VLS_asFunctionalElement(...)({...})
+	 */
+	getNodeFilter(): NodeFilterFn {
+		return (node, typescript) => typescript.isCallExpression(node);
 	}
 
 	/**

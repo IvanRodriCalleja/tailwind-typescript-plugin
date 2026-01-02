@@ -11,12 +11,30 @@ import {
 } from './types';
 
 /**
+ * Type for node filter functions used by extractors
+ * Returns true if the node might contain class names worth extracting
+ */
+export type NodeFilterFn = (node: ts.Node, typescript: typeof ts) => boolean;
+
+/**
  * Base interface for class name extractors
  * Follows the Strategy pattern for extensibility
  */
 export interface IClassNameExtractor {
 	/**
-	 * Determines if this extractor can handle the given node
+	 * Returns a fast filter function to pre-screen nodes before calling canHandle().
+	 * This enables ~95-98% of nodes to be skipped with a simple type check,
+	 * avoiding the overhead of polymorphic canHandle() calls.
+	 *
+	 * Each extractor defines its own filter based on the node types it handles:
+	 * - JSX: Only JsxOpeningElement or JsxSelfClosingElement nodes
+	 * - Vue: Only CallExpression nodes (Volar transforms templates to calls)
+	 */
+	getNodeFilter(): NodeFilterFn;
+
+	/**
+	 * Determines if this extractor can handle the given node.
+	 * Called only after getNodeFilter() returns true.
 	 */
 	canHandle(node: ts.Node, context: ExtractionContext): boolean;
 
