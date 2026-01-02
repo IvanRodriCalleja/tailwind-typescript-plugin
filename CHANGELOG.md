@@ -1,3 +1,17 @@
+## [1.4.0-beta.24](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.23...v1.4.0-beta.24) (2026-01-02)
+
+### ✨ Features
+
+* add configuration schema validation with Zod ([bfd395e](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/bfd395e2cbe29b628990bfa3ac97e0aee3b47aae))
+
+### ✅ Tests
+
+* add comprehensive test coverage for extractors and services ([7839ba9](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/7839ba964add0a91fdee3b31db9711dcdf47c4ed))
+
+### 🔧 Chores
+
+* remove Svelte support ([edce4d6](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/edce4d61cf37bef6224181552d9e56cc0e020472))
+
 ## [1.4.0-beta.23](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.22...v1.4.0-beta.23) (2025-12-29)
 
 ### ✨ Features
