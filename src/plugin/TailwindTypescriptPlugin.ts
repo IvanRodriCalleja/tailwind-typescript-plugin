@@ -32,6 +32,12 @@ export class TailwindTypescriptPlugin {
 		// Initialize configuration service
 		this.configService = new PluginConfigService(info.config || {});
 
+		// Log configuration validation errors (always enabled for critical issues)
+		if (!this.configService.isConfigValid()) {
+			const errorSummary = this.configService.getConfigErrorSummary();
+			info.project.projectService.logger.info(errorSummary);
+		}
+
 		// PERFORMANCE: Initialize file-level diagnostic cache
 		this.diagnosticCache = new FileDiagnosticCache(100);
 
