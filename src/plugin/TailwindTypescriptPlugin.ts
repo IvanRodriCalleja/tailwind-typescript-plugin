@@ -22,13 +22,34 @@ export class TailwindTypescriptPlugin {
 	private initializationPromise: Promise<void> | null = null;
 	private cssFileWatcher: fs.FSWatcher | null = null;
 	private cssFilePath: string | null = null;
+	private logger: ts.server.Logger | null = null;
 
 	constructor(private readonly typescript: typeof ts) {}
+
+	/**
+	 * Log an error message to the TypeScript Language Service logger
+	 */
+	private logError(message: string, error?: unknown): void {
+		if (!this.logger) return;
+		const errorDetails = error instanceof Error ? `: ${error.message}` : '';
+		this.logger.info(`[tailwind-plugin] ERROR: ${message}${errorDetails}`);
+	}
+
+	/**
+	 * Log a warning message to the TypeScript Language Service logger
+	 */
+	private logWarning(message: string): void {
+		if (!this.logger) return;
+		this.logger.info(`[tailwind-plugin] WARN: ${message}`);
+	}
 
 	/**
 	 * Create the plugin proxy for TypeScript Language Service
 	 */
 	create(info: ts.server.PluginCreateInfo): ts.LanguageService {
+		// Store logger reference for error reporting
+		this.logger = info.project.projectService.logger;
+
 		// Initialize configuration service
 		this.configService = new PluginConfigService(info.config || {});
 
@@ -105,8 +126,8 @@ export class TailwindTypescriptPlugin {
 				// Set up file watcher after successful initialization
 				this.setupCssFileWatcher(info);
 			})
-			.catch(() => {
-				// Initialization failed - validator won't be ready
+			.catch(error => {
+				this.logError('Failed to initialize Tailwind validator', error);
 			});
 	}
 
@@ -142,11 +163,11 @@ export class TailwindTypescriptPlugin {
 				}
 			});
 
-			this.cssFileWatcher.on('error', () => {
-				// Watcher error - silently ignore
+			this.cssFileWatcher.on('error', error => {
+				this.logWarning(`CSS file watcher error: ${error.message}`);
 			});
-		} catch {
-			// Failed to set up file watcher - silently ignore
+		} catch (error) {
+			this.logError('Failed to set up CSS file watcher', error);
 		}
 	}
 
@@ -208,12 +229,12 @@ export class TailwindTypescriptPlugin {
 						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 						(project as any).refreshDiagnostics();
 					}
-				} catch {
-					// Error notifying project of changes - silently ignore
+				} catch (error) {
+					this.logWarning(`Failed to notify project of CSS changes: ${error instanceof Error ? error.message : 'Unknown error'}`);
 				}
 			})
-			.catch(() => {
-				// Failed to reload design system - silently ignore
+			.catch(error => {
+				this.logError('Failed to reload design system after CSS change', error);
 			});
 	}
 
