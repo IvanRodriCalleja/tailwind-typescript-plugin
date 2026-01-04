@@ -230,7 +230,9 @@ export class TailwindTypescriptPlugin {
 						(project as any).refreshDiagnostics();
 					}
 				} catch (error) {
-					this.logWarning(`Failed to notify project of CSS changes: ${error instanceof Error ? error.message : 'Unknown error'}`);
+					this.logWarning(
+						`Failed to notify project of CSS changes: ${error instanceof Error ? error.message : 'Unknown error'}`
+					);
 				}
 			})
 			.catch(error => {
