@@ -46,12 +46,12 @@ export default defineConfig([
 		languageOptions: {
 			globals: {
 				...globals.node,
+				...globals.browser,
 				...globals.jest,
 				globalThis: 'readonly',
 				React: true,
 				JSX: true,
 				RequestInit: true,
-				browser: true,
 				chrome: true,
 				BigInt: true,
 				NodeJS: true
