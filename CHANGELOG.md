@@ -1,3 +1,19 @@
+## [1.4.0-beta.25](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.24...v1.4.0-beta.25) (2026-02-18)
+
+### ✨ Features
+
+* add e2e test ([4f021c9](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/4f021c9cfa82209a6c8bfca1a831d25092c736f7))
+
+### ✅ Tests
+
+* **conflict-detection:** add tests for nested prefix handling ([302f2ff](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/302f2ffe5f19041802a83fc8d3a6a54c66f8c507))
+
+### 🔧 Chores
+
+* add node filter optimization for extractors ([0e419b9](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/0e419b9e797930673c5a6db679cc85c2c7c9178f))
+* improve error handling ([80566b2](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/80566b2de85161642dde3fce51b5b1bc910ea1ea))
+* move postcss and tailwindcss to peer dependencies ([9127e95](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/9127e95738c85192e4fc16190b9a650ba1f4c333))
+
 ## [1.4.0-beta.24](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.23...v1.4.0-beta.24) (2026-01-02)
 
 ### ✨ Features
