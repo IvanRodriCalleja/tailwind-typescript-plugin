@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tailwind TypeScript Plugin - Browser Integration Tests</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 12px 20px;
+      background: #252526;
+      border-bottom: 1px solid #3c3c3c;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .status {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: #3c3c3c;
+    }
+    .status.ready { background: #2ea043; color: white; }
+    .status.loading { background: #d29922; color: black; }
+    .status.error { background: #f85149; color: white; }
+    #test-case-info {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-left: auto;
+    }
+    .badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-family: 'Menlo', 'Monaco', monospace;
+    }
+    .badge.framework { background: #1f6feb; color: white; }
+    .badge.category { background: #8b5cf6; color: white; }
+    .badge.name { background: #3c3c3c; color: #d4d4d4; }
+    .badge.config { background: #2d333b; color: #8b949e; cursor: help; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+    #editor-container {
+      flex: 1;
+      overflow: hidden;
+    }
+    #sidebar {
+      width: 350px;
+      background: #252526;
+      border-left: 1px solid #3c3c3c;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #sidebar h2 {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 12px 16px;
+      background: #2d2d2d;
+      border-bottom: 1px solid #3c3c3c;
+    }
+    #diagnostics-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+    .diagnostic-item {
+      padding: 8px 12px;
+      margin-bottom: 4px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .diagnostic-item:hover {
+      background: #3c3c3c;
+    }
+    .diagnostic-item.error {
+      border-left: 3px solid #f85149;
+    }
+    .diagnostic-item.warning {
+      border-left: 3px solid #d29922;
+    }
+    .diagnostic-item .message {
+      margin-bottom: 4px;
+    }
+    .diagnostic-item .location {
+      color: #888;
+      font-size: 11px;
+    }
+    #completions-panel {
+      border-top: 1px solid #3c3c3c;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    #tsconfig-panel {
+      border-top: 1px solid #3c3c3c;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+    #tsconfig-panel pre {
+      padding: 8px 12px;
+      font-size: 11px;
+      font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: #9cdcfe;
+    }
+    .completion-item {
+      padding: 6px 12px;
+      font-size: 12px;
+      font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    }
+    .completion-item:hover {
+      background: #094771;
+    }
+    [data-testid] {
+      /* Accessible to Playwright */
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Tailwind TypeScript Plugin - Integration Test Harness</h1>
+    <span id="status" class="status loading" data-testid="status">Loading...</span>
+    <div id="test-case-info" data-testid="test-case-info"></div>
+  </header>
+  <main>
+    <div id="editor-container" data-testid="editor-container"></div>
+    <div id="sidebar">
+      <h2>Diagnostics</h2>
+      <div id="diagnostics-list" data-testid="diagnostics-list"></div>
+      <div id="tsconfig-panel" data-testid="tsconfig-panel">
+        <h2>TSConfig</h2>
+        <pre id="tsconfig-content"></pre>
+      </div>
+      <div id="completions-panel" data-testid="completions-panel">
+        <h2>Completions</h2>
+        <div id="completions-list"></div>
+      </div>
+    </div>
+  </main>
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>
