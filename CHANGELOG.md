@@ -1,3 +1,14 @@
+## [1.4.0-beta.26](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.25...v1.4.0-beta.26) (2026-02-20)
+
+### ✨ Features
+
+* autodetect tailwind entry ([79ba891](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/79ba89146609ae7a7dea4fd08c461061d34923ef))
+
+### 🔧 Chores
+
+* remove deprecated legacy types ([f457598](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/f457598ce02fbbd470aa7f41b32026b8896f0e69))
+* update readme to make it more user friendly ([0ae7fc8](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/0ae7fc86d70b24ffa1901ebb4a534d849a2741e9))
+
 ## [1.4.0-beta.25](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.24...v1.4.0-beta.25) (2026-02-18)
 
 ### ✨ Features
