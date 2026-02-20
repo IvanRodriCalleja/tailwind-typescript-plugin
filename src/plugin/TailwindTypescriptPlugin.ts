@@ -10,6 +10,7 @@ import { DiagnosticService } from '../services/DiagnosticService';
 import { FileDiagnosticCache } from '../services/FileDiagnosticCache';
 import { PluginConfigService } from '../services/PluginConfigService';
 import { ValidationService } from '../services/ValidationService';
+import { CssAutoDetector } from '../utils/CssAutoDetector';
 import { isSupportedFile } from '../utils/FrameworkDetector';
 
 export class TailwindTypescriptPlugin {
@@ -73,20 +74,37 @@ export class TailwindTypescriptPlugin {
 	 * Initialize the Tailwind validator
 	 */
 	private initializeValidator(info: ts.server.PluginCreateInfo): void {
-		if (!this.configService.hasValidCssPath()) {
-			return;
-		}
-
 		const projectRoot = info.project.getCurrentDirectory();
-		const relativeCssPath = this.configService.getCssFilePath()!;
-		const absoluteCssPath = path.resolve(projectRoot, relativeCssPath);
 
-		if (!fs.existsSync(absoluteCssPath)) {
-			return;
+		if (this.configService.hasValidCssPath()) {
+			const relativeCssPath = this.configService.getCssFilePath()!;
+			const absoluteCssPath = path.resolve(projectRoot, relativeCssPath);
+
+			if (!fs.existsSync(absoluteCssPath)) {
+				return;
+			}
+
+			this.cssFilePath = absoluteCssPath;
+		} else {
+			const result = new CssAutoDetector().detect(projectRoot);
+
+			if (result.status === 'found') {
+				this.cssFilePath = result.cssFilePath!;
+				this.logger?.info(`[tailwind-plugin] Auto-detected Tailwind CSS file: ${this.cssFilePath}`);
+			} else if (result.status === 'multiple-found') {
+				this.logWarning(
+					`Multiple Tailwind CSS files found. Please set "globalCss" in your plugin config. Found: ${result.matchingFiles.join(', ')}`
+				);
+				return;
+			} else {
+				return;
+			}
 		}
 
-		this.cssFilePath = absoluteCssPath;
-		this.validator = new TailwindValidator(absoluteCssPath);
+		if (!this.cssFilePath) {
+			return;
+		}
+		this.validator = new TailwindValidator(this.cssFilePath);
 
 		// Initialize services with config flags
 		const extractionService = new ClassNameExtractionService(
