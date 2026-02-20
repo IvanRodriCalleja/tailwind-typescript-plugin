@@ -75,18 +75,26 @@ Add the plugin to your `compilerOptions.plugins` array:
   "compilerOptions": {
     "plugins": [
       {
-        "name": "tailwind-typescript-plugin",
-        "globalCss": "./src/global.css"
+        "name": "tailwind-typescript-plugin"
       }
     ]
   }
 }
 ```
 
-`globalCss` is the path to your CSS file that imports Tailwind:
+That's it! The plugin automatically finds your CSS file that imports Tailwind (e.g. `@import "tailwindcss"`). If auto-detection doesn't work (e.g. you have multiple Tailwind entry files), set the path explicitly:
 
-```css
-@import "tailwindcss";
+```jsonc
+{
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "tailwind-typescript-plugin",
+        "globalCss": "./src/global.css"
+      }
+    ]
+  }
+}
 ```
 
 ### 2. Select workspace TypeScript
@@ -157,7 +165,7 @@ const button = tv({
 
 ## Configuration
 
-All options go inside the plugin entry in `tsconfig.json`. Only `globalCss` is required.
+All options go inside the plugin entry in `tsconfig.json`. No options are required — the plugin works zero-config for most projects.
 
 ### Full Example
 
@@ -208,9 +216,9 @@ All options go inside the plugin entry in `tsconfig.json`. Only `globalCss` is r
 }
 ```
 
-### `globalCss` (required)
+### `globalCss` (optional)
 
-Path to your CSS file that imports Tailwind CSS.
+Path to your CSS file that imports Tailwind CSS. When omitted, the plugin scans your project for a CSS file containing `@import "tailwindcss"`. If exactly one is found, it's used automatically. If multiple are found, you'll need to set this option explicitly.
 
 ```jsonc
 "globalCss": "./src/global.css"
