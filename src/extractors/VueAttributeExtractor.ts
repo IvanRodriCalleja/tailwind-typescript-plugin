@@ -1,7 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { NodeFilterFn } from '../core/interfaces';
-import { ClassNameInfo, ExtractionContext, UtilityFunction } from '../core/types';
+import { ClassNameInfo, ExtractionContext, UtilitiesConfig } from '../core/types';
 import { BaseExtractor } from './BaseExtractor';
 import { VueExpressionExtractor } from './VueExpressionExtractor';
 
@@ -53,7 +53,7 @@ export class VueAttributeExtractor extends BaseExtractor {
 	 */
 	protected override shouldValidateFunctionCall(
 		callExpression: ts.CallExpression,
-		utilityFunctions: UtilityFunction[],
+		utilities: UtilitiesConfig,
 		context?: ExtractionContext
 	): boolean {
 		// First, check if this is a __VLS_ctx.functionName() or __VLS_ctx.namespace.functionName() pattern
@@ -65,21 +65,16 @@ export class VueAttributeExtractor extends BaseExtractor {
 				// Pattern 1: __VLS_ctx.functionName() - direct import
 				if (context.typescript.isIdentifier(objectExpr) && objectExpr.text === '__VLS_ctx') {
 					const functionName = expr.name.text;
+					const source = utilities[functionName];
 
-					// Check each utility function configuration
-					for (const utilityFunc of utilityFunctions) {
-						if (typeof utilityFunc === 'string') {
-							if (utilityFunc === functionName) {
-								return true;
-							}
-						} else if (utilityFunc.name === functionName) {
-							// Check if the function is directly imported from expected module
-							if (this.isImportedFrom(functionName, utilityFunc.from, context)) {
-								return true;
-							}
-						}
+					if (source === undefined || source === 'off') {
+						return false;
 					}
-					return false;
+					if (source === '*') {
+						return true;
+					}
+					// Specific import path: verify direct import
+					return this.isImportedFrom(functionName, source, context);
 				}
 
 				// Pattern 2: __VLS_ctx.namespace.functionName() - namespace import
@@ -92,28 +87,23 @@ export class VueAttributeExtractor extends BaseExtractor {
 					) {
 						const namespaceName = objectExpr.name.text; // e.g., 'utils'
 						const functionName = expr.name.text; // e.g., 'clsx'
+						const source = utilities[functionName];
 
-						// Check each utility function configuration
-						for (const utilityFunc of utilityFunctions) {
-							if (typeof utilityFunc === 'string') {
-								if (utilityFunc === functionName) {
-									return true;
-								}
-							} else if (utilityFunc.name === functionName) {
-								// Check if namespace is imported from expected module
-								if (this.isNamespaceImportedFrom(namespaceName, utilityFunc.from, context)) {
-									return true;
-								}
-							}
+						if (source === undefined || source === 'off') {
+							return false;
 						}
-						return false;
+						if (source === '*') {
+							return true;
+						}
+						// Specific import path: verify namespace import
+						return this.isNamespaceImportedFrom(namespaceName, source, context);
 					}
 				}
 			}
 		}
 
 		// Fall back to base implementation for non-Vue patterns
-		return super.shouldValidateFunctionCall(callExpression, utilityFunctions, context);
+		return super.shouldValidateFunctionCall(callExpression, utilities, context);
 	}
 
 	canHandle(node: ts.Node, context: ExtractionContext): boolean {
@@ -375,7 +365,7 @@ export class VueAttributeExtractor extends BaseExtractor {
 
 		if (callExpr) {
 			// Check if it's a utility function (clsx, cn, etc.) - extract all arguments
-			if (this.shouldValidateFunctionCall(callExpr, context.utilityFunctions, context)) {
+			if (this.shouldValidateFunctionCall(callExpr, context.utilities, context)) {
 				const addAttributeId = (classes: ClassNameInfo[]): ClassNameInfo[] =>
 					classes.map(c => ({ ...c, attributeId }));
 				return addAttributeId(this.expressionExtractor.extract(callExpr, context));

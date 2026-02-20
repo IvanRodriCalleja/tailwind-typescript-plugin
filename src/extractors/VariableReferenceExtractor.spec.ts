@@ -17,7 +17,7 @@ describe('VariableReferenceExtractor', () => {
 		return {
 			typescript: ts,
 			sourceFile,
-			utilityFunctions: []
+			utilities: {}
 		};
 	};
 

@@ -78,10 +78,16 @@ describe('PluginConfigService', () => {
 		it('should initialize with default utilities', () => {
 			const service = new PluginConfigService({});
 
-			const utilities = service.getUtilityFunctions();
+			const utilities = service.getUtilitiesConfig();
 
-			expect(utilities).toContainEqual('cn');
-			expect(utilities).toContainEqual({ name: 'clsx', from: 'clsx' });
+			expect(utilities).toEqual({
+				cn: '*',
+				clsx: 'clsx',
+				classnames: 'classnames',
+				classNames: 'classnames',
+				cx: 'classnames',
+				twMerge: 'tailwind-merge'
+			});
 		});
 
 		it('should enable variants by default', () => {

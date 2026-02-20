@@ -493,7 +493,7 @@ export class CvaExtractor extends BaseExtractor {
 				? expr.name.text
 				: null;
 
-		if (functionName && this.isUtilityFunctionName(functionName, context.utilityFunctions)) {
+		if (functionName && this.isUtilityFunctionName(functionName, context.utilities)) {
 			return false;
 		}
 

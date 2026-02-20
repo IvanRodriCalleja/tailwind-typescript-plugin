@@ -138,7 +138,7 @@ export class JsxAttributeExtractor extends BaseExtractor {
 				) {
 					classNames.push(...addAttributeId(this.templateExtractor.extract(expression, context)));
 				} else if (context.typescript.isCallExpression(expression)) {
-					if (this.shouldValidateFunctionCall(expression, context.utilityFunctions, context)) {
+					if (this.shouldValidateFunctionCall(expression, context.utilities, context)) {
 						classNames.push(
 							...addAttributeId(this.expressionExtractor.extract(expression, context))
 						);

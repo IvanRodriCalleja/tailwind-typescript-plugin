@@ -3,30 +3,6 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import { Framework } from '../utils/FrameworkDetector';
 
 /**
- * Represents a utility function configuration with optional import source
- * When 'from' is specified, the import will be verified before matching
- *
- * Examples:
- * - { name: 'clsx', from: 'clsx' } - matches `import { clsx } from 'clsx'` or `import clsx from 'clsx'`
- * - { name: 'cn', from: '@/lib/utils' } - matches `import { cn } from '@/lib/utils'`
- *
- * @deprecated Use the new libraries.utilities config format instead
- */
-export interface UtilityFunctionConfig {
-	name: string;
-	from: string;
-}
-
-/**
- * A utility function can be either:
- * - A simple string (matches by function name only, backwards compatible)
- * - A UtilityFunctionConfig object (matches by name AND verifies import source)
- *
- * @deprecated Use the new libraries.utilities config format instead
- */
-export type UtilityFunction = string | UtilityFunctionConfig;
-
-/**
  * Severity level for diagnostics
  */
 export type DiagnosticSeverity = 'error' | 'warning' | 'suggestion' | 'off';
@@ -162,7 +138,7 @@ export interface ClassNameInfo {
 export interface ExtractionContext {
 	readonly typescript: typeof ts;
 	readonly sourceFile: ts.SourceFile;
-	readonly utilityFunctions: UtilityFunction[];
+	readonly utilities: UtilitiesConfig;
 	readonly typeChecker?: ts.TypeChecker;
 	/**
 	 * The detected framework for the current file

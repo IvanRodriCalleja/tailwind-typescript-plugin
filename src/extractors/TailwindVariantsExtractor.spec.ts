@@ -20,7 +20,7 @@ describe('TailwindVariantsExtractor', () => {
 		return {
 			typescript: ts,
 			sourceFile,
-			utilityFunctions: [],
+			utilities: {},
 			...overrides
 		};
 	};
@@ -85,7 +85,7 @@ describe('TailwindVariantsExtractor', () => {
 			typescript: ts,
 			sourceFile,
 			typeChecker,
-			utilityFunctions: [],
+			utilities: {},
 			...overrides
 		};
 	};
@@ -1223,7 +1223,7 @@ describe('TailwindVariantsExtractor', () => {
 				const result = button({ class: 'grid' });
 			`;
 			const context = createContextWithTypeChecker(code, {
-				utilityFunctions: ['button']
+				utilities: { button: '*' }
 			});
 			const callExpr = findLastCallExpression(context.sourceFile)!;
 
@@ -1569,7 +1569,7 @@ describe('TailwindVariantsExtractor', () => {
 				typescript: ts,
 				sourceFile,
 				typeChecker: program.getTypeChecker(),
-				utilityFunctions: []
+				utilities: {}
 			};
 
 			const callExpr = findCallExpression(sourceFile)!;

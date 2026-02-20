@@ -20,7 +20,7 @@ describe('CvaExtractor', () => {
 		return {
 			typescript: ts,
 			sourceFile,
-			utilityFunctions: [],
+			utilities: {},
 			...overrides
 		};
 	};
@@ -85,7 +85,7 @@ describe('CvaExtractor', () => {
 			typescript: ts,
 			sourceFile,
 			typeChecker,
-			utilityFunctions: [],
+			utilities: {},
 			...overrides
 		};
 	};
@@ -872,7 +872,7 @@ describe('CvaExtractor', () => {
 				const result = button({ class: 'flex' });
 			`;
 			const context = createContextWithTypeChecker(code, {
-				utilityFunctions: ['button']
+				utilities: { button: '*' }
 			});
 			const callExpr = findLastCallExpression(context.sourceFile)!;
 
@@ -1325,7 +1325,7 @@ describe('CvaExtractor', () => {
 				typescript: ts,
 				sourceFile,
 				typeChecker: program.getTypeChecker(),
-				utilityFunctions: []
+				utilities: {}
 			};
 
 			const callExpr = findCallExpression(sourceFile)!;

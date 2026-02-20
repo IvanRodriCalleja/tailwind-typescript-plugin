@@ -12,7 +12,7 @@ describe('JsxAttributeExtractor', () => {
 	): ExtractionContext => ({
 		typescript: ts,
 		sourceFile,
-		utilityFunctions: [],
+		utilities: {},
 		classAttributes: ['className', 'class', 'classList'],
 		...overrides
 	});
@@ -282,7 +282,7 @@ describe('JsxAttributeExtractor', () => {
 				"<div className={clsx('flex', 'items-center')}>Hello</div>"
 			);
 			const context = createContext(sourceFile, {
-				utilityFunctions: ['clsx']
+				utilities: { clsx: '*' }
 			});
 			const element = findJsxElement(sourceFile)!;
 
@@ -297,7 +297,7 @@ describe('JsxAttributeExtractor', () => {
 				"<div className={cn('flex', 'items-center')}>Hello</div>"
 			);
 			const context = createContext(sourceFile, {
-				utilityFunctions: ['cn']
+				utilities: { cn: '*' }
 			});
 			const element = findJsxElement(sourceFile)!;
 
@@ -311,7 +311,7 @@ describe('JsxAttributeExtractor', () => {
 				"<div className={unknownFn('flex', 'items-center')}>Hello</div>"
 			);
 			const context = createContext(sourceFile, {
-				utilityFunctions: ['clsx']
+				utilities: { clsx: '*' }
 			});
 			const element = findJsxElement(sourceFile)!;
 
@@ -325,7 +325,7 @@ describe('JsxAttributeExtractor', () => {
 				'<div className={clsx({ flex: true, hidden: false })}>Hello</div>'
 			);
 			const context = createContext(sourceFile, {
-				utilityFunctions: ['clsx']
+				utilities: { clsx: '*' }
 			});
 			const element = findJsxElement(sourceFile)!;
 
@@ -340,7 +340,7 @@ describe('JsxAttributeExtractor', () => {
 				"<div className={clsx(['flex', 'items-center'])}>Hello</div>"
 			);
 			const context = createContext(sourceFile, {
-				utilityFunctions: ['clsx']
+				utilities: { clsx: '*' }
 			});
 			const element = findJsxElement(sourceFile)!;
 

@@ -107,7 +107,7 @@ export class TailwindTypescriptPlugin {
 
 		// Initialize completion service for Tailwind class autocompletion
 		const completionConfig: CompletionServiceConfig = {
-			utilityFunctions: this.configService.getUtilityFunctions(),
+			utilities: this.configService.getUtilitiesConfig(),
 			tailwindVariantsEnabled: this.configService.isTailwindVariantsEnabled(),
 			classVarianceAuthorityEnabled: this.configService.isClassVarianceAuthorityEnabled()
 		};
@@ -334,7 +334,7 @@ export class TailwindTypescriptPlugin {
 			const tailwindDiagnostics = this.validationService.validateFile(
 				this.typescript,
 				sourceFile,
-				this.configService.getUtilityFunctions(),
+				this.configService.getUtilitiesConfig(),
 				typeChecker
 			);
 

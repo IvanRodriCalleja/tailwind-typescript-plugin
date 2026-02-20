@@ -1,7 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { IClassNameExtractor, NodeFilterFn } from '../core/interfaces';
-import { ClassNameInfo, ExtractionContext, UtilityFunction } from '../core/types';
+import { ClassNameInfo, ExtractionContext, UtilitiesConfig } from '../core/types';
 
 /**
  * Represents a resolved import mapping: local name -> module specifier
@@ -85,7 +85,7 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 	 */
 	protected shouldValidateFunctionCall(
 		callExpression: ts.CallExpression,
-		utilityFunctions: UtilityFunction[],
+		utilities: UtilitiesConfig,
 		context?: ExtractionContext
 	): boolean {
 		const expr = callExpression.expression;
@@ -109,39 +109,30 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 			return false;
 		}
 
-		// Check each utility function configuration
-		for (const utilityFunc of utilityFunctions) {
-			if (typeof utilityFunc === 'string') {
-				// Simple string: match by name only (backwards compatible)
-				if (utilityFunc === functionName) {
-					return true;
-				}
-			} else {
-				// UtilityFunctionConfig: match by name AND verify import
-				if (utilityFunc.name === functionName) {
-					// If we have context, verify the import source
-					if (context) {
-						// For member expressions (utils.clsx), check if object is namespace imported
-						if (objectName) {
-							if (this.isNamespaceImportedFrom(objectName, utilityFunc.from, context)) {
-								return true;
-							}
-							// Object is not a namespace import from expected package, skip
-							continue;
-						}
-						// Direct function call - check direct import
-						if (this.isImportedFrom(functionName, utilityFunc.from, context)) {
-							return true;
-						}
-					} else {
-						// No context available, fall back to name-only matching
-						return true;
-					}
-				}
-			}
+		const source = utilities[functionName];
+
+		// Not configured or disabled
+		if (source === undefined || source === 'off') {
+			return false;
 		}
 
-		return false;
+		// Wildcard: match any import source
+		if (source === '*') {
+			return true;
+		}
+
+		// Specific import path: verify import source
+		if (context) {
+			// For member expressions (utils.clsx), check if object is namespace imported
+			if (objectName) {
+				return this.isNamespaceImportedFrom(objectName, source, context);
+			}
+			// Direct function call - check direct import
+			return this.isImportedFrom(functionName, source, context);
+		}
+
+		// No context available, fall back to name-only matching
+		return true;
 	}
 
 	/**
@@ -292,16 +283,7 @@ export abstract class BaseExtractor implements IClassNameExtractor {
 	 * Check if a function name matches any utility function (by name only)
 	 * Used for quick exclusion checks without import verification
 	 */
-	protected isUtilityFunctionName(
-		functionName: string,
-		utilityFunctions: UtilityFunction[]
-	): boolean {
-		for (const utilityFunc of utilityFunctions) {
-			const name = typeof utilityFunc === 'string' ? utilityFunc : utilityFunc.name;
-			if (name === functionName) {
-				return true;
-			}
-		}
-		return false;
+	protected isUtilityFunctionName(functionName: string, utilities: UtilitiesConfig): boolean {
+		return utilities[functionName] !== undefined && utilities[functionName] !== 'off';
 	}
 }
