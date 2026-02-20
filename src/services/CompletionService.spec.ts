@@ -4,7 +4,7 @@ import { TailwindValidator } from '../infrastructure/TailwindValidator';
 import { CompletionService, CompletionServiceConfig } from './CompletionService';
 
 const defaultConfig: CompletionServiceConfig = {
-	utilityFunctions: ['clsx', 'cn', 'classnames', 'classNames', 'cx', 'twMerge'],
+	utilities: { clsx: '*', cn: '*', classnames: '*', classNames: '*', cx: '*', twMerge: '*' },
 	tailwindVariantsEnabled: true,
 	classVarianceAuthorityEnabled: true
 };
@@ -532,7 +532,7 @@ describe('CompletionService', () => {
 	describe('custom utility functions', () => {
 		it('should provide completions in custom utility function', () => {
 			const customConfig: CompletionServiceConfig = {
-				utilityFunctions: ['myCustomClass', { name: 'styles', from: '@/utils' }],
+				utilities: { myCustomClass: '*', styles: '@/utils' },
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};
@@ -584,7 +584,7 @@ describe('CompletionService', () => {
 
 		it('should NOT provide completions in tv() when tailwindVariants is disabled', () => {
 			const customConfig: CompletionServiceConfig = {
-				utilityFunctions: ['clsx'],
+				utilities: { clsx: '*' },
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};
@@ -633,7 +633,7 @@ describe('CompletionService', () => {
 
 		it('should NOT provide completions in cva() when classVarianceAuthority is disabled', () => {
 			const customConfig: CompletionServiceConfig = {
-				utilityFunctions: ['clsx'],
+				utilities: { clsx: '*' },
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};
@@ -658,7 +658,7 @@ describe('CompletionService', () => {
 
 		it('should provide completions with UtilityFunctionConfig objects', () => {
 			const customConfig: CompletionServiceConfig = {
-				utilityFunctions: [{ name: 'customStyles', from: '@/lib/styles' }],
+				utilities: { customStyles: '@/lib/styles' },
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};
@@ -683,7 +683,7 @@ describe('CompletionService', () => {
 
 		it('should provide completions with mixed string and object utility functions', () => {
 			const customConfig: CompletionServiceConfig = {
-				utilityFunctions: ['simpleUtil', { name: 'configuredUtil', from: '@/utils' }],
+				utilities: { simpleUtil: '*', configuredUtil: '@/utils' },
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};
@@ -817,7 +817,7 @@ describe('CompletionService', () => {
 
 		it('should enable both tv and cva when both variant options are true', () => {
 			const customConfig: CompletionServiceConfig = {
-				utilityFunctions: [],
+				utilities: {},
 				tailwindVariantsEnabled: true,
 				classVarianceAuthorityEnabled: true
 			};
@@ -1197,7 +1197,7 @@ describe('CompletionService', () => {
 		it('should provide completions with property access expression (method call)', () => {
 			// When cn is called as a method: utils.cn("fl")
 			const customConfig: CompletionServiceConfig = {
-				utilityFunctions: ['cn'],
+				utilities: { cn: '*' },
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};
@@ -1818,7 +1818,7 @@ describe('CompletionService', () => {
 	describe('boundary conditions', () => {
 		it('should NOT provide completions inside arrow function body', () => {
 			const customConfig: CompletionServiceConfig = {
-				utilityFunctions: [],
+				utilities: {},
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};
@@ -1842,7 +1842,7 @@ describe('CompletionService', () => {
 
 		it('should NOT provide completions inside regular function body', () => {
 			const customConfig: CompletionServiceConfig = {
-				utilityFunctions: [],
+				utilities: {},
 				tailwindVariantsEnabled: false,
 				classVarianceAuthorityEnabled: false
 			};

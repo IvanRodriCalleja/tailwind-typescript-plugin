@@ -20,7 +20,7 @@ describe('ExpressionExtractor', () => {
 		return {
 			typescript: ts,
 			sourceFile,
-			utilityFunctions: [],
+			utilities: {},
 			...overrides
 		};
 	};
@@ -151,7 +151,7 @@ describe('ExpressionExtractor', () => {
 	describe('extractFromExpression - call expressions', () => {
 		it('should extract from utility function call', () => {
 			const code = "const x = clsx('flex', 'items-center');";
-			const context = createContext(code, { utilityFunctions: ['clsx'] });
+			const context = createContext(code, { utilities: { clsx: '*' } });
 			const expr = findExpression(context.sourceFile)!;
 
 			const classes = extractor.extractFromExpression(expr, context);
@@ -162,7 +162,7 @@ describe('ExpressionExtractor', () => {
 
 		it('should not extract from non-utility function call', () => {
 			const code = "const x = unknownFn('flex', 'items-center');";
-			const context = createContext(code, { utilityFunctions: ['clsx'] });
+			const context = createContext(code, { utilities: { clsx: '*' } });
 			const expr = findExpression(context.sourceFile)!;
 
 			const classes = extractor.extractFromExpression(expr, context);
@@ -172,7 +172,7 @@ describe('ExpressionExtractor', () => {
 
 		it('should handle nested calls in utility function', () => {
 			const code = "const x = clsx('flex', anotherFn('items'));";
-			const context = createContext(code, { utilityFunctions: ['clsx'] });
+			const context = createContext(code, { utilities: { clsx: '*' } });
 			const expr = findExpression(context.sourceFile)!;
 
 			const classes = extractor.extractFromExpression(expr, context);

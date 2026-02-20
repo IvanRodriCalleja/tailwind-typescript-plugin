@@ -1,6 +1,6 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
-import { ClassNameInfo, ExtractionContext, UtilityFunction } from '../core/types';
+import { ClassNameInfo, ExtractionContext, UtilitiesConfig } from '../core/types';
 import { BaseExtractor } from './BaseExtractor';
 
 // Create a concrete implementation for testing
@@ -19,10 +19,10 @@ class TestExtractor extends BaseExtractor {
 	// Expose protected methods for testing
 	public testShouldValidateFunctionCall(
 		callExpression: ts.CallExpression,
-		utilityFunctions: UtilityFunction[],
+		utilities: UtilitiesConfig,
 		context?: ExtractionContext
 	): boolean {
-		return this.shouldValidateFunctionCall(callExpression, utilityFunctions, context);
+		return this.shouldValidateFunctionCall(callExpression, utilities, context);
 	}
 
 	public testIsImportedFrom(
@@ -41,11 +41,8 @@ class TestExtractor extends BaseExtractor {
 		return this.isNamespaceImportedFrom(objectName, expectedModule, context);
 	}
 
-	public testIsUtilityFunctionName(
-		functionName: string,
-		utilityFunctions: UtilityFunction[]
-	): boolean {
-		return this.isUtilityFunctionName(functionName, utilityFunctions);
+	public testIsUtilityFunctionName(functionName: string, utilities: UtilitiesConfig): boolean {
+		return this.isUtilityFunctionName(functionName, utilities);
 	}
 }
 
@@ -66,7 +63,7 @@ describe('BaseExtractor', () => {
 		return {
 			typescript: ts,
 			sourceFile,
-			utilityFunctions: [],
+			utilities: {},
 			...overrides
 		};
 	};
@@ -222,7 +219,7 @@ describe('BaseExtractor', () => {
 			const context = createContext(code);
 			const callExpr = findCallExpression(context.sourceFile)!;
 
-			const result = extractor.testShouldValidateFunctionCall(callExpr, ['clsx']);
+			const result = extractor.testShouldValidateFunctionCall(callExpr, { clsx: '*' });
 
 			expect(result).toBe(true);
 		});
@@ -232,7 +229,7 @@ describe('BaseExtractor', () => {
 			const context = createContext(code);
 			const callExpr = findCallExpression(context.sourceFile)!;
 
-			const result = extractor.testShouldValidateFunctionCall(callExpr, ['clsx']);
+			const result = extractor.testShouldValidateFunctionCall(callExpr, { clsx: '*' });
 
 			expect(result).toBe(false);
 		});
@@ -245,11 +242,7 @@ describe('BaseExtractor', () => {
 			const context = createContext(code);
 			const callExpr = findCallExpression(context.sourceFile)!;
 
-			const result = extractor.testShouldValidateFunctionCall(
-				callExpr,
-				[{ name: 'clsx', from: 'clsx' }],
-				context
-			);
+			const result = extractor.testShouldValidateFunctionCall(callExpr, { clsx: 'clsx' }, context);
 
 			expect(result).toBe(true);
 		});
@@ -262,11 +255,7 @@ describe('BaseExtractor', () => {
 			const context = createContext(code);
 			const callExpr = findCallExpression(context.sourceFile)!;
 
-			const result = extractor.testShouldValidateFunctionCall(
-				callExpr,
-				[{ name: 'clsx', from: 'clsx' }],
-				context
-			);
+			const result = extractor.testShouldValidateFunctionCall(callExpr, { clsx: 'clsx' }, context);
 
 			expect(result).toBe(false);
 		});
@@ -279,11 +268,7 @@ describe('BaseExtractor', () => {
 			const context = createContext(code);
 			const callExpr = findCallExpression(context.sourceFile)!;
 
-			const result = extractor.testShouldValidateFunctionCall(
-				callExpr,
-				[{ name: 'cx', from: 'clsx' }],
-				context
-			);
+			const result = extractor.testShouldValidateFunctionCall(callExpr, { cx: 'clsx' }, context);
 
 			expect(result).toBe(true);
 		});
@@ -296,11 +281,7 @@ describe('BaseExtractor', () => {
 			const context = createContext(code);
 			const callExpr = findCallExpression(context.sourceFile)!;
 
-			const result = extractor.testShouldValidateFunctionCall(
-				callExpr,
-				[{ name: 'clsx', from: 'clsx' }],
-				context
-			);
+			const result = extractor.testShouldValidateFunctionCall(callExpr, { clsx: 'clsx' }, context);
 
 			expect(result).toBe(true);
 		});
@@ -313,11 +294,7 @@ describe('BaseExtractor', () => {
 			const context = createContext(code);
 			const callExpr = findCallExpression(context.sourceFile)!;
 
-			const result = extractor.testShouldValidateFunctionCall(
-				callExpr,
-				[{ name: 'clsx', from: 'clsx' }],
-				context
-			);
+			const result = extractor.testShouldValidateFunctionCall(callExpr, { clsx: 'clsx' }, context);
 
 			expect(result).toBe(true);
 		});
@@ -330,11 +307,7 @@ describe('BaseExtractor', () => {
 			const context = createContext(code);
 			const callExpr = findCallExpression(context.sourceFile)!;
 
-			const result = extractor.testShouldValidateFunctionCall(
-				callExpr,
-				[{ name: 'cn', from: 'my-lib' }],
-				context
-			);
+			const result = extractor.testShouldValidateFunctionCall(callExpr, { cn: 'my-lib' }, context);
 
 			expect(result).toBe(true);
 		});
@@ -346,7 +319,7 @@ describe('BaseExtractor', () => {
 
 			const result = extractor.testShouldValidateFunctionCall(
 				callExpr,
-				[{ name: 'clsx', from: 'clsx' }]
+				{ clsx: 'clsx' }
 				// No context passed
 			);
 
@@ -363,7 +336,7 @@ describe('BaseExtractor', () => {
 
 			const result = extractor.testShouldValidateFunctionCall(
 				callExpr,
-				[{ name: 'tv', from: 'tailwind-variants' }],
+				{ tv: 'tailwind-variants' },
 				context
 			);
 
@@ -466,28 +439,28 @@ describe('BaseExtractor', () => {
 
 	describe('isUtilityFunctionName', () => {
 		it('should return true for matching simple string', () => {
-			const result = extractor.testIsUtilityFunctionName('clsx', ['clsx', 'cn']);
+			const result = extractor.testIsUtilityFunctionName('clsx', { clsx: '*', cn: '*' });
 
 			expect(result).toBe(true);
 		});
 
 		it('should return true for matching config object', () => {
-			const result = extractor.testIsUtilityFunctionName('clsx', [
-				{ name: 'clsx', from: 'clsx' },
-				{ name: 'cn', from: '@/lib/utils' }
-			]);
+			const result = extractor.testIsUtilityFunctionName('clsx', {
+				clsx: 'clsx',
+				cn: '@/lib/utils'
+			});
 
 			expect(result).toBe(true);
 		});
 
 		it('should return false for non-matching function name', () => {
-			const result = extractor.testIsUtilityFunctionName('unknown', ['clsx', 'cn']);
+			const result = extractor.testIsUtilityFunctionName('unknown', { clsx: '*', cn: '*' });
 
 			expect(result).toBe(false);
 		});
 
 		it('should return false for empty array', () => {
-			const result = extractor.testIsUtilityFunctionName('clsx', []);
+			const result = extractor.testIsUtilityFunctionName('clsx', {});
 
 			expect(result).toBe(false);
 		});
@@ -562,7 +535,7 @@ describe('BaseExtractor', () => {
 			const context = createContext(code);
 			const callExpr = findCallExpression(context.sourceFile)!;
 
-			const result = extractor.testShouldValidateFunctionCall(callExpr, ['clsx']);
+			const result = extractor.testShouldValidateFunctionCall(callExpr, { clsx: '*' });
 
 			expect(result).toBe(false);
 		});

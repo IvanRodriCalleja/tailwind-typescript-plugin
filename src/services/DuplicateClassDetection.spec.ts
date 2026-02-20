@@ -60,7 +60,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// Should have 2 duplicate diagnostics (both "flex" occurrences)
 			expect(diagnostics.length).toBe(2);
@@ -79,7 +79,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// Should have 4 duplicate diagnostics (2 for flex, 2 for items-center)
 			expect(diagnostics.length).toBe(4);
@@ -100,7 +100,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// Should have no duplicates - each "flex" is in a different attribute
 			expect(diagnostics.length).toBe(0);
@@ -116,7 +116,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// Should have 3 duplicate diagnostics (for all "flex" occurrences)
 			expect(diagnostics.length).toBe(3);
@@ -135,7 +135,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			expect(diagnostics.length).toBe(2);
 			expect(diagnostics.every(d => d.code === TAILWIND_DUPLICATE_CODE)).toBe(true);
@@ -151,7 +151,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			expect(diagnostics.length).toBe(2);
 			expect(diagnostics.every(d => d.code === TAILWIND_DUPLICATE_CODE)).toBe(true);
@@ -169,7 +169,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
+			const diagnostics = validationService.validateFile(ts, sourceFile, { clsx: '*' });
 
 			expect(diagnostics.length).toBe(2);
 			expect(diagnostics.every(d => d.code === TAILWIND_DUPLICATE_CODE)).toBe(true);
@@ -185,7 +185,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, ['cn']);
+			const diagnostics = validationService.validateFile(ts, sourceFile, { cn: '*' });
 
 			expect(diagnostics.length).toBe(2);
 			expect(diagnostics.every(d => d.code === TAILWIND_DUPLICATE_CODE)).toBe(true);
@@ -203,7 +203,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			expect(diagnostics[0].messageText).toBe('Duplicate class "bg-red-500"');
 		});
@@ -218,7 +218,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			expect(diagnostics[0].source).toBe('tw-plugin');
 		});
@@ -236,7 +236,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			expect(diagnostics.length).toBe(0);
 		});
@@ -251,7 +251,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			expect(diagnostics.length).toBe(0);
 		});
@@ -271,7 +271,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
+			const diagnostics = validationService.validateFile(ts, sourceFile, { clsx: '*' });
 
 			// Should have 3 duplicate warnings (root 'flex' + both branch 'flex')
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
@@ -292,7 +292,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
+			const diagnostics = validationService.validateFile(ts, sourceFile, { clsx: '*' });
 
 			// 2 extractable hints - one for each 'flex' in both branches
 			const extractable = diagnostics.filter(d => d.code === TAILWIND_EXTRACTABLE_CLASS_CODE);
@@ -313,7 +313,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
+			const diagnostics = validationService.validateFile(ts, sourceFile, { clsx: '*' });
 
 			expect(diagnostics.length).toBe(0);
 		});
@@ -331,7 +331,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
+			const diagnostics = validationService.validateFile(ts, sourceFile, { clsx: '*' });
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
 			expect(duplicates.length).toBe(2);
@@ -351,7 +351,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// 2 extractable hints - one for each 'flex' in both branches
 			const extractable = diagnostics.filter(d => d.code === TAILWIND_EXTRACTABLE_CLASS_CODE);
@@ -371,7 +371,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// 4 extractable hints - 2 for 'flex' + 2 for 'items-center' (in both branches)
 			const extractable = diagnostics.filter(d => d.code === TAILWIND_EXTRACTABLE_CLASS_CODE);
@@ -393,7 +393,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
+			const diagnostics = validationService.validateFile(ts, sourceFile, { clsx: '*' });
 
 			// Should warn - both root 'flex' and branch 'flex' are flagged
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
@@ -413,7 +413,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
+			const diagnostics = validationService.validateFile(ts, sourceFile, { clsx: '*' });
 
 			expect(diagnostics.length).toBe(0);
 		});
@@ -431,7 +431,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
+			const diagnostics = validationService.validateFile(ts, sourceFile, { clsx: '*' });
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
 			expect(duplicates.length).toBe(2);
@@ -448,7 +448,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
+			const diagnostics = validationService.validateFile(ts, sourceFile, { clsx: '*' });
 
 			expect(diagnostics.length).toBe(0);
 		});
@@ -470,7 +470,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
 			expect(duplicates.length).toBe(2);
@@ -497,7 +497,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
 			expect(duplicates.length).toBe(2);
@@ -522,7 +522,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
 			expect(duplicates.length).toBe(2);
@@ -547,7 +547,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// Each tv() call has its own scope, so no duplicates
 			expect(diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE).length).toBe(0);
@@ -571,7 +571,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
 			expect(duplicates.length).toBe(2);
@@ -593,7 +593,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
 			expect(duplicates.length).toBe(2);
@@ -619,7 +619,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
 			expect(duplicates.length).toBe(2);
@@ -643,7 +643,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
 			expect(duplicates.length).toBe(2);
@@ -664,7 +664,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// Each cva() call has its own scope, so no duplicates
 			expect(diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE).length).toBe(0);
@@ -683,7 +683,7 @@ describe('Duplicate Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const duplicates = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
 			expect(duplicates.length).toBe(2);

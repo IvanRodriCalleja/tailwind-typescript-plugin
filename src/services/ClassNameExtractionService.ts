@@ -1,7 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { IClassNameExtractor, NodeFilterFn } from '../core/interfaces';
-import { ClassNameInfo, ExtractionContext, UtilityFunction } from '../core/types';
+import { ClassNameInfo, ExtractionContext, UtilitiesConfig } from '../core/types';
 import { CvaExtractor } from '../extractors/CvaExtractor';
 import { JsxAttributeExtractor } from '../extractors/JsxAttributeExtractor';
 import { TailwindVariantsExtractor } from '../extractors/TailwindVariantsExtractor';
@@ -91,7 +91,7 @@ export class ClassNameExtractionService {
 	extractFromSourceFile(
 		typescript: typeof ts,
 		sourceFile: ts.SourceFile,
-		utilityFunctions: UtilityFunction[],
+		utilities: UtilitiesConfig,
 		typeChecker?: ts.TypeChecker,
 		classAttributes?: string[]
 	): ClassNameInfo[] {
@@ -108,7 +108,7 @@ export class ClassNameExtractionService {
 		const context: ExtractionContext = {
 			typescript,
 			sourceFile,
-			utilityFunctions,
+			utilities,
 			typeChecker,
 			framework,
 			classAttributes
@@ -163,17 +163,6 @@ export class ClassNameExtractionService {
 
 		visit(sourceFile);
 		return classNames;
-	}
-
-	/**
-	 * Add a custom extractor (for extensibility)
-	 * Note: This is kept for API compatibility but not used in optimized path
-	 */
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	addExtractor(_extractor: IClassNameExtractor): void {
-		// In the optimized version, we could extend this to support
-		// multiple extractors while maintaining performance
-		console.warn('Custom extractors not yet supported in optimized version');
 	}
 
 	/**

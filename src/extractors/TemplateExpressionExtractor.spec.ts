@@ -20,7 +20,7 @@ describe('TemplateExpressionExtractor', () => {
 		return {
 			typescript: ts,
 			sourceFile,
-			utilityFunctions: [],
+			utilities: {},
 			...overrides
 		};
 	};

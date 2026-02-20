@@ -2,6 +2,7 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import fs from 'fs';
 import path from 'path';
 
+import { UtilitiesConfig } from '../../src/core/types';
 import pluginFactory from '../../src/index';
 
 // Diagnostic codes from DiagnosticService
@@ -28,7 +29,7 @@ export interface TestCase {
 	expectedExtractableClasses: string[]; // Classes that should be flagged as extractable (hints)
 	expectedConflictClasses: string[]; // Classes that should be flagged as conflicting
 	elementExpectations: ElementExpectation[]; // For complex multi-element cases
-	utilityFunctions?: UtilityFunction[]; // Optional custom utility functions to test
+	utilities?: UtilitiesConfig; // Optional custom utility functions to test
 }
 
 /**
@@ -67,7 +68,7 @@ export function parseTestFile(filePath: string): TestCase[] {
 			let expectedDuplicateClasses: string[] = [];
 			let expectedExtractableClasses: string[] = [];
 			let expectedConflictClasses: string[] = [];
-			let utilityFunctions: UtilityFunction[] | undefined = undefined;
+			let utilities: UtilitiesConfig | undefined = undefined;
 			const elementExpectations: ElementExpectation[] = [];
 			const elementMap: Map<number, Partial<ElementExpectation>> = new Map();
 
@@ -146,23 +147,32 @@ export function parseTestFile(filePath: string): TestCase[] {
 				}
 
 				// Extract @utilityFunctions [name1, name2] or @utilityFunctions [{name: 'fn', from: 'pkg'}]
+				// Produces UtilitiesConfig: simple strings become '*', objects become { name: from }
 				const utilityFunctionsMatch = jsdocLine.match(/^\s*\*\s*@utilityFunctions\s*\[(.+)\]/);
 				if (utilityFunctionsMatch) {
 					const content = utilityFunctionsMatch[1].trim();
+					utilities = {};
 					// Check if it contains objects (starts with {)
 					if (content.includes('{')) {
 						// Parse as JSON-like objects
 						try {
 							// Replace single quotes with double quotes for valid JSON
 							const jsonContent = `[${content.replace(/'/g, '"')}]`;
-							utilityFunctions = JSON.parse(jsonContent) as UtilityFunction[];
+							const parsed = JSON.parse(jsonContent) as { name: string; from: string }[];
+							for (const item of parsed) {
+								utilities[item.name] = item.from;
+							}
 						} catch {
 							// Fallback to simple string parsing if JSON fails
-							utilityFunctions = content.split(',').map(fn => fn.trim());
+							for (const fn of content.split(',').map(f => f.trim())) {
+								utilities[fn] = '*';
+							}
 						}
 					} else {
 						// Simple string list
-						utilityFunctions = content.split(',').map(fn => fn.trim());
+						for (const fn of content.split(',').map(f => f.trim())) {
+							utilities[fn] = '*';
+						}
 					}
 				}
 
@@ -214,7 +224,7 @@ export function parseTestFile(filePath: string): TestCase[] {
 							expectedExtractableClasses: expectedExtractableClasses,
 							expectedConflictClasses: expectedConflictClasses,
 							elementExpectations: elementExpectations,
-							utilityFunctions: utilityFunctions
+							utilities: utilities
 						});
 						break;
 					}
@@ -270,7 +280,7 @@ export interface FolderPluginResult {
  */
 export async function runPluginOnFolder(
 	folderPath: string,
-	options?: RunPluginOptions | string[]
+	options?: RunPluginOptions
 ): Promise<FolderPluginResult> {
 	const files = fs.readdirSync(folderPath).filter(f => f.endsWith('.tsx'));
 	const results = new Map<string, { diagnostics: ts.Diagnostic[]; sourceCode: string }>();
@@ -287,16 +297,10 @@ export async function runPluginOnFolder(
 }
 
 /**
- * Utility function configuration type
- * Can be either a simple string or an object with name and from properties
- */
-export type UtilityFunction = string | { name: string; from: string };
-
-/**
  * Options for running the plugin on a file
  */
 export interface RunPluginOptions {
-	utilityFunctions?: UtilityFunction[];
+	utilities?: UtilitiesConfig;
 	allowedClasses?: string[];
 }
 
@@ -321,12 +325,9 @@ export interface RunPluginResult {
  */
 export async function runPluginOnFile(
 	testFilePath: string,
-	options?: RunPluginOptions | string[]
+	options?: RunPluginOptions
 ): Promise<RunPluginResult> {
-	// Support legacy signature where second param is utilityFunctions array
-	const opts: RunPluginOptions = Array.isArray(options)
-		? { utilityFunctions: options }
-		: options || {};
+	const opts: RunPluginOptions = options || {};
 	const tempDir = path.dirname(testFilePath);
 
 	// Look for global.css in the current directory or parent directories
@@ -382,7 +383,7 @@ export async function runPluginOnFile(
 		} as unknown as ts.server.Project,
 		config: {
 			globalCss: cssFile,
-			...(opts.utilityFunctions && { utilityFunctions: opts.utilityFunctions }),
+			...(opts.utilities && { libraries: { utilities: opts.utilities } }),
 			...(opts.allowedClasses && { allowedClasses: opts.allowedClasses })
 		},
 		serverHost: {} as unknown as ts.server.ServerHost

@@ -56,7 +56,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			// Both text-left and text-center should be flagged
@@ -77,7 +77,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			// All three classes should be flagged
@@ -96,7 +96,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -115,7 +115,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -131,7 +131,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -149,7 +149,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -166,7 +166,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -184,7 +184,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -203,7 +203,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -224,7 +224,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -243,7 +243,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(0);
@@ -263,7 +263,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(0);
@@ -280,7 +280,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(0); // Should be duplicate, not conflict
@@ -297,7 +297,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(0);
@@ -316,7 +316,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(0);
@@ -334,7 +334,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
+			const diagnostics = validationService.validateFile(ts, sourceFile, { clsx: '*' });
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -352,7 +352,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -370,7 +370,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, ['clsx']);
+			const diagnostics = validationService.validateFile(ts, sourceFile, { clsx: '*' });
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -386,7 +386,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, ['cn']);
+			const diagnostics = validationService.validateFile(ts, sourceFile, { cn: '*' });
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -404,7 +404,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -421,7 +421,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			// Different prefixes mean different media queries, so no conflict
@@ -439,7 +439,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(0);
@@ -456,7 +456,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(0);
@@ -473,7 +473,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(0);
@@ -490,7 +490,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -507,7 +507,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(0);
@@ -525,7 +525,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -543,7 +543,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -562,7 +562,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -581,7 +581,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -600,7 +600,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -619,7 +619,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -645,7 +645,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.every(c => c.source === 'tw-plugin')).toBe(true);
@@ -668,7 +668,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -695,7 +695,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// Base vs variant classes should NOT conflict - variants are designed to override base styles
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
@@ -720,7 +720,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// Each tv() call has its own scope, so no conflicts
 			expect(diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE).length).toBe(0);
@@ -741,7 +741,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
 			expect(conflicts.length).toBe(2);
@@ -767,7 +767,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// Base vs variant classes should NOT conflict - variants are designed to override base styles
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
@@ -788,7 +788,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// Each cva() call has its own scope, so no conflicts
 			expect(diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE).length).toBe(0);
@@ -813,7 +813,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// Conflicts within the same variant option SHOULD be flagged
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
@@ -843,7 +843,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// Conflicts within the same variant option SHOULD be flagged
 			const conflicts = diagnostics.filter(d => d.code === TAILWIND_CONFLICT_CODE);
@@ -873,7 +873,7 @@ describe('Conflicting Class Detection', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// Note: Ideally different variant options are mutually exclusive (only one active at runtime),
 			// so they shouldn't conflict. However, this would require tracking which variant OPTION

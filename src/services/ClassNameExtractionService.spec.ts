@@ -20,7 +20,7 @@ describe('ClassNameExtractionService', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const classNames = service.extractFromSourceFile(ts, sourceFile, []);
+			const classNames = service.extractFromSourceFile(ts, sourceFile, {});
 
 			expect(classNames).toHaveLength(2);
 			expect(classNames[0].className).toBe('flex');
@@ -36,7 +36,7 @@ describe('ClassNameExtractionService', () => {
 				true
 			);
 
-			const classNames = service.extractFromSourceFile(ts, sourceFile, []);
+			const classNames = service.extractFromSourceFile(ts, sourceFile, {});
 
 			expect(classNames).toHaveLength(0);
 		});
@@ -46,7 +46,7 @@ describe('ClassNameExtractionService', () => {
 			const sourceFile = ts.createSourceFile('App.vue', sourceCode, ts.ScriptTarget.Latest, true);
 
 			// Vue extractor is a stub, should return empty array
-			const classNames = service.extractFromSourceFile(ts, sourceFile, []);
+			const classNames = service.extractFromSourceFile(ts, sourceFile, {});
 
 			expect(classNames).toHaveLength(0);
 		});
@@ -66,7 +66,7 @@ describe('ClassNameExtractionService', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const classNames = service.extractFromSourceFile(ts, sourceFile, []);
+			const classNames = service.extractFromSourceFile(ts, sourceFile, {});
 
 			// If lazy initialization works, we should get results
 			expect(classNames).toHaveLength(1);
@@ -91,11 +91,11 @@ describe('ClassNameExtractionService', () => {
 			);
 
 			// Process first JSX file
-			const classNames1 = service.extractFromSourceFile(ts, jsxFile1, []);
+			const classNames1 = service.extractFromSourceFile(ts, jsxFile1, {});
 			expect(classNames1).toHaveLength(1);
 
 			// Process second JSX file - should reuse cached extractor
-			const classNames2 = service.extractFromSourceFile(ts, jsxFile2, []);
+			const classNames2 = service.extractFromSourceFile(ts, jsxFile2, {});
 			expect(classNames2).toHaveLength(1);
 
 			// Both should work correctly
@@ -120,11 +120,11 @@ describe('ClassNameExtractionService', () => {
 			);
 
 			// Process JSX file
-			const jsxClassNames = service.extractFromSourceFile(ts, jsxFile, []);
+			const jsxClassNames = service.extractFromSourceFile(ts, jsxFile, {});
 			expect(jsxClassNames).toHaveLength(1);
 
 			// Process Vue file (stub, returns empty)
-			const vueClassNames = service.extractFromSourceFile(ts, vueFile, []);
+			const vueClassNames = service.extractFromSourceFile(ts, vueFile, {});
 			expect(vueClassNames).toHaveLength(0);
 
 			// Both should work independently
@@ -155,7 +155,7 @@ describe('ClassNameExtractionService', () => {
 					true,
 					file.kind
 				);
-				return service.extractFromSourceFile(ts, sourceFile, []);
+				return service.extractFromSourceFile(ts, sourceFile, {});
 			});
 
 			// JSX files should extract classes
@@ -180,7 +180,7 @@ describe('ClassNameExtractionService', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const classNames = service.extractFromSourceFile(ts, sourceFile, [], undefined, [
+			const classNames = service.extractFromSourceFile(ts, sourceFile, {}, undefined, [
 				'className',
 				'class',
 				'classList'
@@ -201,7 +201,7 @@ describe('ClassNameExtractionService', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const classNames = service.extractFromSourceFile(ts, sourceFile, [], undefined, [
+			const classNames = service.extractFromSourceFile(ts, sourceFile, {}, undefined, [
 				'className',
 				'class',
 				'classList',
@@ -224,7 +224,7 @@ describe('ClassNameExtractionService', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const classNames = service.extractFromSourceFile(ts, sourceFile, [], undefined, [
+			const classNames = service.extractFromSourceFile(ts, sourceFile, {}, undefined, [
 				'className',
 				'colorStyles',
 				'textStyles'
@@ -247,7 +247,7 @@ describe('ClassNameExtractionService', () => {
 			);
 
 			// Only default attributes configured, customProp not included
-			const classNames = service.extractFromSourceFile(ts, sourceFile, [], undefined, [
+			const classNames = service.extractFromSourceFile(ts, sourceFile, {}, undefined, [
 				'className',
 				'class',
 				'classList'
@@ -266,7 +266,7 @@ describe('ClassNameExtractionService', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const classNames = service.extractFromSourceFile(ts, sourceFile, [], undefined, [
+			const classNames = service.extractFromSourceFile(ts, sourceFile, {}, undefined, [
 				'className',
 				'colorStyles'
 			]);
@@ -291,7 +291,7 @@ describe('ClassNameExtractionService', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const classNames = service.extractFromSourceFile(ts, jsxWithTv, []);
+			const classNames = service.extractFromSourceFile(ts, jsxWithTv, {});
 
 			// Should extract from tv() call
 			expect(classNames.length).toBeGreaterThan(0);
@@ -311,7 +311,7 @@ describe('ClassNameExtractionService', () => {
 				ts.ScriptKind.TSX
 			);
 
-			const classNames = serviceWithoutVariants.extractFromSourceFile(ts, codeWithTv, []);
+			const classNames = serviceWithoutVariants.extractFromSourceFile(ts, codeWithTv, {});
 
 			// Should not extract from tv() since it's disabled
 			expect(classNames).toHaveLength(0);

@@ -4,7 +4,6 @@ import {
 	EditorConfig,
 	LintConfig,
 	UtilitiesConfig,
-	UtilityFunction,
 	ValidationConfig,
 	VariantsConfig
 } from '../core/types';
@@ -82,9 +81,6 @@ export class PluginConfigService {
 	private classAttributes: string[];
 	private cssFilePath?: string;
 
-	// Legacy format support (for internal use by extractors)
-	private utilityFunctionsLegacy: UtilityFunction[];
-
 	// Schema validation
 	private readonly schemaValidator: ConfigSchemaValidator;
 	private configValidationResult: ConfigValidationResult;
@@ -103,9 +99,6 @@ export class PluginConfigService {
 		this.lintConfig = this.initializeLint(config);
 		this.editorConfig = this.initializeEditor(config);
 		this.classAttributes = this.initializeClassAttributes(config);
-
-		// Convert to legacy format for extractors
-		this.utilityFunctionsLegacy = this.convertToLegacyFormat(this.utilitiesConfig);
 	}
 
 	private initializeUtilities(config: IPluginConfig): UtilitiesConfig {
@@ -188,38 +181,10 @@ export class PluginConfigService {
 		return [...new Set([...DEFAULT_CLASS_ATTRIBUTES, ...userAttributes])];
 	}
 
-	/**
-	 * Convert new utilities config to legacy UtilityFunction[] format
-	 * This is needed for backwards compatibility with extractors
-	 */
-	private convertToLegacyFormat(utilities: UtilitiesConfig): UtilityFunction[] {
-		const result: UtilityFunction[] = [];
-
-		for (const [name, source] of Object.entries(utilities)) {
-			if (source === 'off') {
-				continue; // Skip disabled utilities
-			}
-			if (source === '*') {
-				result.push(name); // Simple string = any source
-			} else {
-				result.push({ name, from: source });
-			}
-		}
-
-		return result;
-	}
-
 	// ---- Getters for utilities ----
 
 	getUtilitiesConfig(): UtilitiesConfig {
 		return this.utilitiesConfig;
-	}
-
-	/**
-	 * Get utility functions in legacy format (for extractors)
-	 */
-	getUtilityFunctions(): UtilityFunction[] {
-		return this.utilityFunctionsLegacy;
 	}
 
 	// ---- Getters for variants ----

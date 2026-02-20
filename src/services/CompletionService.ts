@@ -1,6 +1,6 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
-import { UtilityFunction } from '../core/types';
+import { UtilitiesConfig } from '../core/types';
 import { TailwindValidator } from '../infrastructure/TailwindValidator';
 
 /**
@@ -24,7 +24,7 @@ interface CompletionContext {
  */
 export interface CompletionServiceConfig {
 	/** Custom utility functions to recognize for completions */
-	utilityFunctions: UtilityFunction[];
+	utilities: UtilitiesConfig;
 	/** Whether tailwind-variants (tv) is enabled */
 	tailwindVariantsEnabled: boolean;
 	/** Whether class-variance-authority (cva) is enabled */
@@ -56,7 +56,9 @@ export class CompletionService {
 	) {
 		// Build a set of utility function names for quick lookup
 		this.utilityFunctionNames = new Set(
-			config.utilityFunctions.map(f => (typeof f === 'string' ? f : f.name))
+			Object.entries(config.utilities)
+				.filter(([, s]) => s !== 'off')
+				.map(([name]) => name)
 		);
 
 		// Add variant functions based on config

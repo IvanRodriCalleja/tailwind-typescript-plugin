@@ -77,7 +77,7 @@ export class ExpressionExtractor extends BaseExtractor {
 		}
 		// Handle call expressions: clsx('class1', 'class2', myVar, ...spreadClasses)
 		else if (context.typescript.isCallExpression(expression)) {
-			if (this.shouldValidateFunctionCall(expression, context.utilityFunctions, context)) {
+			if (this.shouldValidateFunctionCall(expression, context.utilities, context)) {
 				expression.arguments.forEach(arg => {
 					// Handle spread arguments: clsx('flex', ...baseClasses)
 					if (context.typescript.isSpreadElement(arg)) {

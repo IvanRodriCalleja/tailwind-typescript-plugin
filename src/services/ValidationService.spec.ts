@@ -63,14 +63,14 @@ describe('ValidationService', () => {
 			(mockValidator.isInitialized as jest.Mock).mockReturnValue(false);
 
 			const sourceFile = createSourceFile('<div className="flex">Hello</div>');
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			expect(diagnostics).toEqual([]);
 		});
 
 		it('should detect invalid Tailwind classes', () => {
 			const sourceFile = createSourceFile('<div className="invalid-class">Hello</div>');
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			expect(diagnostics.length).toBeGreaterThan(0);
 			expect(diagnostics[0].code).toBe(TAILWIND_DIAGNOSTIC_CODE);
@@ -79,7 +79,7 @@ describe('ValidationService', () => {
 
 		it('should not report valid Tailwind classes', () => {
 			const sourceFile = createSourceFile('<div className="flex items-center">Hello</div>');
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			// Filter to only validation errors (not duplicate/conflict warnings)
 			const validationErrors = diagnostics.filter(d => d.code === TAILWIND_DIAGNOSTIC_CODE);
@@ -88,7 +88,7 @@ describe('ValidationService', () => {
 
 		it('should detect multiple invalid classes', () => {
 			const sourceFile = createSourceFile('<div className="invalid1 flex invalid2">Hello</div>');
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const validationErrors = diagnostics.filter(d => d.code === TAILWIND_DIAGNOSTIC_CODE);
 			expect(validationErrors.length).toBe(2);
@@ -98,7 +98,7 @@ describe('ValidationService', () => {
 	describe('duplicate class detection', () => {
 		it('should detect duplicate classes within same attribute', () => {
 			const sourceFile = createSourceFile('<div className="flex flex">Hello</div>');
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const duplicateWarnings = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
 			expect(duplicateWarnings.length).toBeGreaterThan(0);
@@ -110,7 +110,7 @@ describe('ValidationService', () => {
 					<span className="flex">Hello</span>
 				</div>
 			`);
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const duplicateWarnings = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
 			expect(duplicateWarnings).toHaveLength(0);
@@ -131,7 +131,7 @@ describe('ValidationService', () => {
 			);
 
 			const sourceFile = createSourceFile('<div className="invalid-class">Hello</div>');
-			const diagnostics = service.validateFile(ts, sourceFile, []);
+			const diagnostics = service.validateFile(ts, sourceFile, {});
 
 			const validationErrors = diagnostics.filter(d => d.code === TAILWIND_DIAGNOSTIC_CODE);
 			expect(validationErrors).toHaveLength(0);
@@ -150,7 +150,7 @@ describe('ValidationService', () => {
 			);
 
 			const sourceFile = createSourceFile('<div className="invalid-class">Hello</div>');
-			const diagnostics = service.validateFile(ts, sourceFile, []);
+			const diagnostics = service.validateFile(ts, sourceFile, {});
 
 			const validationErrors = diagnostics.filter(d => d.code === TAILWIND_DIAGNOSTIC_CODE);
 			expect(validationErrors.length).toBeGreaterThan(0);
@@ -170,7 +170,7 @@ describe('ValidationService', () => {
 			);
 
 			const sourceFile = createSourceFile('<div className="invalid-class">Hello</div>');
-			const diagnostics = service.validateFile(ts, sourceFile, []);
+			const diagnostics = service.validateFile(ts, sourceFile, {});
 
 			const validationErrors = diagnostics.filter(d => d.code === TAILWIND_DIAGNOSTIC_CODE);
 			expect(validationErrors).toHaveLength(0);
@@ -191,7 +191,7 @@ describe('ValidationService', () => {
 			);
 
 			const sourceFile = createSourceFile('<div className="flex flex">Hello</div>');
-			const diagnostics = service.validateFile(ts, sourceFile, []);
+			const diagnostics = service.validateFile(ts, sourceFile, {});
 
 			const duplicateWarnings = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
 			expect(duplicateWarnings).toHaveLength(0);
@@ -213,7 +213,7 @@ describe('ValidationService', () => {
 			);
 
 			const sourceFile = createSourceFile('<div className="flex flex">Hello</div>');
-			const diagnostics = service.validateFile(ts, sourceFile, []);
+			const diagnostics = service.validateFile(ts, sourceFile, {});
 
 			const duplicateWarnings = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
 			expect(duplicateWarnings).toHaveLength(0);
@@ -234,7 +234,7 @@ describe('ValidationService', () => {
 			);
 
 			const sourceFile = createSourceFile('<div className="flex flex">Hello</div>');
-			const diagnostics = service.validateFile(ts, sourceFile, []);
+			const diagnostics = service.validateFile(ts, sourceFile, {});
 
 			const duplicateWarnings = diagnostics.filter(d => d.code === TAILWIND_DUPLICATE_CODE);
 			expect(duplicateWarnings.length).toBeGreaterThan(0);
@@ -256,7 +256,7 @@ describe('ValidationService', () => {
 			);
 
 			const sourceFile = createSourceFile('<View colorStyles="invalid-custom-class">Hello</View>');
-			const diagnostics = service.validateFile(ts, sourceFile, []);
+			const diagnostics = service.validateFile(ts, sourceFile, {});
 
 			const validationErrors = diagnostics.filter(d => d.code === TAILWIND_DIAGNOSTIC_CODE);
 			expect(validationErrors.length).toBeGreaterThan(0);
@@ -276,7 +276,7 @@ describe('ValidationService', () => {
 			);
 
 			const sourceFile = createSourceFile('<div className="invalid-class">Hello</div>');
-			const diagnostics = service.validateFile(ts, sourceFile, []);
+			const diagnostics = service.validateFile(ts, sourceFile, {});
 
 			const validationErrors = diagnostics.filter(d => d.code === TAILWIND_DIAGNOSTIC_CODE);
 			expect(validationErrors.length).toBeGreaterThan(0);
@@ -286,7 +286,7 @@ describe('ValidationService', () => {
 	describe('JSX expressions', () => {
 		it('should validate classes in string literals', () => {
 			const sourceFile = createSourceFile("<div className={'invalid-expr'}>Hello</div>");
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const validationErrors = diagnostics.filter(d => d.code === TAILWIND_DIAGNOSTIC_CODE);
 			expect(validationErrors.length).toBeGreaterThan(0);
@@ -294,7 +294,7 @@ describe('ValidationService', () => {
 
 		it('should validate classes in template literals', () => {
 			const sourceFile = createSourceFile('<div className={`flex invalid-template`}>Hello</div>');
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const validationErrors = diagnostics.filter(d => d.code === TAILWIND_DIAGNOSTIC_CODE);
 			expect(validationErrors.length).toBeGreaterThan(0);
@@ -305,7 +305,7 @@ describe('ValidationService', () => {
 			const sourceFile = createSourceFile(
 				"<div className={true ? 'flex' : 'invalid-ternary'}>Hello</div>"
 			);
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const validationErrors = diagnostics.filter(d => d.code === TAILWIND_DIAGNOSTIC_CODE);
 			expect(validationErrors.length).toBeGreaterThan(0);
@@ -316,14 +316,14 @@ describe('ValidationService', () => {
 	describe('empty and edge cases', () => {
 		it('should handle empty className', () => {
 			const sourceFile = createSourceFile('<div className="">Hello</div>');
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			expect(diagnostics).toHaveLength(0);
 		});
 
 		it('should handle elements without className', () => {
 			const sourceFile = createSourceFile('<div>Hello</div>');
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			expect(diagnostics).toHaveLength(0);
 		});
@@ -336,7 +336,7 @@ describe('ValidationService', () => {
 					</span>
 				</div>
 			`);
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const validationErrors = diagnostics.filter(d => d.code === TAILWIND_DIAGNOSTIC_CODE);
 			expect(validationErrors.length).toBe(2);
@@ -344,7 +344,7 @@ describe('ValidationService', () => {
 
 		it('should handle self-closing elements', () => {
 			const sourceFile = createSourceFile('<img className="invalid-self-closing" />');
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			const validationErrors = diagnostics.filter(d => d.code === TAILWIND_DIAGNOSTIC_CODE);
 			expect(validationErrors.length).toBeGreaterThan(0);
@@ -357,7 +357,7 @@ describe('ValidationService', () => {
 				'<div className="invalid-class">Hello</div>',
 				'Component.tsx'
 			);
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			expect(diagnostics.length).toBeGreaterThan(0);
 		});
@@ -370,7 +370,7 @@ describe('ValidationService', () => {
 				true,
 				ts.ScriptKind.JSX
 			);
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			expect(diagnostics.length).toBeGreaterThan(0);
 		});
@@ -382,7 +382,7 @@ describe('ValidationService', () => {
 				ts.ScriptTarget.Latest,
 				true
 			);
-			const diagnostics = validationService.validateFile(ts, sourceFile, []);
+			const diagnostics = validationService.validateFile(ts, sourceFile, {});
 
 			expect(diagnostics).toHaveLength(0);
 		});
