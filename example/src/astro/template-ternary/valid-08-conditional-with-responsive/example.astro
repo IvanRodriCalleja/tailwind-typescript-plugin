@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Conditional with responsive variants
+// @validClasses [flex, md:grid, md:grid-cols-3, md:flex, md:flex-col]
+
+const isActive = true;
+---
+
+<div class={`flex ${isActive ? 'md:grid md:grid-cols-3' : 'md:flex md:flex-col'}`}>
+	Conditional with responsive variants
+</div>

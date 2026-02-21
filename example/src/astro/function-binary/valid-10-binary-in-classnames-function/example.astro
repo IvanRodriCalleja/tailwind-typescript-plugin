@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Binary in classNames() function
+// @validClasses [flex, text-red-500]
+
+import classNames from 'classnames';
+
+const isError = false;
+---
+
+<div class={classNames('flex', isError && 'text-red-500')}>Binary in classNames()</div>

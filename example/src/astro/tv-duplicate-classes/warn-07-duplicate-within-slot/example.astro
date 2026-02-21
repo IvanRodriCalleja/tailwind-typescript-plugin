@@ -1,0 +1,15 @@
+---
+// ⚠️ Warning: Duplicate within same slot
+// @duplicateClasses [flex, flex]
+
+import { tv } from 'tailwind-variants';
+
+const component = tv({
+		slots: {
+			base: 'flex flex items-center',
+			content: 'p-4'
+		}
+	});
+---
+
+<div class={component().base}>Duplicate within slot</div>

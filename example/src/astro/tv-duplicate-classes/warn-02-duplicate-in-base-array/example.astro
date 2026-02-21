@@ -1,0 +1,12 @@
+---
+// ⚠️ Warning: Duplicate in base array
+// @duplicateClasses [flex, flex]
+
+import { tv } from 'tailwind-variants';
+
+const button = tv({
+		base: ['flex', 'flex', 'items-center']
+	});
+---
+
+<button class={button()}>Duplicate in base array</button>

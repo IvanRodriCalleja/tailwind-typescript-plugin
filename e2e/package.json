@@ -13,8 +13,10 @@
     "test:build": "vite build && PW_SERVER_CMD='npm run preview' playwright test"
   },
   "devDependencies": {
+    "@astrojs/compiler": "^2.10.0",
     "@babel/parser": "^7.29.0",
     "@babel/types": "^7.29.0",
+    "@jridgewell/trace-mapping": "^0.3.25",
     "@playwright/test": "^1.49.0",
     "@types/node": "^22.0.0",
     "@vue/compiler-core": "^3.5.13",

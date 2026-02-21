@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Multiple variables in array, one with invalid class
+// @invalidClasses [invalid-array-var]
+
+const validClass = 'flex';
+const invalidClass = 'invalid-array-var';
+---
+
+<div class={[validClass, invalidClass, 'p-4']}>Multiple vars in array</div>

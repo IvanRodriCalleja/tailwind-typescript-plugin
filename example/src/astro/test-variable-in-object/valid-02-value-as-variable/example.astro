@@ -1,0 +1,9 @@
+---
+// ✅ Valid: String literal key with variable value
+// Not typical for className but should not crash
+// @validClasses [bg-blue-500]
+
+const condition = true;
+---
+
+<div class={{ 'bg-blue-500': condition }}>Value as variable</div>

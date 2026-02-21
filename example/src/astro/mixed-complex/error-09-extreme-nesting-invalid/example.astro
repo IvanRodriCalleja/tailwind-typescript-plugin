@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Extreme nesting with invalid
+// @invalidClasses [invalid-extreme]
+// @validClasses [flex, items-center, justify-center]
+
+import { cn } from '../utils';
+---
+
+<div class={cn([[[[[['flex', 'items-center'], ['invalid-extreme']], 'justify-center']]]])}>
+	Invalid extreme
+</div>

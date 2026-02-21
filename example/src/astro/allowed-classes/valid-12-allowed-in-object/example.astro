@@ -1,0 +1,8 @@
+---
+// ✅ Valid: Allowed classes as object keys
+// @validClasses [custom-button, app-header]
+
+import clsx from 'clsx';
+---
+
+<div class={clsx({ 'custom-button': true, 'app-header': true })}>Allowed in object</div>

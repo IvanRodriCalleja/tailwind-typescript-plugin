@@ -1,0 +1,12 @@
+---
+// ✅ Valid: Array value with binary expressions
+// @validClasses [flex, items-center, text-red-500]
+
+import { clsx } from 'clsx';
+
+const hasError = false;
+---
+
+<div class={clsx({ flex: ['items-center', hasError && 'text-red-500'] })}>
+	Array with binary
+</div>

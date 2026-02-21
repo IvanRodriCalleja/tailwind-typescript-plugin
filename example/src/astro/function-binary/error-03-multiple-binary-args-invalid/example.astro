@@ -1,0 +1,14 @@
+---
+// ❌ Invalid: Multiple binary arguments with invalid classes
+// @invalidClasses [invalid-error, invalid-warning]
+// @validClasses [flex]
+
+import clsx from 'clsx';
+
+const isError = false;
+const hasWarning = false;
+---
+
+<div class={clsx('flex', isError && 'invalid-error', hasWarning && 'invalid-warning')}>
+	Multiple binary with invalid
+</div>

@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Mixed spreads with valid and invalid classes
+// @invalidClasses [invalid-mixed-class, another-invalid]
+
+import { cn } from '../utils';
+
+const validClasses = ['flex', 'items-center'];
+const invalidClasses = ['invalid-mixed-class', 'another-invalid'];
+---
+
+<div class={cn(...validClasses, 'p-4', ...invalidClasses)}>Mixed spread invalid</div>

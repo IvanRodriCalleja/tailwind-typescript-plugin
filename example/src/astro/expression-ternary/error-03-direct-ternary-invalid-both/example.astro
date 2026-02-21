@@ -1,0 +1,8 @@
+---
+// ❌ Invalid: Direct ternary with invalid in both branches
+// @invalidClasses [invalid-active, invalid-inactive]
+
+const isActive = true;
+---
+
+<div class={isActive ? 'invalid-active' : 'invalid-inactive'}>Invalid in both branches</div>

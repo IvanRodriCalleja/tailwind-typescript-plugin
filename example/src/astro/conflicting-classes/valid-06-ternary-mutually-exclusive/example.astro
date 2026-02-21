@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Conflicting classes in DIFFERENT ternary branches - no conflict
+// text-left in true branch, text-center in false branch are mutually exclusive
+
+const isActive = true;
+---
+
+<div class={isActive ? 'text-left' : 'text-center'}>
+	Ternary mutually exclusive - no conflict
+</div>

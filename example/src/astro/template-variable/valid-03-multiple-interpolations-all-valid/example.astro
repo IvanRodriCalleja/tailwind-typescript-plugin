@@ -1,0 +1,11 @@
+---
+// ✅ Valid: Multiple interpolations with valid static classes
+// @validClasses [flex, items-center, justify-between]
+
+const dynamicClass = 'some-dynamic-class';
+const anotherClass = 'another-class';
+---
+
+<div class={`flex ${dynamicClass} items-center ${anotherClass} justify-between`}>
+	Multiple interpolations with valid classes
+</div>

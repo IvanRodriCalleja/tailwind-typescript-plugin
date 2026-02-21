@@ -1,0 +1,17 @@
+---
+// ✅ Valid: Lite version with array syntax
+// @validClasses [flex, items-center, gap-4, text-sm, font-medium]
+
+import { tv as tvLite } from 'tailwind-variants/lite';
+
+const component = tvLite({
+		base: ['flex', 'items-center', 'gap-4'],
+		variants: {
+			size: {
+				sm: ['text-sm', 'font-medium']
+			}
+		}
+	});
+---
+
+<div class={component({ size: 'sm' })}>Valid Lite Array</div>

@@ -1,0 +1,12 @@
+---
+// ✅ Valid: Binary with arbitrary values
+// @validClasses [flex, h-[50vh], w-[100px]]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div class={clsx('flex', isActive && 'h-[50vh] w-[100px]')}>
+	Binary with arbitrary values
+</div>

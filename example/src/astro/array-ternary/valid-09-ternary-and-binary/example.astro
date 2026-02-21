@@ -1,0 +1,18 @@
+---
+// ✅ Valid: Array with ternary and binary combined
+// @validClasses [flex, bg-blue-500, bg-gray-500, text-red-500]
+
+import { clsx as cn } from 'clsx';
+
+const isActive = true;
+const hasError = false;
+---
+
+<div
+	class={cn([
+		'flex',
+		isActive ? 'bg-blue-500' : 'bg-gray-500',
+		hasError && 'text-red-500'
+	])}>
+	Ternary and binary in array
+</div>

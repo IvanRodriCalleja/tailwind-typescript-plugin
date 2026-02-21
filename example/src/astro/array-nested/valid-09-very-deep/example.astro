@@ -1,0 +1,8 @@
+---
+// ✅ Valid: Very deeply nested (4+ levels)
+// @validClasses [flex, items-center, justify-center]
+
+import { cn } from '../utils';
+---
+
+<div class={cn([[[[['flex', 'items-center', 'justify-center']]]]])}>Very deep</div>

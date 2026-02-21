@@ -1,0 +1,9 @@
+---
+// ✅ Valid: Nested binary expressions
+// @validClasses [text-red-500, font-bold]
+
+const isError = true;
+const isActive = true;
+---
+
+<div class={isError && isActive && 'text-red-500 font-bold'}>Nested binary</div>

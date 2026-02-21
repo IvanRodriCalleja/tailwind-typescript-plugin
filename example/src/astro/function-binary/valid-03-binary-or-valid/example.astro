@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Function with OR binary expression
+// @validClasses [flex, bg-gray-500]
+
+import clsx from 'clsx';
+
+const isError = false;
+---
+
+<div class={clsx('flex', isError || 'bg-gray-500')}>Function with OR expression</div>

@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Using cn() function with invalid class
+// @invalidClasses [invalid-class]
+// @validClasses [flex, items-center]
+
+import { clsx as cn } from 'clsx';
+---
+
+<div class={cn('flex', 'invalid-class', 'items-center')}>Using cn with invalid</div>

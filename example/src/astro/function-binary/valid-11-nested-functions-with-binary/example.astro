@@ -1,0 +1,13 @@
+---
+// ✅ Valid: Nested functions with binary expressions
+// @validClasses [flex, text-red-500, items-center]
+
+import { clsx as cn } from 'clsx';
+import clsx from 'clsx';
+
+const isError = false;
+---
+
+<div class={clsx('flex', cn(isError && 'text-red-500', 'items-center'))}>
+	Nested functions with binary
+</div>

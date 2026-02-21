@@ -1,0 +1,12 @@
+---
+// ✅ Valid: Object with trailing comma
+// @validClasses [flex, items-center, justify-center]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div class={clsx({ flex: true, 'items-center': true, 'justify-center': isActive })}>
+	Trailing comma
+</div>

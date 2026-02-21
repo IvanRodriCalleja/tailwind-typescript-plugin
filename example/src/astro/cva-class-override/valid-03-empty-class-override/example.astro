@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Empty class property should not error
+// @validClasses []
+
+import { cva } from 'class-variance-authority';
+
+const button = cva(['font-semibold', 'border', 'rounded'], {
+---
+
+<button class={button({ intent: 'primary', class: '' })}>Empty Override</button>

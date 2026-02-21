@@ -1,0 +1,15 @@
+---
+// ✅ Valid: Slot with variable value
+// @validClasses [flex, items-center]
+
+import { tv } from 'tailwind-variants';
+
+const validBase = 'flex items-center';
+const component = tv({
+		slots: {
+			base: validBase
+		}
+	});
+---
+
+<div class={component().base}>Valid Slot Variable</div>

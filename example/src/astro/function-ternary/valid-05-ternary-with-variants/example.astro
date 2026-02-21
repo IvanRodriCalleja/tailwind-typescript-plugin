@@ -1,0 +1,16 @@
+---
+// ✅ Valid: Ternary with Tailwind variants
+// @validClasses [flex, hover:bg-blue-500, md:text-lg, hover:bg-gray-500, md:text-sm]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div
+	class={clsx(
+		'flex',
+		isActive ? 'hover:bg-blue-500 md:text-lg' : 'hover:bg-gray-500 md:text-sm'
+	)}>
+	Ternary with variants
+</div>

@@ -1,0 +1,12 @@
+---
+// ✅ Valid: Custom utility function with object
+// @utilityFunctions [myCustomBuilder]
+// @validClasses [flex, items-center, justify-center]
+
+const isActive = true;
+---
+
+<div
+	class={myCustomBuilder({ flex: true, 'items-center': true, 'justify-center': isActive })}>
+	Custom with object
+</div>

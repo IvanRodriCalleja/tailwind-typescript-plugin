@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Single level nested array, invalid class
+// @invalidClasses [invalid-class]
+// @validClasses [flex]
+
+import { cn } from '../utils';
+---
+
+<div class={cn([['flex', 'invalid-class']])}>Invalid nested</div>

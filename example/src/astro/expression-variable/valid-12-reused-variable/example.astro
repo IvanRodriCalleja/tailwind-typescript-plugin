@@ -1,0 +1,11 @@
+---
+// ✅ Valid: Same variable used multiple times
+// @validClasses [flex, items-center]
+
+const reusedValidClasses = 'flex items-center';
+---
+
+<>
+	<div class={reusedValidClasses}>First usage</div>
+	<div class={reusedValidClasses}>Second usage</div>
+</>

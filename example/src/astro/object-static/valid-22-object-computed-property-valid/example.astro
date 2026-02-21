@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Computed property name with string literal
+// @validClasses [flex, items-center]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div class={clsx({ ['flex']: true, ['items-center']: isActive })}>Computed property</div>

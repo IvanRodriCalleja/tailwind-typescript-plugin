@@ -1,0 +1,17 @@
+---
+// ❌ Invalid: Multiple objects with invalid in second object
+// @invalidClasses [invalid-class]
+// @validClasses [flex, items-center, justify-center]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div
+	class={clsx(
+		{ flex: true, 'items-center': true },
+		{ 'justify-center': isActive, 'invalid-class': true }
+	)}>
+	Invalid in second
+</div>

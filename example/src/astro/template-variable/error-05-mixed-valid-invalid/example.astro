@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Template literal with interpolation, mix of valid and invalid
+// @invalidClasses [invalid-class]
+// @validClasses [flex, items-center]
+
+const dynamicClass = 'some-dynamic-class';
+---
+
+<div class={`flex ${dynamicClass} invalid-class items-center`}>
+	Mixed valid and invalid with interpolation
+</div>

@@ -1,0 +1,12 @@
+---
+// ✅ Valid: className property with valid Tailwind classes
+// @validClasses [bg-teal-500, hover:bg-teal-700]
+
+import { tv } from 'tailwind-variants';
+
+const button = tv({
+---
+
+<button class={button({ color: 'success', className: 'bg-teal-500 hover:bg-teal-700' })}>
+	Valid className Override
+</button>

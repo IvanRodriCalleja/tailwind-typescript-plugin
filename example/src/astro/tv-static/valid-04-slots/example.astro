@@ -1,0 +1,18 @@
+---
+// ✅ Valid: Slots with valid classes
+// @validClasses [flex, items-center, mr-2, text-blue-500, font-semibold]
+
+import { tv } from 'tailwind-variants';
+
+const component = tv({
+		slots: {
+			base: 'flex items-center',
+			icon: 'mr-2 text-blue-500',
+			label: 'font-semibold'
+		}
+	});
+---
+
+<div class={component().base}>
+	<span class={component().icon}>Icon</span>
+</div>

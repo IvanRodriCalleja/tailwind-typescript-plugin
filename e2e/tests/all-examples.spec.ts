@@ -28,7 +28,7 @@ const exampleDir = path.resolve(__dirname, '../../example');
 function discoverTestCases(): DiscoveredTestCase[] {
 	const cases: DiscoveredTestCase[] = [];
 
-	for (const framework of ['jsx', 'vue'] as const) {
+	for (const framework of ['jsx', 'vue', 'astro'] as const) {
 		const frameworkDir = path.join(exampleDir, 'src', framework);
 		if (!fs.existsSync(frameworkDir)) continue;
 
@@ -46,7 +46,7 @@ function discoverTestCases(): DiscoveredTestCase[] {
 
 			for (const name of testDirs) {
 				// Skip directories that don't have an example file
-				const ext = framework === 'vue' ? '.vue' : '.tsx';
+				const ext = framework === 'vue' ? '.vue' : framework === 'astro' ? '.astro' : '.tsx';
 				const exampleFile = path.join(categoryDir, name, `example${ext}`);
 				if (!fs.existsSync(exampleFile)) continue;
 

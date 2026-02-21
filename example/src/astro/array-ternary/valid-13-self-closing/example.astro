@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Self-closing with ternary in array
+// @validClasses [rounded-lg, rounded-sm]
+
+import { clsx as cn } from 'clsx';
+
+const isActive = true;
+---
+
+<img class={cn([isActive ? 'rounded-lg' : 'rounded-sm'])} src="test.jpg" alt="test" />

@@ -1,0 +1,8 @@
+---
+// ✅ Valid: Ternary with undefined result (ignored)
+// @validClasses [bg-gray-500]
+
+const isActive = true;
+---
+
+<div class={isActive ? undefined : 'bg-gray-500'}>Ternary with undefined</div>

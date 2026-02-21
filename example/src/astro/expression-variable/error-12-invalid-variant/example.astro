@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Variable with invalid variant
+// @invalidClasses [invalidvariant:bg-blue-500]
+// @validClasses [flex]
+
+const invalidVariant = 'flex invalidvariant:bg-blue-500';
+---
+
+<div class={invalidVariant}>Invalid variant in variable</div>

@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Parenthesized conditional expression
+// @validClasses [flex, bg-blue-500, bg-gray-500]
+
+const isActive = true;
+---
+
+<div class={`flex ${isActive ? 'bg-blue-500' : 'bg-gray-500'}`}>
+	Parenthesized conditional
+</div>

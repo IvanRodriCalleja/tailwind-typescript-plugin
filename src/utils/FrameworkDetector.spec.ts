@@ -27,6 +27,16 @@ describe('FrameworkDetector', () => {
 			expect(detectFramework('/src/components/Button.vue')).toBe(Framework.VUE);
 		});
 
+		it('should detect Astro framework for .astro files', () => {
+			expect(detectFramework('Layout.astro')).toBe(Framework.ASTRO);
+			expect(detectFramework('/src/components/Header.astro')).toBe(Framework.ASTRO);
+		});
+
+		it('should detect Astro framework for virtual .astro.tsx files', () => {
+			expect(detectFramework('Layout.astro.tsx')).toBe(Framework.ASTRO);
+			expect(detectFramework('/src/components/Header.astro.ts')).toBe(Framework.ASTRO);
+		});
+
 		it('should return null for unsupported file types', () => {
 			expect(detectFramework('styles.css')).toBeNull();
 			expect(detectFramework('index.html')).toBeNull();
@@ -38,16 +48,19 @@ describe('FrameworkDetector', () => {
 			expect(detectFramework('Button.test.tsx')).toBe(Framework.JSX);
 			expect(detectFramework('App.stories.tsx')).toBe(Framework.JSX);
 			expect(detectFramework('Component.spec.vue')).toBe(Framework.VUE);
+			expect(detectFramework('Layout.test.astro')).toBe(Framework.ASTRO);
 		});
 
 		it('should handle absolute paths', () => {
 			expect(detectFramework('/Users/dev/project/src/App.tsx')).toBe(Framework.JSX);
 			expect(detectFramework('/Users/dev/project/src/App.vue')).toBe(Framework.VUE);
+			expect(detectFramework('/Users/dev/project/src/Layout.astro')).toBe(Framework.ASTRO);
 		});
 
 		it('should handle Windows paths', () => {
 			expect(detectFramework('C:\\Users\\dev\\project\\src\\App.tsx')).toBe(Framework.JSX);
 			expect(detectFramework('C:\\Users\\dev\\project\\src\\App.vue')).toBe(Framework.VUE);
+			expect(detectFramework('C:\\Users\\dev\\project\\src\\Layout.astro')).toBe(Framework.ASTRO);
 		});
 	});
 
@@ -62,6 +75,12 @@ describe('FrameworkDetector', () => {
 		it('should return true for Vue files', () => {
 			expect(isSupportedFile('App.vue')).toBe(true);
 			expect(isSupportedFile('/src/components/Button.vue')).toBe(true);
+		});
+
+		it('should return true for Astro files', () => {
+			expect(isSupportedFile('Layout.astro')).toBe(true);
+			expect(isSupportedFile('/src/components/Header.astro')).toBe(true);
+			expect(isSupportedFile('Layout.astro.tsx')).toBe(true);
 		});
 
 		it('should return false for unsupported files', () => {

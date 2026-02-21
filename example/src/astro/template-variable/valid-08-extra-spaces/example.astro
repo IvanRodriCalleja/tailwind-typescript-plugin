@@ -1,0 +1,11 @@
+---
+// ✅ Valid: Extra spaces around interpolations
+// @validClasses [flex, items-center, justify-center]
+
+const dynamicClass = 'some-dynamic-class';
+const anotherClass = 'another-class';
+---
+
+<div class={`flex  ${dynamicClass}  items-center   ${anotherClass}   justify-center`}>
+	Extra spaces (should be handled correctly)
+</div>

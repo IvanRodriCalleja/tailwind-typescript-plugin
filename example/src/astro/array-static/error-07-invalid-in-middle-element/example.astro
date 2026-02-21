@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Invalid in middle element
+// @invalidClasses [invalid-middle]
+// @validClasses [flex, justify-center]
+
+import { clsx as cn } from 'clsx';
+---
+
+<div class={cn(['flex', 'invalid-middle', 'justify-center'])}>Invalid middle</div>

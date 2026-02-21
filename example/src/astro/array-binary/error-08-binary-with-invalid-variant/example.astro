@@ -1,0 +1,13 @@
+---
+// ❌ Invalid: Binary with invalid variant in array
+// @invalidClasses [invalid-variant:bg-blue]
+// @validClasses [flex]
+
+import { clsx as cn } from 'clsx';
+
+const isActive = true;
+---
+
+<div class={cn(['flex', isActive && 'invalid-variant:bg-blue'])}>
+	Binary with invalid variant
+</div>

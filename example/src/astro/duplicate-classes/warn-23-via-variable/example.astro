@@ -1,0 +1,11 @@
+---
+// ⚠️ Warning: Duplicate via variable - variable contains duplicate of base
+// @duplicateClasses [flex, flex]
+
+import { clsx as cn } from 'clsx';
+
+const baseClasses = 'flex items-center';
+const duplicateVar = 'flex';
+---
+
+<div class={cn(baseClasses, duplicateVar)}>Duplicate via variable</div>

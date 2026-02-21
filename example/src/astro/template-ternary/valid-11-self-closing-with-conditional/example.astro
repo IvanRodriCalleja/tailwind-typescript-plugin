@@ -1,0 +1,12 @@
+---
+// ✅ Valid: Self-closing element with conditional
+// @validClasses [w-full, h-auto, rounded, rounded-full]
+
+const isActive = true;
+---
+
+<img
+	class={`w-full h-auto ${isActive ? 'rounded' : 'rounded-full'}`}
+	src="test.jpg"
+	alt="test"
+/>

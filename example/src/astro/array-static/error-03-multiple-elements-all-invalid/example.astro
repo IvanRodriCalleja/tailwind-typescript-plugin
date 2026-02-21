@@ -1,0 +1,8 @@
+---
+// ❌ Invalid: Multiple elements, all invalid
+// @invalidClasses [invalid-one, invalid-two, invalid-three]
+
+import { clsx as cn } from 'clsx';
+---
+
+<div class={cn(['invalid-one', 'invalid-two', 'invalid-three'])}>All invalid</div>

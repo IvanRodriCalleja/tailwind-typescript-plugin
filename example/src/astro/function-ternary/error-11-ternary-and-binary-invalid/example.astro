@@ -1,0 +1,19 @@
+---
+// ❌ Invalid: Ternary and binary with invalid classes
+// @invalidClasses [invalid-active, invalid-error]
+// @validClasses [flex, bg-gray-500]
+
+import clsx from 'clsx';
+
+const isActive = true;
+const hasError = false;
+---
+
+<div
+	class={clsx(
+		'flex',
+		isActive ? 'invalid-active' : 'bg-gray-500',
+		hasError && 'invalid-error'
+	)}>
+	Ternary and binary with invalid
+</div>

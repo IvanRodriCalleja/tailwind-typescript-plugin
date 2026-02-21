@@ -1,0 +1,14 @@
+---
+// ✅ Valid: Self-closing with object
+// @validClasses [w-full, h-auto, rounded-lg]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<img
+	class={clsx({ 'w-full': true, 'h-auto': true, 'rounded-lg': isActive })}
+	src="test.jpg"
+	alt="test"
+/>

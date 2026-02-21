@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Self-closing with invalid ternary in array
+// @invalidClasses [invalid-style]
+// @validClasses [rounded-lg]
+
+import { clsx as cn } from 'clsx';
+
+const isActive = true;
+---
+
+<img class={cn([isActive ? 'invalid-style' : 'rounded-lg'])} src="test.jpg" alt="test" />

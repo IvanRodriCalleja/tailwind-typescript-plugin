@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Binary expression with invalid class
+// @invalidClasses [invalid-error]
+// @validClasses [flex]
+
+const isError = false;
+---
+
+<div class={`flex ${isError && 'invalid-error'}`}>Binary expression with invalid class</div>

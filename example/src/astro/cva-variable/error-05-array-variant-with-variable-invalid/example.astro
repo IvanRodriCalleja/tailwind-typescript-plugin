@@ -1,0 +1,18 @@
+---
+// ❌ Invalid: Array variant with invalid variable element
+// @invalidClasses [invalid-cva-variant-var]
+// @validClasses [text-sm]
+
+import { cva } from 'class-variance-authority';
+
+const invalidVariant = 'invalid-cva-variant-var';
+const button = cva(['font-semibold'], {
+		variants: {
+			color: {
+				primary: [invalidVariant, 'text-sm']
+			}
+		}
+	});
+---
+
+<button class={button({ color: 'primary' })}>Invalid Array Variant Variable</button>

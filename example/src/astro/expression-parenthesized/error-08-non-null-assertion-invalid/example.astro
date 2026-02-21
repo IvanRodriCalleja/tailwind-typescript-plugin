@@ -1,0 +1,8 @@
+---
+// ❌ Invalid: Non-null assertion with invalid class
+// @invalidClasses [invalid-class]
+
+const className: string | null = 'invalid-class';
+---
+
+<div class={className!}>Non-null invalid</div>

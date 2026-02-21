@@ -401,7 +401,7 @@ async function initEditor(): Promise<TestAPI> {
 
 		if (currentTestCase) {
 			diagnostics = await fetchDiagnostics(
-				currentTestCase.filePath.replace(/\/example\.(tsx|vue)$/, '')
+				currentTestCase.filePath.replace(/\/example\.(tsx|vue|astro)$/, '')
 			);
 		} else {
 			// Custom code mode
@@ -487,7 +487,7 @@ export function MyComponent() {
 				});
 
 				try {
-					const testDir = currentTestCase.filePath.replace(/\/example\.(tsx|vue)$/, '');
+					const testDir = currentTestCase.filePath.replace(/\/example\.(tsx|vue|astro)$/, '');
 					const codeActions = await fetchCodeActions(testDir, startOffset, endOffset, [code]);
 					currentCodeActions = codeActions;
 
@@ -568,7 +568,7 @@ export function MyComponent() {
 			if (!model) return [];
 
 			const offset = model.getOffsetAt(position);
-			const testDir = currentTestCase.filePath.replace(/\/example\.(tsx|vue)$/, '');
+			const testDir = currentTestCase.filePath.replace(/\/example\.(tsx|vue|astro)$/, '');
 
 			try {
 				const completions = await fetchCompletions(testDir, offset);
@@ -589,7 +589,7 @@ export function MyComponent() {
 			if (!model) return [];
 
 			const offset = model.getOffsetAt({ lineNumber: line, column });
-			const testDir = currentTestCase.filePath.replace(/\/example\.(tsx|vue)$/, '');
+			const testDir = currentTestCase.filePath.replace(/\/example\.(tsx|vue|astro)$/, '');
 
 			try {
 				const completions = await fetchCompletions(testDir, offset);
@@ -631,7 +631,7 @@ export function MyComponent() {
 				});
 
 				try {
-					const testDir = currentTestCase.filePath.replace(/\/example\.(tsx|vue)$/, '');
+					const testDir = currentTestCase.filePath.replace(/\/example\.(tsx|vue|astro)$/, '');
 					const codeActions = await fetchCodeActions(testDir, startOffset, endOffset, [code]);
 					currentCodeActions.push(...codeActions);
 

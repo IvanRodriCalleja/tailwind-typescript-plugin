@@ -1,0 +1,12 @@
+---
+// ❌ Invalid: Nested ternary with invalid class
+// @invalidClasses [invalid-nested]
+// @validClasses [bg-green-500, bg-gray-500]
+
+const isActive = true;
+const isDisabled = false;
+---
+
+<div class={isActive ? (isDisabled ? 'invalid-nested' : 'bg-green-500') : 'bg-gray-500'}>
+	Nested ternary invalid
+</div>

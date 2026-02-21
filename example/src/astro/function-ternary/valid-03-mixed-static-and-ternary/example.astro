@@ -1,0 +1,18 @@
+---
+// ✅ Valid: Mix of static strings and ternary expressions
+// @validClasses [flex, items-center, bg-blue-500, bg-gray-500, font-bold]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div
+	class={clsx(
+		'flex',
+		'items-center',
+		isActive ? 'bg-blue-500' : 'bg-gray-500',
+		'font-bold'
+	)}>
+	Mixed static and ternary
+</div>

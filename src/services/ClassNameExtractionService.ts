@@ -57,6 +57,8 @@ export class ClassNameExtractionService {
 				return new JsxAttributeExtractor();
 			case Framework.VUE:
 				return new VueAttributeExtractor();
+			case Framework.ASTRO:
+				return new JsxAttributeExtractor();
 			default:
 				throw new Error(`Unsupported framework: ${framework}`);
 		}

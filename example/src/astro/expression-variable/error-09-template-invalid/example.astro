@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Variable with no-substitution template literal containing invalid
+// @invalidClasses [invalid-template]
+// @validClasses [flex]
+
+const templateNoSubInvalid = `flex invalid-template`;
+---
+
+<div class={templateNoSubInvalid}>Template no substitution - invalid</div>

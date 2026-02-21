@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Dark mode variants with interpolation
+// @validClasses [bg-white, dark:bg-gray-900, text-black, dark:text-white]
+
+const dynamicClass = 'some-dynamic-class';
+---
+
+<div class={`bg-white dark:bg-gray-900 ${dynamicClass} text-black dark:text-white`}>
+	Dark mode variants with interpolation
+</div>

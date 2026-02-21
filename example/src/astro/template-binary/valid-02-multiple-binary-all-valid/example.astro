@@ -1,0 +1,11 @@
+---
+// ✅ Valid: Multiple binary expressions with valid classes
+// @validClasses [flex, text-red-500, bg-yellow-100]
+
+const isError = false;
+const hasWarning = false;
+---
+
+<div class={`flex ${isError && 'text-red-500'} ${hasWarning && 'bg-yellow-100'}`}>
+	Multiple binary expressions with valid classes
+</div>

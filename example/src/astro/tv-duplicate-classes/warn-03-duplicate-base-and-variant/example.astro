@@ -1,0 +1,17 @@
+---
+// ⚠️ Warning: Class in base repeated in variant
+// @duplicateClasses [flex, flex]
+
+import { tv } from 'tailwind-variants';
+
+const button = tv({
+		base: 'flex items-center',
+		variants: {
+			size: {
+				sm: 'flex text-sm'
+			}
+		}
+	});
+---
+
+<button class={button({ size: 'sm' })}>Duplicate base + variant</button>

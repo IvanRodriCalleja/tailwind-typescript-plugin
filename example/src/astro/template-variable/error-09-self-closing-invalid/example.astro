@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Self-closing element with invalid class in template
+// @invalidClasses [invalid-class]
+// @validClasses [w-full]
+
+const dynamicClass = 'some-dynamic-class';
+---
+
+<img class={`invalid-class ${dynamicClass} w-full`} src="test.jpg" alt="test" />

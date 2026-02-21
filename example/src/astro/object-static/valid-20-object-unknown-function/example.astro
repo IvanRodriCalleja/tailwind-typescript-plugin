@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Unknown function with object (ignored, not validated)
+
+const isActive = true;
+---
+
+<div
+	class={unknownBuilder({ flex: true, 'totally-invalid': true, 'items-center': isActive })}>
+	Unknown ignored
+</div>

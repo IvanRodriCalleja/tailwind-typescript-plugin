@@ -1,0 +1,12 @@
+---
+// ❌ Invalid: Ternary with complex condition and invalid class
+// @invalidClasses [invalid-alert]
+// @validClasses [bg-gray-500]
+
+const hasError = false;
+const isLoading = false;
+---
+
+<div class={hasError || isLoading ? 'invalid-alert' : 'bg-gray-500'}>
+	Complex condition invalid
+</div>

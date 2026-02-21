@@ -1,0 +1,19 @@
+---
+// ❌ Invalid: Mix with invalid in both static and ternary
+// @invalidClasses [invalid-static, invalid-ternary]
+// @validClasses [flex, items-center, bg-gray-500]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div
+	class={clsx(
+		'flex',
+		'invalid-static',
+		isActive ? 'invalid-ternary' : 'bg-gray-500',
+		'items-center'
+	)}>
+	Mixed with invalid
+</div>

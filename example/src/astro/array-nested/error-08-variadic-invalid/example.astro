@@ -1,0 +1,16 @@
+---
+// ❌ Invalid: Variadic nested arrays with invalid
+// @invalidClasses [invalid-variadic]
+// @validClasses [flex, items-center, justify-center, bg-blue-500]
+
+import { cn } from '../utils';
+---
+
+<div
+	class={cn(
+		['flex'],
+		['items-center'],
+		[['justify-center', [['bg-blue-500'], 'invalid-variadic']]]
+	)}>
+	Invalid variadic
+</div>

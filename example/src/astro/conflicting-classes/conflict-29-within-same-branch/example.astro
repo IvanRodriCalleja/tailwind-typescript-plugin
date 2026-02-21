@@ -1,0 +1,11 @@
+---
+// ⚠️ Warning: Conflicts WITHIN same ternary branch
+// @conflictClasses [text-left, text-center]
+// Both text-left and text-center are in the true branch
+
+const isActive = true;
+---
+
+<div class={isActive ? 'text-left text-center' : 'text-right'}>
+	Conflict within same branch
+</div>

@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Function with OR binary expression, invalid class
+// @invalidClasses [invalid-fallback]
+// @validClasses [flex]
+
+import clsx from 'clsx';
+
+const isError = false;
+---
+
+<div class={clsx('flex', isError || 'invalid-fallback')}>OR with invalid class</div>

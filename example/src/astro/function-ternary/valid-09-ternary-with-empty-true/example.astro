@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Ternary with empty string in true branch
+// @validClasses [flex, bg-gray-500]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div class={clsx('flex', isActive ? '' : 'bg-gray-500')}>Empty true branch</div>

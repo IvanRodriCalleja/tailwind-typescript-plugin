@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Single argument with mix of valid and invalid classes
+// @invalidClasses [invalid-class]
+// @validClasses [flex, items-center]
+
+import clsx from 'clsx';
+---
+
+<div class={clsx('flex invalid-class items-center')}>
+	Mixed valid and invalid in one arg
+</div>

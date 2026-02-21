@@ -1,0 +1,13 @@
+---
+// ✅ Valid: Nested functions with ternary in array
+// @validClasses [flex, bg-blue-500, bg-gray-500, items-center]
+
+import { clsx as cn } from 'clsx';
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div class={clsx('flex', cn([isActive ? 'bg-blue-500' : 'bg-gray-500', 'items-center']))}>
+	Nested with ternary
+</div>

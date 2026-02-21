@@ -1,0 +1,12 @@
+---
+// ✅ Valid: Object in cn() function
+// @validClasses [flex, items-center, justify-center]
+
+import { clsx as cn } from 'clsx';
+
+const isActive = true;
+---
+
+<div class={cn({ flex: true, 'items-center': true, 'justify-center': isActive })}>
+	Object in cn()
+</div>

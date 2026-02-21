@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Self-closing element with invalid in array
+// @invalidClasses [invalid-class]
+// @validClasses [w-full, h-auto]
+
+import { clsx as cn } from 'clsx';
+---
+
+<img class={cn(['w-full', 'invalid-class', 'h-auto'])} src="test.jpg" alt="test" />

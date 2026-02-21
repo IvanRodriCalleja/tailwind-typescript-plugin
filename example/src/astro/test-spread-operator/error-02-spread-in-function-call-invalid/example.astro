@@ -1,0 +1,10 @@
+---
+// ❌ Invalid: Spread operator with invalid class in function call
+// @invalidClasses [invalid-cn-spread]
+
+import { cn } from '../utils';
+
+const baseClasses = ['flex', 'invalid-cn-spread'];
+---
+
+<div class={cn(...baseClasses, 'items-center')}>Spread in cn() with invalid</div>

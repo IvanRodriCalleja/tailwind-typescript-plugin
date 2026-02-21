@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Array in clsx() with invalid class
+// @invalidClasses [invalid-class]
+// @validClasses [flex, items-center]
+
+import clsx from 'clsx';
+---
+
+<div class={clsx(['flex', 'invalid-class', 'items-center'])}>Array in clsx() invalid</div>

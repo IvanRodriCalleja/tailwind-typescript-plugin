@@ -1,0 +1,11 @@
+---
+// ✅ Valid: Variable with valid classes in base (string)
+// @validClasses [flex, items-center]
+
+import { cva } from 'class-variance-authority';
+
+const validBase = 'flex items-center';
+const button = cva(validBase);
+---
+
+<button class={button()}>Valid Base Variable String</button>

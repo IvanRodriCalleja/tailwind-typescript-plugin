@@ -1,0 +1,16 @@
+---
+// ❌ Invalid: class with only invalid classes (no valid ones)
+// @invalidClasses [completely-invalid, another-invalid-class]
+
+import { cva } from 'class-variance-authority';
+
+const button = cva(['font-semibold', 'border', 'rounded'], {
+---
+
+<button
+	class={button({
+		intent: 'primary',
+		class: 'completely-invalid another-invalid-class'
+	})}>
+	All Invalid
+</button>

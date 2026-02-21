@@ -11,7 +11,7 @@ export interface TestCaseEntry {
 
 export interface TestCaseInfo {
 	code: string;
-	language: 'typescriptreact' | 'vue';
+	language: 'typescriptreact' | 'vue' | 'astro';
 	config: Record<string, unknown>;
 	tsconfig: Record<string, unknown>;
 	filePath: string;

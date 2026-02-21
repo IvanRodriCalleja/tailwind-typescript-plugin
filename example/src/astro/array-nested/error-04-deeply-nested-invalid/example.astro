@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Deeply nested arrays with invalid class
+// @invalidClasses [invalid-deep]
+// @validClasses [flex, items-center]
+
+import { cn } from '../utils';
+---
+
+<div class={cn([[['flex', 'invalid-deep', 'items-center']]])}>Invalid deep nested</div>

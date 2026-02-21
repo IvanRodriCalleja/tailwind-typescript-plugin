@@ -1,0 +1,13 @@
+---
+// ❌ Invalid: Contains invalid class in base
+// @invalidClasses [invalid-base-class]
+// @validClasses [font-semibold, text-white]
+
+import { tv } from 'tailwind-variants';
+
+const button = tv({
+		base: 'font-semibold invalid-base-class text-white'
+	});
+---
+
+<button class={button()}>Invalid Base</button>

@@ -1,0 +1,10 @@
+---
+// ✅ Valid: No class override, only variant
+// @validClasses []
+
+import { tv } from 'tailwind-variants';
+
+const button = tv({
+---
+
+<button class={button({ color: 'primary' })}>No Override</button>

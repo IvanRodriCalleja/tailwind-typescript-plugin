@@ -1,0 +1,17 @@
+---
+// ✅ Valid: No conflict between different tv() calls
+
+import { tv } from 'tailwind-variants';
+
+const tvButton = tv({
+		base: 'text-left'
+	});
+const tvCard = tv({
+		base: 'text-center'
+	});
+---
+
+<>
+	<button class={tvButton()}>Button</button>
+	<div class={tvCard()}>Card</div>
+</>

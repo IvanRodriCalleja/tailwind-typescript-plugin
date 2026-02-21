@@ -1,0 +1,12 @@
+---
+// ✅ Valid: className property with valid Tailwind classes
+// @validClasses [bg-teal-500, hover:bg-teal-700]
+
+import { cva } from 'class-variance-authority';
+
+const button = cva(['font-semibold', 'border', 'rounded'], {
+---
+
+<button class={button({ intent: 'secondary', className: 'bg-teal-500 hover:bg-teal-700' })}>
+	Valid className Override
+</button>

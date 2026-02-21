@@ -1,0 +1,13 @@
+---
+// ❌ Invalid: Member expression with invalid in object
+// @invalidClasses [invalid-class]
+// @validClasses [flex, items-center]
+
+import * as utils from 'clsx';
+
+const isActive = true;
+---
+
+<div class={utils.clsx({ flex: true, 'invalid-class': true, 'items-center': isActive })}>
+	Member invalid
+</div>

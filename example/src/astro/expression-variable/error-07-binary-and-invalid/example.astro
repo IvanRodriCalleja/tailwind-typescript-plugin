@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Variable assigned from binary AND expression with invalid
+// @invalidClasses [invalid-class]
+
+const isActive = true;
+const binaryAndInvalid = isActive && 'invalid-class';
+---
+
+<div class={binaryAndInvalid}>Binary AND variable - invalid</div>

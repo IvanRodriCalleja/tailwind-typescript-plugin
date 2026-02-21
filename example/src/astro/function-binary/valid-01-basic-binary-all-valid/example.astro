@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Function with binary expression, valid class
+// @validClasses [flex, text-red-500]
+
+import clsx from 'clsx';
+
+const isError = false;
+---
+
+<div class={clsx('flex', isError && 'text-red-500')}>Function with binary expression</div>

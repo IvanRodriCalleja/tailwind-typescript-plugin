@@ -1,0 +1,10 @@
+---
+// ❌ Invalid: Variable assigned from ternary with invalid in false branch
+// @invalidClasses [invalid-inactive]
+// @validClasses [bg-blue-500]
+
+const isActive = true;
+const ternaryInvalidFalse = isActive ? 'bg-blue-500' : 'invalid-inactive';
+---
+
+<div class={ternaryInvalidFalse}>Ternary variable - invalid in false</div>

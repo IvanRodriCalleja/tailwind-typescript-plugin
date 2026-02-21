@@ -1,0 +1,19 @@
+---
+// ⚠️ Warning: Duplicates across multiple variants
+// @duplicateClasses [flex, flex]
+
+import { cva } from 'class-variance-authority';
+
+const button = cva(['flex'], {
+		variants: {
+			intent: {
+				primary: 'bg-blue-500'
+			},
+			size: {
+				lg: 'flex text-lg'
+			}
+		}
+	});
+---
+
+<button class={button({ intent: 'primary', size: 'lg' })}>Cross-variant duplicate</button>

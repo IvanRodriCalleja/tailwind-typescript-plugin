@@ -1,0 +1,16 @@
+---
+// ✅ Valid: No conflict between cva() base and variants
+// Variants are designed to override base styles, so this is intentional
+
+import { cva } from 'class-variance-authority';
+
+const button = cva(['justify-start'], {
+		variants: {
+			centered: {
+				true: ['justify-center']
+			}
+		}
+	});
+---
+
+<button class={button({ centered: true })}>CVA base+variant no conflict</button>

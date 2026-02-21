@@ -1,0 +1,10 @@
+---
+// ⚠️ Warning: Duplicate across clsx arguments
+// @duplicateClasses [bg-blue-500, bg-blue-500]
+
+import clsx from 'clsx';
+---
+
+<div class={clsx('flex bg-blue-500', 'items-center bg-blue-500')}>
+	Duplicate across args
+</div>

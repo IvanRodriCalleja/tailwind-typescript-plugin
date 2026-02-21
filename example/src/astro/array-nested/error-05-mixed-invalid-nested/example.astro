@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Mixed flat and nested, invalid in nested
+// @invalidClasses [invalid-nested]
+// @validClasses [flex, items-center, bg-blue-500]
+
+import { cn } from '../utils';
+---
+
+<div class={cn(['flex', ['items-center', 'invalid-nested'], 'bg-blue-500'])}>
+	Invalid in nested
+</div>

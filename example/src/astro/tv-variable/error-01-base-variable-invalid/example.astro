@@ -1,0 +1,13 @@
+---
+// ❌ Invalid: Variable with invalid class in base
+// @invalidClasses [invalid-tv-base-var]
+
+import { tv } from 'tailwind-variants';
+
+const invalidBase = 'invalid-tv-base-var';
+const button = tv({
+		base: invalidBase
+	});
+---
+
+<button class={button()}>Invalid Base Variable</button>

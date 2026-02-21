@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Member expression with object
+// @validClasses [flex, items-center, justify-center]
+
+const isActive = true;
+---
+
+<div class={utils.clsx({ flex: true, 'items-center': true, 'justify-center': isActive })}>
+	Member with object
+</div>

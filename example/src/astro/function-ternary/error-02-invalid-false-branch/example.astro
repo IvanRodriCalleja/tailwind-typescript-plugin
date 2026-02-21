@@ -1,0 +1,13 @@
+---
+// ❌ Invalid: Function with ternary expression, invalid in false branch
+// @invalidClasses [invalid-inactive]
+// @validClasses [flex, bg-blue-500]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div class={clsx('flex', isActive ? 'bg-blue-500' : 'invalid-inactive')}>
+	Invalid in false branch
+</div>
