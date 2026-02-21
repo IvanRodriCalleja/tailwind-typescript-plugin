@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Invalid class in first argument
+// @invalidClasses [invalid-first]
+// @validClasses [items-center, justify-center]
+
+import clsx from 'clsx';
+---
+
+<div class={clsx('invalid-first', 'items-center', 'justify-center')}>Invalid in first</div>

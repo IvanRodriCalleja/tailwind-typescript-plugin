@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Ternary that might resolve to boolean (ignored)
+// @validClasses [flex, bg-blue-500]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div class={clsx('flex', isActive ? 'bg-blue-500' : false)}>Ternary with boolean</div>

@@ -1,0 +1,13 @@
+---
+// ✅ Valid: Array base with variable element
+// @validClasses [flex, items-center, gap-2]
+
+import { tv } from 'tailwind-variants';
+
+const validBase = 'flex items-center';
+const button = tv({
+		base: [validBase, 'gap-2']
+	});
+---
+
+<button class={button()}>Valid Array Variable</button>

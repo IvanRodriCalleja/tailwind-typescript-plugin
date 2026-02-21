@@ -21,6 +21,20 @@ try {
 	// Vue support optional
 }
 
+let astroCompiler: typeof import('@astrojs/compiler') | undefined;
+try {
+	astroCompiler = require('@astrojs/compiler');
+} catch {
+	// Astro support optional
+}
+
+let traceMapping: typeof import('@jridgewell/trace-mapping') | undefined;
+try {
+	traceMapping = require('@jridgewell/trace-mapping');
+} catch {
+	// trace-mapping optional (needed for Astro)
+}
+
 export interface DiagnosticResult {
 	message: string;
 	start: number;
@@ -54,7 +68,7 @@ export interface CodeActionResult {
 
 export interface TestCaseInfo {
 	code: string;
-	language: 'typescriptreact' | 'vue';
+	language: 'typescriptreact' | 'vue' | 'astro';
 	config: Record<string, unknown>;
 	tsconfig: Record<string, unknown>;
 	filePath: string;
@@ -78,6 +92,11 @@ interface SourceMapping {
 	generatedLengths?: number[];
 }
 
+interface AstroSourceMap {
+	decodedMap: unknown; // TraceMap instance
+	generatedCode: string;
+}
+
 interface PluginSession {
 	proxy: ts.LanguageService;
 	plugin: { dispose: () => void };
@@ -86,6 +105,7 @@ interface PluginSession {
 	sourceCode: string;
 	generatedCode?: string;
 	sourceMappings?: SourceMapping[];
+	astroSourceMap?: AstroSourceMap;
 	version: number;
 }
 
@@ -121,7 +141,7 @@ export class PluginBridge {
 	listTestCases(): TestCaseEntry[] {
 		const entries: TestCaseEntry[] = [];
 
-		for (const framework of ['jsx', 'vue']) {
+		for (const framework of ['jsx', 'vue', 'astro']) {
 			const frameworkDir = path.join(this.exampleDir, 'src', framework);
 			if (!fs.existsSync(frameworkDir)) continue;
 
@@ -161,8 +181,7 @@ export class PluginBridge {
 			throw new Error(`Test case directory not found: ${testDir}`);
 		}
 
-		const isVue = framework === 'vue';
-		const ext = isVue ? '.vue' : '.tsx';
+		const ext = framework === 'vue' ? '.vue' : framework === 'astro' ? '.astro' : '.tsx';
 		const exampleFile = path.join(testDir, `example${ext}`);
 
 		if (!fs.existsSync(exampleFile)) {
@@ -179,9 +198,11 @@ export class PluginBridge {
 
 		const expectations = parseExpectations(code);
 
+		const language = framework === 'vue' ? 'vue' : framework === 'astro' ? 'astro' : 'typescriptreact';
+
 		return {
 			code,
-			language: isVue ? 'vue' : 'typescriptreact',
+			language: language as 'typescriptreact' | 'vue' | 'astro',
 			config: pluginConfig,
 			tsconfig,
 			filePath: exampleFile,
@@ -212,7 +233,8 @@ export class PluginBridge {
 
 		// Find example file
 		const isVue = fs.existsSync(path.join(testDir, 'example.vue'));
-		const ext = isVue ? '.vue' : '.tsx';
+		const isAstro = fs.existsSync(path.join(testDir, 'example.astro'));
+		const ext = isVue ? '.vue' : isAstro ? '.astro' : '.tsx';
 		const exampleFile = path.join(testDir, `example${ext}`);
 		const tsconfigFile = path.join(testDir, 'tsconfig.json');
 		const globalCssFile = path.join(testDir, 'global.css');
@@ -242,6 +264,14 @@ export class PluginBridge {
 
 		if (isVue && vue) {
 			session = await this.createVueSession(
+				testDir,
+				exampleFile,
+				sourceCode,
+				pluginConfig,
+				globalCssFile
+			);
+		} else if (isAstro && astroCompiler) {
+			session = await this.createAstroSession(
 				testDir,
 				exampleFile,
 				sourceCode,
@@ -449,6 +479,104 @@ export class PluginBridge {
 		};
 	}
 
+	private async createAstroSession(
+		testDir: string,
+		exampleFile: string,
+		sourceCode: string,
+		pluginConfig: Record<string, unknown>,
+		globalCssFile: string
+	): Promise<PluginSession> {
+		if (!astroCompiler) {
+			throw new Error('@astrojs/compiler is not installed');
+		}
+		if (!traceMapping) {
+			throw new Error('@jridgewell/trace-mapping is not installed');
+		}
+
+		const result = await astroCompiler.convertToTSX(sourceCode, {
+			filename: exampleFile
+		});
+
+		const generatedTsx = result.code;
+		const virtualTsxFile = exampleFile + '.tsx';
+
+		// Decode the sourcemap for position mapping
+		let decodedMap: unknown = undefined;
+		if (result.map) {
+			const mapData = typeof result.map === 'string' ? JSON.parse(result.map) : result.map;
+			decodedMap = new traceMapping.TraceMap(mapData);
+		}
+
+		const currentGenerated = generatedTsx;
+		const version = 0;
+
+		const languageService = ts.createLanguageService(
+			{
+				getCompilationSettings: () => ({
+					target: ts.ScriptTarget.ES2020,
+					module: ts.ModuleKind.ESNext,
+					moduleResolution: ts.ModuleResolutionKind.Bundler,
+					jsx: ts.JsxEmit.Preserve,
+					strict: true
+				}),
+				getScriptFileNames: () => [virtualTsxFile],
+				getScriptVersion: () => String(version),
+				getScriptSnapshot: (fileName: string) => {
+					if (fileName === virtualTsxFile) {
+						return ts.ScriptSnapshot.fromString(currentGenerated);
+					}
+					if (fs.existsSync(fileName)) {
+						return ts.ScriptSnapshot.fromString(fs.readFileSync(fileName, 'utf-8'));
+					}
+					return undefined;
+				},
+				getCurrentDirectory: () => testDir,
+				getDefaultLibFileName: (options: ts.CompilerOptions) => ts.getDefaultLibFilePath(options),
+				fileExists: (fileName: string) => {
+					if (fileName === virtualTsxFile) return true;
+					return ts.sys.fileExists(fileName);
+				},
+				readFile: (fileName: string) => {
+					if (fileName === virtualTsxFile) return currentGenerated;
+					return ts.sys.readFile(fileName);
+				},
+				readDirectory: ts.sys.readDirectory
+			} as ts.LanguageServiceHost,
+			ts.createDocumentRegistry()
+		);
+
+		const mockInfo = {
+			languageService,
+			languageServiceHost: languageService as unknown as ts.LanguageServiceHost,
+			project: {
+				getCurrentDirectory: () => testDir,
+				projectService: {
+					logger: { info: () => {} }
+				}
+			} as unknown as ts.server.Project,
+			config: {
+				...pluginConfig,
+				globalCss: globalCssFile
+			},
+			serverHost: {} as unknown as ts.server.ServerHost
+		};
+
+		const plugin = pluginFactory({ typescript: ts });
+		const proxy = plugin.create(mockInfo);
+		await plugin.getInitializationPromise();
+
+		return {
+			proxy,
+			plugin,
+			filePath: exampleFile,
+			virtualFilePath: virtualTsxFile,
+			sourceCode,
+			generatedCode: generatedTsx,
+			astroSourceMap: decodedMap ? { decodedMap, generatedCode: generatedTsx } : undefined,
+			version
+		};
+	}
+
 	/**
 	 * Get diagnostics for a test case.
 	 */
@@ -492,6 +620,45 @@ export class PluginBridge {
 						source: (d as { source?: string }).source,
 						className
 					};
+				}
+			}
+
+			// For Astro files, map positions from generated TSX back to original .astro source
+			if (session.astroSourceMap && traceMapping) {
+				const genCode = session.astroSourceMap.generatedCode;
+				const genPos = getLineAndColumn(genStart, genCode);
+				const genEndPos = getLineAndColumn(genStart + genLength, genCode);
+
+				const mapped = traceMapping.originalPositionFor(
+					session.astroSourceMap.decodedMap as import('@jridgewell/trace-mapping').TraceMap,
+					{ line: genPos.line, column: genPos.column - 1 }
+				);
+				const mappedEnd = traceMapping.originalPositionFor(
+					session.astroSourceMap.decodedMap as import('@jridgewell/trace-mapping').TraceMap,
+					{ line: genEndPos.line, column: genEndPos.column - 1 }
+				);
+
+				if (mapped.line !== null && mapped.column !== null && mappedEnd.line !== null && mappedEnd.column !== null) {
+					const srcStart = offsetFromLineColumn(mapped.line, mapped.column, session.sourceCode);
+					const srcEnd = offsetFromLineColumn(mappedEnd.line, mappedEnd.column, session.sourceCode);
+
+					if (srcStart !== null && srcEnd !== null) {
+						const className = session.sourceCode.substring(srcStart, srcEnd);
+
+						return {
+							message: typeof d.messageText === 'string' ? d.messageText : d.messageText.messageText,
+							start: srcStart,
+							length: srcEnd - srcStart,
+							line: mapped.line,
+							column: mapped.column + 1,
+							endLine: mappedEnd.line,
+							endColumn: mappedEnd.column + 1,
+							code: d.code,
+							category: categoryToString(d.category),
+							source: (d as { source?: string }).source,
+							className
+						};
+					}
 				}
 			}
 
@@ -716,6 +883,19 @@ function getLineAndColumn(position: number, sourceCode: string): { line: number;
 		line: lines.length,
 		column: lines[lines.length - 1].length + 1
 	};
+}
+
+/**
+ * Convert 1-based line and 0-based column to a character offset in source code.
+ */
+function offsetFromLineColumn(line: number, column: number, sourceCode: string): number | null {
+	const lines = sourceCode.split('\n');
+	if (line < 1 || line > lines.length) return null;
+	let offset = 0;
+	for (let i = 0; i < line - 1; i++) {
+		offset += lines[i].length + 1; // +1 for newline
+	}
+	return offset + column;
 }
 
 function categoryToString(

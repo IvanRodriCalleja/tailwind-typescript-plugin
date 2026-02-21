@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Self-closing element with invalid in binary
+// @invalidClasses [invalid-style]
+// @validClasses [rounded-lg]
+
+const isActive = true;
+---
+
+<img class={isActive && 'rounded-lg invalid-style'} src="test.jpg" alt="test" />

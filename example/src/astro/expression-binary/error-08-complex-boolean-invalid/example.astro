@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Complex boolean with invalid class
+// @invalidClasses [invalid-alert]
+
+const isError = true;
+const hasWarning = false;
+---
+
+<div class={(isError || hasWarning) && 'invalid-alert'}>Complex boolean invalid</div>

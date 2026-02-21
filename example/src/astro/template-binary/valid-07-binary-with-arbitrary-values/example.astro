@@ -1,0 +1,8 @@
+---
+// ✅ Valid: Binary expression with arbitrary values
+// @validClasses [flex, h-[50vh], w-[100px]]
+
+const isActive = true;
+---
+
+<div class={`flex ${isActive && 'h-[50vh] w-[100px]'}`}>Binary with arbitrary values</div>

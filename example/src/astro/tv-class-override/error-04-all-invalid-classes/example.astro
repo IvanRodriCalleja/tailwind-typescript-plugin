@@ -1,0 +1,16 @@
+---
+// ❌ Invalid: class with only invalid classes (no valid ones)
+// @invalidClasses [completely-invalid, another-invalid-class]
+
+import { tv } from 'tailwind-variants';
+
+const button = tv({
+---
+
+<button
+	class={button({
+		color: 'primary',
+		class: 'completely-invalid another-invalid-class'
+	})}>
+	All Invalid
+</button>

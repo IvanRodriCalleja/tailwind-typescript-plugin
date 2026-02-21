@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Array with binary expression, all valid
+// @validClasses [flex, text-red-500]
+
+import { clsx as cn } from 'clsx';
+
+const isError = true;
+---
+
+<div class={cn(['flex', isError && 'text-red-500'])}>Array with binary</div>

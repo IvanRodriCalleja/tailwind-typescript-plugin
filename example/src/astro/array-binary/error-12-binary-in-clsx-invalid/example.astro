@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Binary in array with clsx() invalid
+// @invalidClasses [invalid-error]
+// @validClasses [flex]
+
+import clsx from 'clsx';
+
+const isError = true;
+---
+
+<div class={clsx(['flex', isError && 'invalid-error'])}>Binary in clsx invalid</div>

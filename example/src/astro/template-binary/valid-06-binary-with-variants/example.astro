@@ -1,0 +1,8 @@
+---
+// ✅ Valid: Binary expression with Tailwind variants
+// @validClasses [flex, hover:bg-blue-500, md:text-lg]
+
+const isActive = true;
+---
+
+<div class={`flex ${isActive && 'hover:bg-blue-500 md:text-lg'}`}>Binary with variants</div>

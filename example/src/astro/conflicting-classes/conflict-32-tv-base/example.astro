@@ -1,0 +1,12 @@
+---
+// ⚠️ Warning: Conflict in tv() base
+// @conflictClasses [flex, block]
+
+import { tv } from 'tailwind-variants';
+
+const button = tv({
+		base: 'flex block items-center'
+	});
+---
+
+<button class={button()}>TV base conflict</button>

@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Variable with invalid class in base (string)
+// @invalidClasses [invalid-cva-base-var]
+
+import { cva } from 'class-variance-authority';
+
+const invalidBase = 'invalid-cva-base-var';
+const button = cva(invalidBase);
+---
+
+<button class={button()}>Invalid Base Variable String</button>

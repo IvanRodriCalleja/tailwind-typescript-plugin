@@ -1,0 +1,11 @@
+---
+// ✅ Valid: Nested ternary expressions
+// @validClasses [bg-blue-500, bg-green-500, bg-gray-500]
+
+const isActive = true;
+const isDisabled = false;
+---
+
+<div class={isActive ? (isDisabled ? 'bg-blue-500' : 'bg-green-500') : 'bg-gray-500'}>
+	Nested ternary
+</div>

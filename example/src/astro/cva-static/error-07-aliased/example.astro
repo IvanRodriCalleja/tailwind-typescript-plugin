@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Import aliasing with invalid class
+// @invalidClasses [invalid-aliased-class]
+// @validClasses [flex, items-center]
+
+import { cva as myCva } from 'class-variance-authority';
+
+const component = myCva(['flex', 'invalid-aliased-class', 'items-center']);
+---
+
+<div class={component()}>Invalid Aliased</div>

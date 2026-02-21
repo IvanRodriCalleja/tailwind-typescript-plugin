@@ -1,0 +1,9 @@
+---
+// ✅ Valid: Complex boolean with all valid
+// @validClasses [bg-red-500]
+
+const isError = true;
+const hasWarning = false;
+---
+
+<div class={(isError || hasWarning) && 'bg-red-500'}>Complex boolean logic</div>

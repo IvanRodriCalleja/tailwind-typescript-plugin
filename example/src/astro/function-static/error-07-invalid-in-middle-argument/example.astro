@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Invalid class in middle argument
+// @invalidClasses [invalid-middle]
+// @validClasses [flex, justify-center]
+
+import clsx from 'clsx';
+---
+
+<div class={clsx('flex', 'invalid-middle', 'justify-center')}>Invalid in middle</div>

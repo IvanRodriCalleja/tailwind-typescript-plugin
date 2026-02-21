@@ -1,0 +1,14 @@
+---
+// ❌ Invalid: Array base with invalid variable element
+// @invalidClasses [invalid-tv-base-var]
+// @validClasses [gap-2]
+
+import { tv } from 'tailwind-variants';
+
+const invalidBase = 'invalid-tv-base-var';
+const button = tv({
+		base: [invalidBase, 'gap-2']
+	});
+---
+
+<button class={button()}>Invalid Array Variable</button>

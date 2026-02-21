@@ -1,0 +1,10 @@
+---
+// ⚠️ Warning: Root class conflicts with branch class
+// @conflictClasses [text-left, text-center]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div class={clsx('text-left', isActive && 'text-center')}>Root conflicts with branch</div>

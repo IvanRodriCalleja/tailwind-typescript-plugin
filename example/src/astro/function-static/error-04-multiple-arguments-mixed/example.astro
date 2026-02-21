@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Multiple arguments with mix of valid and invalid
+// @invalidClasses [invalid-class]
+// @validClasses [flex, items-center]
+
+import clsx from 'clsx';
+---
+
+<div class={clsx('flex', 'invalid-class', 'items-center')}>Mixed arguments</div>

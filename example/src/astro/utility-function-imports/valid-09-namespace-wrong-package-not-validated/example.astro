@@ -1,0 +1,11 @@
+---
+// ✅ Valid: Namespace import from wrong package is NOT validated (ignored)
+// @utilityFunctions [{"name": "clsx", "from": "clsx"}]
+// @validClasses []
+
+import * as utils from 'other-package';
+---
+
+<div class={utils.clsx('flex', 'invalid-should-be-ignored')}>
+	Wrong namespace import - not validated
+</div>

@@ -1,0 +1,12 @@
+---
+// ✅ Valid: Function with ternary expression, all valid classes
+// @validClasses [flex, bg-blue-500, bg-gray-500]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div class={clsx('flex', isActive ? 'bg-blue-500' : 'bg-gray-500')}>
+	Function with ternary expression
+</div>

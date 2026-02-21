@@ -1,0 +1,13 @@
+---
+// ❌ Invalid: Import aliasing with invalid class
+// @invalidClasses [invalid-aliased-class]
+// @validClasses [flex, items-center]
+
+import { tv as myTv } from 'tailwind-variants';
+
+const component = myTv({
+		base: 'flex invalid-aliased-class items-center'
+	});
+---
+
+<div class={component()}>Invalid Aliased</div>

@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Conditional with arbitrary values
+// @validClasses [flex, h-[50vh], h-[100vh]]
+
+const isActive = true;
+---
+
+<div class={`flex ${isActive ? 'h-[50vh]' : 'h-[100vh]'}`}>
+	Conditional with arbitrary values
+</div>

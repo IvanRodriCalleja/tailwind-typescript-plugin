@@ -1,0 +1,15 @@
+---
+// ❌ Invalid: Slot with invalid variable value
+// @invalidClasses [invalid-tv-base-var]
+
+import { tv } from 'tailwind-variants';
+
+const invalidBase = 'invalid-tv-base-var';
+const component = tv({
+		slots: {
+			base: invalidBase
+		}
+	});
+---
+
+<div class={component().base}>Invalid Slot Variable</div>

@@ -3,7 +3,8 @@
  */
 export enum Framework {
 	JSX = 'jsx',
-	VUE = 'vue'
+	VUE = 'vue',
+	ASTRO = 'astro'
 }
 
 /**
@@ -14,6 +15,11 @@ export enum Framework {
  * @returns The detected framework or null if not supported
  */
 export function detectFramework(fileName: string): Framework | null {
+	// Astro components (including virtual .astro.tsx files from @astrojs/ts-plugin)
+	if (fileName.endsWith('.astro') || fileName.includes('.astro.')) {
+		return Framework.ASTRO;
+	}
+
 	// Vue Single File Components (including virtual .vue.ts files from Volar)
 	if (fileName.endsWith('.vue') || fileName.includes('.vue.')) {
 		return Framework.VUE;

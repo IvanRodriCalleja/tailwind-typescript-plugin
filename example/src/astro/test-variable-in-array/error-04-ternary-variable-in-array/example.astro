@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Ternary variable with invalid class in false branch used in array
+// @invalidClasses [invalid-ternary-array]
+
+const isActive = true;
+const ternaryClass = isActive ? 'bg-blue-500' : 'invalid-ternary-array';
+---
+
+<div class={[ternaryClass, 'rounded']}>Ternary var in array</div>

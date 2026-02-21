@@ -1,0 +1,8 @@
+---
+// ❌ Invalid: Variable with as const assertion containing invalid
+// @invalidClasses [invalid-const]
+
+const asConstInvalid = 'invalid-const' as const;
+---
+
+<div class={asConstInvalid}>As const assertion - invalid</div>

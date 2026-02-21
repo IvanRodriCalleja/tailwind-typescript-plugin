@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Ternary with invalid in non-empty branch
+// @invalidClasses [invalid-class]
+// @validClasses [flex]
+
+import { clsx as cn } from 'clsx';
+
+const isActive = true;
+---
+
+<div class={cn(['flex', isActive ? 'invalid-class' : ''])}>Invalid with empty</div>

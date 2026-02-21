@@ -1,0 +1,12 @@
+---
+// ⚠️ Warning: Duplicate with binary expression
+// @duplicateClasses [text-red-500, text-red-500]
+
+import clsx from 'clsx';
+
+const hasError = true;
+---
+
+<div class={clsx('flex text-red-500', hasError && 'text-red-500')}>
+	Duplicate with binary
+</div>

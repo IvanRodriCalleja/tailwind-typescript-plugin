@@ -1,0 +1,8 @@
+---
+// ❌ Invalid: Template literal with interpolation, invalid class before interpolation
+// @invalidClasses [invalid-before]
+
+const dynamicClass = 'some-dynamic-class';
+---
+
+<div class={`invalid-before ${dynamicClass}`}>Invalid before interpolation</div>

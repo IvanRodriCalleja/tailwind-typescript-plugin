@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Array with ternary expression, all valid
+// @validClasses [flex, bg-blue-500, bg-gray-500]
+
+import { clsx as cn } from 'clsx';
+
+const isActive = true;
+---
+
+<div class={cn(['flex', isActive ? 'bg-blue-500' : 'bg-gray-500'])}>Array with ternary</div>

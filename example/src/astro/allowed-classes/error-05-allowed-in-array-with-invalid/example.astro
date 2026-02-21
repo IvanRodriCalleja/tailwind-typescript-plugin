@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Mix of allowed and invalid in array
+// @invalidClasses [invalid-class]
+// @validClasses [custom-button, flex]
+
+import clsx from 'clsx';
+---
+
+<div class={clsx(['custom-button', 'invalid-class', 'flex'])}>
+	Allowed + invalid in array
+</div>

@@ -1,0 +1,11 @@
+---
+// ⚠️ Warning: Multiple spreads with conflicting classes between them
+// @conflictClasses [text-sm, text-lg, font-medium, font-bold]
+
+import { cn } from '../utils';
+
+const smallText = ['text-sm', 'font-medium'];
+const largeText = ['text-lg', 'font-bold'];
+---
+
+<div class={cn(...smallText, ...largeText)}>Multiple spreads with conflicts</div>

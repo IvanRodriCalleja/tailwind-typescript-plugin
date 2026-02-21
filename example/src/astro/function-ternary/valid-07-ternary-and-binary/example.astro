@@ -1,0 +1,18 @@
+---
+// ✅ Valid: Ternary and binary combined in function
+// @validClasses [flex, bg-blue-500, bg-gray-500, text-red-500]
+
+import clsx from 'clsx';
+
+const isActive = true;
+const hasError = false;
+---
+
+<div
+	class={clsx(
+		'flex',
+		isActive ? 'bg-blue-500' : 'bg-gray-500',
+		hasError && 'text-red-500'
+	)}>
+	Ternary and binary in function
+</div>

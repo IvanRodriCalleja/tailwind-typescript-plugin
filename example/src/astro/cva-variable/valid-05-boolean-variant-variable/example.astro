@@ -1,0 +1,18 @@
+---
+// ✅ Valid: Boolean variant with variable for true
+// @validClasses [flex, items-center]
+
+import { cva } from 'class-variance-authority';
+
+const validBase = 'flex items-center';
+const button = cva(['font-semibold'], {
+		variants: {
+			active: {
+				false: null,
+				true: validBase
+			}
+		}
+	});
+---
+
+<button class={button({ active: true })}>Valid Boolean Variable</button>

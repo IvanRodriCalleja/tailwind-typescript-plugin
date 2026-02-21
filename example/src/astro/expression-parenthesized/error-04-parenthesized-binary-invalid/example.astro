@@ -1,0 +1,8 @@
+---
+// ❌ Invalid: Parenthesized binary with invalid class
+// @invalidClasses [invalid-class]
+
+const isError = true;
+---
+
+<div class={isError && 'invalid-class'}>Invalid in binary</div>

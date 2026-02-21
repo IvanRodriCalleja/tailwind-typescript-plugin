@@ -1,0 +1,18 @@
+---
+// ⚠️ Warning: Multiple duplicates across base and variants
+// @duplicateClasses [flex, flex, items-center, items-center]
+
+import { tv } from 'tailwind-variants';
+
+const button = tv({
+		base: 'flex items-center p-4',
+		variants: {
+			size: {
+				sm: 'flex text-sm',
+				lg: 'items-center text-lg'
+			}
+		}
+	});
+---
+
+<button class={button({ size: 'sm' })}>Multiple duplicates</button>

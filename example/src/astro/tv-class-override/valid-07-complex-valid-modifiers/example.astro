@@ -1,0 +1,16 @@
+---
+// ✅ Valid: Complex valid classes with modifiers
+// @validClasses [md:bg-purple-600, lg:hover:bg-purple-800, dark:bg-purple-900]
+
+import { tv } from 'tailwind-variants';
+
+const button = tv({
+---
+
+<button
+	class={button({
+		color: 'primary',
+		class: 'md:bg-purple-600 lg:hover:bg-purple-800 dark:bg-purple-900'
+	})}>
+	Complex Valid Modifiers
+</button>

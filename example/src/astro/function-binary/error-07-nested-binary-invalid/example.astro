@@ -1,0 +1,14 @@
+---
+// ❌ Invalid: Nested binary with invalid class
+// @invalidClasses [invalid-nested]
+// @validClasses [flex]
+
+import clsx from 'clsx';
+
+const isError = false;
+const isActive = true;
+---
+
+<div class={clsx('flex', isError && isActive && 'invalid-nested')}>
+	Nested binary invalid
+</div>

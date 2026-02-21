@@ -1,0 +1,17 @@
+---
+// ✅ Valid: Boolean variants with null
+// @validClasses [flex, opacity-50, cursor-not-allowed]
+
+import { cva } from 'class-variance-authority';
+
+const button = cva(['flex'], {
+		variants: {
+			disabled: {
+				true: 'opacity-50 cursor-not-allowed',
+				false: null
+			}
+		}
+	});
+---
+
+<button class={button({ disabled: true })}>Boolean variant</button>

@@ -28,6 +28,7 @@ This plugin works in **any IDE that supports the Microsoft TypeScript language e
 | React | Yes | `className` attribute in JSX/TSX |
 | Solid | Yes | `class` and `classList` attributes |
 | Vue | Yes | `class` and `:class` bindings |
+| Astro | Yes | `class` attribute; requires `@astrojs/ts-plugin` |
 | Svelte | No | Svelte's language server does not support TypeScript plugins |
 
 ## Features

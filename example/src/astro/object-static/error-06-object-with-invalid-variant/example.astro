@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Object with invalid variant
+// @invalidClasses [invalid-variant:bg-blue]
+// @validClasses [flex]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div class={clsx({ flex: true, 'invalid-variant:bg-blue': isActive })}>Invalid variant</div>

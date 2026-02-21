@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Array in classNames() with invalid
+// @invalidClasses [invalid-class]
+// @validClasses [flex, items-center]
+
+import classNames from 'classnames';
+---
+
+<div class={classNames(['flex', 'invalid-class', 'items-center'])}>
+	Array in classNames() invalid
+</div>

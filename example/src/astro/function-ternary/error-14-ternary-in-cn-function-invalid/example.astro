@@ -1,0 +1,13 @@
+---
+// ❌ Invalid: Ternary in cn() with invalid class
+// @invalidClasses [invalid-class]
+// @validClasses [flex, bg-gray-500]
+
+import { clsx as cn } from 'clsx';
+
+const isActive = true;
+---
+
+<div class={cn('flex', isActive ? 'invalid-class' : 'bg-gray-500')}>
+	Ternary in cn() invalid
+</div>

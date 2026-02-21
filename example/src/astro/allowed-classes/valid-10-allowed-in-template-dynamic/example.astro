@@ -1,0 +1,8 @@
+---
+// ✅ Valid: Allowed classes with dynamic parts
+// @validClasses [custom-button, flex]
+
+const isActive = true;
+---
+
+<div class={`custom-button flex ${isActive ? 'bg-blue-500' : ''}`}>Allowed dynamic</div>

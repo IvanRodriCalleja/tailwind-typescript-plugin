@@ -1,0 +1,13 @@
+---
+// ❌ Invalid: Array value with binary expressions and invalid class
+// @invalidClasses [invalid-error]
+// @validClasses [flex, items-center]
+
+import { clsx } from 'clsx';
+
+const hasError = false;
+---
+
+<div class={clsx({ flex: ['items-center', hasError && 'invalid-error'] })}>
+	Invalid binary in array
+</div>

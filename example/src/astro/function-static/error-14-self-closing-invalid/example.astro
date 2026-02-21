@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Self-closing element with invalid class
+// @invalidClasses [invalid-class]
+// @validClasses [w-full, h-auto]
+
+import clsx from 'clsx';
+---
+
+<img class={clsx('w-full', 'invalid-class', 'h-auto')} src="test.jpg" alt="test" />

@@ -1,0 +1,13 @@
+---
+// ❌ Invalid: Object in cn() with invalid class
+// @invalidClasses [invalid-class]
+// @validClasses [flex, items-center]
+
+import { clsx as cn } from 'clsx';
+
+const isActive = true;
+---
+
+<div class={cn({ flex: true, 'invalid-class': true, 'items-center': isActive })}>
+	Invalid in cn()
+</div>

@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Function with dark mode variants
+// @validClasses [bg-white, dark:bg-gray-900, text-black, dark:text-white]
+
+import clsx from 'clsx';
+---
+
+<div class={clsx('bg-white dark:bg-gray-900', 'text-black dark:text-white')}>
+	Function with dark mode
+</div>

@@ -1,0 +1,9 @@
+---
+// ✅ Valid: Ternary with complex condition
+// @validClasses [bg-red-500, bg-gray-500]
+
+const isActive = true;
+const isDisabled = false;
+---
+
+<div class={isActive && !isDisabled ? 'bg-red-500' : 'bg-gray-500'}>Complex condition</div>

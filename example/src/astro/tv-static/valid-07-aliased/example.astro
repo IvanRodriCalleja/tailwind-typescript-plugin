@@ -1,0 +1,15 @@
+---
+// ✅ Valid: Import aliasing - using myTv instead of tv
+// @validClasses [flex, items-center, gap-2, bg-blue-500]
+
+import { tv as myTv } from 'tailwind-variants';
+
+const component = myTv({
+		base: 'flex items-center gap-2',
+		variants: {
+			variant: { primary: 'bg-blue-500' }
+		}
+	});
+---
+
+<div class={component({ variant: 'primary' })}>Valid Aliased</div>

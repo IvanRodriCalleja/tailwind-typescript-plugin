@@ -1,0 +1,13 @@
+---
+// ❌ Invalid: Array with aliasing and invalid class
+// @invalidClasses [invalid-combo-class]
+// @validClasses [flex, items-center]
+
+import { tv as myTv } from 'tailwind-variants';
+
+const component = myTv({
+		base: ['flex', 'items-center', 'invalid-combo-class']
+	});
+---
+
+<div class={component()}>Invalid Array + Aliased</div>

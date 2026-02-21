@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Similar but different classes
+// @validClasses [p-4, pt-2, px-6, py-3]
+
+import { cva } from 'class-variance-authority';
+
+const button = cva(['p-4', 'pt-2', 'px-6', 'py-3']);
+---
+
+<button class={button()}>Similar classes</button>

@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Nested binary with invalid class
+// @invalidClasses [invalid-nested]
+
+const isError = true;
+const isActive = true;
+---
+
+<div class={isError && isActive && 'invalid-nested'}>Nested binary invalid</div>

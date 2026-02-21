@@ -1,0 +1,13 @@
+---
+// ❌ Invalid: Function with binary expression, invalid class
+// @invalidClasses [invalid-error]
+// @validClasses [flex]
+
+import clsx from 'clsx';
+
+const isError = false;
+---
+
+<div class={clsx('flex', isError && 'invalid-error')}>
+	Function with invalid class in binary
+</div>

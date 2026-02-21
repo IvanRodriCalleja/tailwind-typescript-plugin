@@ -1,0 +1,8 @@
+---
+// ❌ Invalid: Ternary with invalid in non-empty branch
+// @invalidClasses [invalid-class]
+
+const isActive = true;
+---
+
+<div class={isActive ? 'invalid-class' : ''}>Invalid with empty</div>

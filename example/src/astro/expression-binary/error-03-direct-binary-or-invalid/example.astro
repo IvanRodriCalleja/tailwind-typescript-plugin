@@ -1,0 +1,8 @@
+---
+// ❌ Invalid: Direct OR binary expression with invalid class
+// @invalidClasses [invalid-fallback]
+
+const isError = true;
+---
+
+<div class={isError || 'invalid-fallback'}>OR with invalid class</div>

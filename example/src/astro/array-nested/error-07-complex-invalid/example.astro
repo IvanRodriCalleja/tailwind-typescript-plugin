@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Complex nesting with invalid class
+// @invalidClasses [invalid-complex]
+// @validClasses [flex, items-center, justify-center]
+
+import { cn } from '../utils';
+---
+
+<div class={cn([['flex', [['items-center'], 'invalid-complex']], 'justify-center'])}>
+	Invalid complex
+</div>

@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Conditional with invalid class in false branch
+// @invalidClasses [invalid-inactive]
+// @validClasses [flex, bg-blue-500]
+
+const isActive = true;
+---
+
+<div class={`flex ${isActive ? 'bg-blue-500' : 'invalid-inactive'}`}>
+	Invalid class in false branch
+</div>

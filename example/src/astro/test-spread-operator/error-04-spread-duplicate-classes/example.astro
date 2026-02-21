@@ -1,0 +1,10 @@
+---
+// ⚠️ Warning: Spread operator with duplicate classes
+// @duplicateClasses [flex, flex, items-center, items-center]
+
+import { cn } from '../utils';
+
+const baseClasses = ['flex', 'items-center'];
+---
+
+<div class={cn(...baseClasses, 'flex', 'items-center', 'p-4')}>Spread with duplicates</div>

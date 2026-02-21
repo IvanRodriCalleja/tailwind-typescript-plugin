@@ -1,0 +1,13 @@
+---
+// ❌ Invalid: Ternary with mix of arbitrary and invalid
+// @invalidClasses [invalid-size]
+// @validClasses [flex, h-[50vh], h-[30vh]]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div class={clsx('flex', isActive ? 'h-[50vh] invalid-size' : 'h-[30vh]')}>
+	Ternary with arbitrary and invalid
+</div>

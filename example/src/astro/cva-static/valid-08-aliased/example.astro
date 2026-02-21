@@ -1,0 +1,14 @@
+---
+// ✅ Valid: Import aliasing - using myCva instead of cva
+// @validClasses [flex, items-center, gap-2, bg-blue-500]
+
+import { cva as myCva } from 'class-variance-authority';
+
+const component = myCva(['flex', 'items-center', 'gap-2'], {
+		variants: {
+			variant: { primary: 'bg-blue-500' }
+		}
+	});
+---
+
+<div class={component({ variant: 'primary' })}>Valid Aliased</div>

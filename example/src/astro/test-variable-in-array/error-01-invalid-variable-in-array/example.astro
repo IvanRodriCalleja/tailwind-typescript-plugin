@@ -1,0 +1,8 @@
+---
+// ❌ Invalid: Variable with invalid class used in array
+// @invalidClasses [invalid-array-var]
+
+const invalidClass = 'invalid-array-var';
+---
+
+<div class={[invalidClass, 'flex']}>Invalid var in array</div>

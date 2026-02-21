@@ -1,0 +1,17 @@
+---
+// ❌ Invalid: class property with invalid Tailwind classes
+// @invalidClasses [invalid-override-class]
+// @validClasses [bg-pink-500, hover:bg-pink-700]
+
+import { tv } from 'tailwind-variants';
+
+const button = tv({
+---
+
+<button
+	class={button({
+		color: 'primary',
+		class: 'bg-pink-500 invalid-override-class hover:bg-pink-700'
+	})}>
+	Invalid Override
+</button>

@@ -1,0 +1,10 @@
+---
+// ❌ Invalid: Invalid variant with interpolation
+// @invalidClasses [invalidvariant:bg-blue-500]
+
+const dynamicClass = 'some-dynamic-class';
+---
+
+<div class={`${dynamicClass} invalidvariant:bg-blue-500`}>
+	Invalid variant with interpolation
+</div>

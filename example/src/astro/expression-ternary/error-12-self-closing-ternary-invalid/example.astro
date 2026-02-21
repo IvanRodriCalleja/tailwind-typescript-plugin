@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Self-closing element with invalid in ternary
+// @invalidClasses [invalid-style]
+// @validClasses [rounded-lg]
+
+const isActive = true;
+---
+
+<img class={isActive ? 'invalid-style' : 'rounded-lg'} src="test.jpg" alt="test" />

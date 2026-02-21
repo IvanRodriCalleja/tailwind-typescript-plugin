@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Object key with multiple classes
+// @validClasses [flex, items-center, justify-center]
+
+import clsx from 'clsx';
+---
+
+<div class={clsx({ 'flex items-center justify-center': true })}>
+	Multiple classes in key
+</div>

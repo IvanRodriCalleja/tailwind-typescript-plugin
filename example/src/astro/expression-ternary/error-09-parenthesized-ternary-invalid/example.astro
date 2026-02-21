@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Parenthesized ternary with invalid
+// @invalidClasses [invalid-active]
+// @validClasses [bg-gray-500]
+
+const isActive = true;
+---
+
+<div class={isActive ? 'invalid-active' : 'bg-gray-500'}>Parenthesized with invalid</div>

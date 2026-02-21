@@ -1,0 +1,17 @@
+---
+// ✅ Valid: No conflict between tv() base and variants
+// Variants are designed to override base styles, so this is intentional
+
+import { tv } from 'tailwind-variants';
+
+const button = tv({
+		base: 'text-left items-center',
+		variants: {
+			align: {
+				center: 'text-center'
+			}
+		}
+	});
+---
+
+<button class={button({ align: 'center' })}>TV base+variant no conflict</button>

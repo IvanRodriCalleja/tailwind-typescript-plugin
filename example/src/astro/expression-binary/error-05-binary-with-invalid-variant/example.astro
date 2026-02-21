@@ -1,0 +1,8 @@
+---
+// ❌ Invalid: Binary with invalid variant
+// @invalidClasses [invalid-variant:bg-blue]
+
+const isActive = true;
+---
+
+<div class={isActive && 'invalid-variant:bg-blue'}>Binary with invalid variant</div>

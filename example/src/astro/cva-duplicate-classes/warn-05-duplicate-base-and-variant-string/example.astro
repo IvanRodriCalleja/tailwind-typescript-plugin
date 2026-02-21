@@ -1,0 +1,16 @@
+---
+// ⚠️ Warning: Duplicate with string syntax in variants
+// @duplicateClasses [items-center, items-center]
+
+import { cva } from 'class-variance-authority';
+
+const button = cva('flex items-center', {
+		variants: {
+			size: {
+				sm: 'items-center text-sm'
+			}
+		}
+	});
+---
+
+<button class={button({ size: 'sm' })}>Duplicate string variant</button>

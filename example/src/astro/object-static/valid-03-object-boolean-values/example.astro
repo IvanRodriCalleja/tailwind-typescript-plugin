@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Object with boolean values
+// @validClasses [flex, items-center, justify-center]
+
+import clsx from 'clsx';
+---
+
+<div class={clsx({ flex: true, 'items-center': false, 'justify-center': true })}>
+	Boolean values
+</div>

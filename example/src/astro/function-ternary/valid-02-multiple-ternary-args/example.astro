@@ -1,0 +1,18 @@
+---
+// ✅ Valid: Multiple arguments with ternary expressions, all valid
+// @validClasses [flex, bg-blue-500, bg-gray-500, text-white, text-black]
+
+import clsx from 'clsx';
+
+const isActive = true;
+const isDisabled = false;
+---
+
+<div
+	class={clsx(
+		'flex',
+		isActive ? 'bg-blue-500' : 'bg-gray-500',
+		isDisabled ? 'text-white' : 'text-black'
+	)}>
+	Multiple ternary arguments
+</div>

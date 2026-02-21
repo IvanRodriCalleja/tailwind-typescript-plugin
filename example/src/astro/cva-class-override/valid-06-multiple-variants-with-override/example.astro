@@ -1,0 +1,17 @@
+---
+// ✅ Valid: Override with multiple variant properties
+// @validClasses [bg-indigo-500, hover:bg-indigo-700]
+
+import { cva } from 'class-variance-authority';
+
+const button = cva(['font-semibold', 'border', 'rounded'], {
+---
+
+<button
+	class={button({
+		intent: 'primary',
+		size: 'medium',
+		class: 'bg-indigo-500 hover:bg-indigo-700'
+	})}>
+	Multiple Variants + Override
+</button>

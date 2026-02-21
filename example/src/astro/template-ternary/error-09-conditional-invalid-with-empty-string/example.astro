@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Conditional with invalid class and empty string
+// @invalidClasses [invalid-active]
+// @validClasses [flex]
+
+const isActive = true;
+---
+
+<div class={`flex ${isActive ? 'invalid-active' : ''}`}>
+	Invalid class with empty string fallback
+</div>

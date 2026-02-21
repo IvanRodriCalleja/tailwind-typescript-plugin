@@ -1,0 +1,14 @@
+---
+// ❌ Invalid: Nested functions with invalid binary in array
+// @invalidClasses [invalid-error]
+// @validClasses [flex, items-center]
+
+import { clsx as cn } from 'clsx';
+import clsx from 'clsx';
+
+const isError = true;
+---
+
+<div class={clsx('flex', cn([isError && 'invalid-error', 'items-center']))}>
+	Nested with invalid
+</div>

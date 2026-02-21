@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Binary OR in array with invalid class
+// @invalidClasses [invalid-fallback]
+// @validClasses [flex]
+
+import { clsx as cn } from 'clsx';
+
+const isError = true;
+---
+
+<div class={cn(['flex', isError || 'invalid-fallback'])}>Binary OR invalid</div>

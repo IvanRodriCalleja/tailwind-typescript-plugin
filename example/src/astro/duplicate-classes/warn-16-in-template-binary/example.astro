@@ -1,0 +1,10 @@
+---
+// ⚠️ Warning: Duplicate in template binary
+// @duplicateClasses [border, border]
+
+const hasError = true;
+---
+
+<div class={`flex border ${hasError && 'border text-red-500'}`}>
+	Duplicate in template binary
+</div>

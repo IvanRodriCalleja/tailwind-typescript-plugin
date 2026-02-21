@@ -1,0 +1,8 @@
+---
+// ✅ Valid: Non-null assertion
+// @validClasses [flex, items-center]
+
+const className: string | null = 'flex items-center';
+---
+
+<div class={className!}>Non-null assertion</div>

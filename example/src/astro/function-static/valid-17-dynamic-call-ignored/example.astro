@@ -1,0 +1,9 @@
+---
+// ✅ Valid: Dynamic function call (should be ignored, not validated)
+
+import { clsx as cn } from 'clsx';
+
+const functions = { cn: cn };
+---
+
+<div class={functions['cn']('flex', 'items-center')}>Dynamic call</div>

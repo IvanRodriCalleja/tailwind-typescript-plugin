@@ -1,0 +1,8 @@
+---
+// ❌ Invalid: Same invalid variable used multiple times - errors at declaration
+// @invalidClasses [invalid-reused]
+
+const reusedInvalidClasses = 'invalid-reused';
+---
+
+<div class={reusedInvalidClasses}>Reused invalid - first</div>

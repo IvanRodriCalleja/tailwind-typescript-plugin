@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Variables in nested array with invalid class
+// @invalidClasses [invalid-array-var]
+
+const validClass = 'flex';
+const invalidClass = 'invalid-array-var';
+---
+
+<div class={[validClass, [invalidClass, 'grid']]}>Nested array with var</div>

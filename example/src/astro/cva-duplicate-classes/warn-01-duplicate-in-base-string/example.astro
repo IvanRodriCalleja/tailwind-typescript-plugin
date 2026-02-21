@@ -1,0 +1,10 @@
+---
+// ⚠️ Warning: Duplicate in base string
+// @duplicateClasses [flex, flex]
+
+import { cva } from 'class-variance-authority';
+
+const button = cva('flex flex items-center');
+---
+
+<button class={button()}>Duplicate in base string</button>

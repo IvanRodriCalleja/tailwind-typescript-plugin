@@ -1,0 +1,12 @@
+---
+// ✅ Valid: Object in classNames() function
+// @validClasses [flex, items-center, justify-center]
+
+import classNames from 'classnames';
+
+const isActive = true;
+---
+
+<div class={classNames({ flex: true, 'items-center': true, 'justify-center': isActive })}>
+	Object in classNames()
+</div>

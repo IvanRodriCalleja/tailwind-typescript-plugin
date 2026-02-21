@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Binary in cn() with invalid class
+// @invalidClasses [invalid-class]
+// @validClasses [flex]
+
+import { clsx as cn } from 'clsx';
+
+const isError = false;
+---
+
+<div class={cn('flex', isError && 'invalid-class')}>Binary in cn() invalid</div>

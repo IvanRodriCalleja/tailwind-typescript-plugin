@@ -1,0 +1,17 @@
+---
+// ❌ Invalid: Multiple objects with invalid in both
+// @invalidClasses [invalid-first, invalid-second]
+// @validClasses [flex, bg-blue-500]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div
+	class={clsx(
+		{ flex: true, 'invalid-first': true },
+		{ 'invalid-second': isActive, 'bg-blue-500': true }
+	)}>
+	Invalid in both
+</div>

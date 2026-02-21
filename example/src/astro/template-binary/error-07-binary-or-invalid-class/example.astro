@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Binary OR expression with invalid class
+// @invalidClasses [invalid-fallback]
+// @validClasses [flex]
+
+const dynamicClass = 'some-dynamic-class';
+---
+
+<div class={`flex ${dynamicClass || 'invalid-fallback'}`}>Binary OR with invalid class</div>

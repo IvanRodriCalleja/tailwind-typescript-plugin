@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Single invalid class between interpolations
+// @invalidClasses [invalid-class]
+
+const dynamicClass = 'some-dynamic-class';
+const anotherClass = 'another-class';
+---
+
+<div class={`${dynamicClass} invalid-class ${anotherClass}`}>
+	Invalid between interpolations
+</div>

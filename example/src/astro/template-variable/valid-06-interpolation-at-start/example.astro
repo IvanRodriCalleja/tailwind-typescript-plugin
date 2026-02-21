@@ -1,0 +1,8 @@
+---
+// ✅ Valid: Interpolation at start with trailing spaces
+// @validClasses [flex, items-center]
+
+const dynamicClass = 'some-dynamic-class';
+---
+
+<div class={`${dynamicClass} flex items-center`}>Interpolation at start</div>

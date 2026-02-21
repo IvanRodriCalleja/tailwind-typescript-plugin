@@ -1,0 +1,15 @@
+---
+// ❌ Invalid: Two nested arrays, invalid in second
+// @invalidClasses [invalid-class]
+// @validClasses [flex, items-center, justify-center]
+
+import { cn } from '../utils';
+---
+
+<div
+	class={cn([
+		['flex', 'items-center'],
+		['justify-center', 'invalid-class']
+	])}>
+	Invalid in second
+</div>

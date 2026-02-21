@@ -1,0 +1,12 @@
+---
+// ❌ Invalid: Multiple binary expressions with invalid classes
+// @invalidClasses [invalid-error, invalid-warning]
+// @validClasses [flex]
+
+const isError = false;
+const hasWarning = false;
+---
+
+<div class={`flex ${isError && 'invalid-error'} ${hasWarning && 'invalid-warning'}`}>
+	Multiple binary expressions with invalid classes
+</div>

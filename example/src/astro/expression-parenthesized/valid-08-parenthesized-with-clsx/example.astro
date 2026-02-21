@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Parenthesized with clsx
+// @validClasses [flex, bg-blue-500]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div class={clsx('flex', isActive && 'bg-blue-500')}>Parenthesized clsx</div>

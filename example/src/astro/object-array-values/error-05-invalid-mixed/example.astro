@@ -1,0 +1,16 @@
+---
+// ❌ Invalid: Mix of boolean and array values with invalid
+// @invalidClasses [invalid-mix]
+// @validClasses [flex, items-center, justify-center, text-white]
+
+import { clsx } from 'clsx';
+---
+
+<div
+	class={clsx({
+		flex: true,
+		'items-center': ['justify-center', 'invalid-mix'],
+		'text-white': true
+	})}>
+	Invalid mixed
+</div>

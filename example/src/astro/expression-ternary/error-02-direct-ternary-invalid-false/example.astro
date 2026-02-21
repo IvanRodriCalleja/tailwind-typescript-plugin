@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Direct ternary with invalid in false branch
+// @invalidClasses [invalid-inactive]
+// @validClasses [bg-blue-500]
+
+const isActive = true;
+---
+
+<div class={isActive ? 'bg-blue-500' : 'invalid-inactive'}>Invalid in false branch</div>

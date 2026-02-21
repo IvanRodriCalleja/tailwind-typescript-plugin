@@ -1,0 +1,10 @@
+---
+// ⚠️ Warning: Conflict in cva() base array
+// @conflictClasses [flex, grid]
+
+import { cva } from 'class-variance-authority';
+
+const button = cva(['flex', 'grid', 'items-center']);
+---
+
+<button class={button()}>CVA base conflict</button>

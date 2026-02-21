@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: Nested arrays as object values with invalid
+// @invalidClasses [invalid-nested]
+// @validClasses [flex, items-center, justify-center]
+
+import { clsx } from 'clsx';
+---
+
+<div class={clsx({ flex: [['items-center', 'invalid-nested']], 'justify-center': true })}>
+	Invalid nested
+</div>

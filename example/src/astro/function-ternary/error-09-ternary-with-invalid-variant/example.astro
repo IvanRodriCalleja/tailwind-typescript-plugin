@@ -1,0 +1,13 @@
+---
+// ❌ Invalid: Ternary with invalid variant
+// @invalidClasses [invalid-variant:bg-blue]
+// @validClasses [flex, hover:bg-gray-500]
+
+import clsx from 'clsx';
+
+const isActive = true;
+---
+
+<div class={clsx('flex', isActive ? 'invalid-variant:bg-blue' : 'hover:bg-gray-500')}>
+	Ternary with invalid variant
+</div>

@@ -1,0 +1,8 @@
+---
+// ✅ Valid: Utility function with "invalid" classes should NOT be validated
+// @validClasses []
+---
+
+<div class={myCustomBuilder({ class: 'this-is-not-validated invalid-but-ok' })}>
+	Utility Function 1 (should not validate)
+</div>

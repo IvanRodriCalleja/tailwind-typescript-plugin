@@ -1,0 +1,9 @@
+---
+// ✅ Valid: Variable defined at module level with valid classes
+// @validClasses [flex, items-center]
+
+// Variable defined at module level (outside function scope)
+const outsideValidClass = 'flex items-center';
+---
+
+<div class={outsideValidClass}>Valid outside scope</div>

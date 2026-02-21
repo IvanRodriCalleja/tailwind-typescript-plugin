@@ -1,0 +1,9 @@
+---
+// ❌ Invalid: Reusing the same invalid variable in multiple components
+// @invalidClasses [invalid-outside-class]
+
+// Variable defined at module level (outside function scope)
+const outsideInvalidClass = 'invalid-outside-class';
+---
+
+<div class={outsideInvalidClass}>Reuse 1</div>

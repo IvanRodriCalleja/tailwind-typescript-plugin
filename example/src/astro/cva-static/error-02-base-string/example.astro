@@ -1,0 +1,11 @@
+---
+// ❌ Invalid: String with invalid class
+// @invalidClasses [invalid-base-string]
+// @validClasses [font-semibold, border]
+
+import { cva } from 'class-variance-authority';
+
+const button = cva('font-semibold invalid-base-string border');
+---
+
+<button class={button()}>Invalid Base String</button>

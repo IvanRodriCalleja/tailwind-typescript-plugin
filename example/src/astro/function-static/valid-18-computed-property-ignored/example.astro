@@ -1,0 +1,10 @@
+---
+// ✅ Valid: Computed property (should be ignored, not validated)
+
+import { clsx as cn } from 'clsx';
+
+const key = 'cn';
+const functions = { cn: cn };
+---
+
+<div class={functions[key]('flex', 'items-center')}>Computed property</div>

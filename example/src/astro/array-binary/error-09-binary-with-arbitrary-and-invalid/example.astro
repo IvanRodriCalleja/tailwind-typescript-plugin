@@ -1,0 +1,13 @@
+---
+// ❌ Invalid: Binary with mix of arbitrary and invalid in array
+// @invalidClasses [invalid-size]
+// @validClasses [flex, h-[50vh]]
+
+import { clsx as cn } from 'clsx';
+
+const isActive = true;
+---
+
+<div class={cn(['flex', isActive && 'h-[50vh] invalid-size'])}>
+	Binary with arbitrary and invalid
+</div>
