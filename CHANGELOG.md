@@ -1,3 +1,9 @@
+## [1.4.0-beta.27](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.26...v1.4.0-beta.27) (2026-02-21)
+
+### ✨ Features
+
+* add Astro support ([7cb2d8e](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/commit/7cb2d8eae1973d8f16dc160659a17e739a487838))
+
 ## [1.4.0-beta.26](https://github.com/IvanRodriCalleja/tailwind-typescript-plugin/compare/v1.4.0-beta.25...v1.4.0-beta.26) (2026-02-20)
 
 ### ✨ Features
